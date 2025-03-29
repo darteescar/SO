@@ -25,9 +25,11 @@ OBJ_SERVER = $(patsubst src/server/%.c, obj/server/%.o, $(SRC_SERVER))
 
 bin/dserver: $(OBJ_SERVER) obj/utils.o
 	$(CC) $(LDFLAGS) $^ -o $@
+	ln -sf bin/dserver dserver  
 
 bin/dclient: $(OBJ_CLIENT) obj/utils.o
 	$(CC) $(LDFLAGS) $^ -o $@
+	ln -sf bin/dclient dclient
 
 obj/server/%.o: src/server/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -39,4 +41,4 @@ obj/utils.o: src/utils.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f  obj/server/* obj/client/* obj/utils.o tmp/* bin/*
+	rm -f  obj/server/* obj/client/* obj/utils.o tmp/* bin/* dserver dclient
