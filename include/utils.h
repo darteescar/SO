@@ -11,7 +11,7 @@ typedef struct data{
     char* path;
 }DATA;
 
-void init_data(DATA* data);
+DATA* init_data();
 
 void parser_authors(char* authors_str, char** authors);
 

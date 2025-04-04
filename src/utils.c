@@ -3,16 +3,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-void init_data(DATA* data){
-    data->title = "";
+DATA* init_data(){
+    DATA* data = malloc(sizeof(DATA));
+    if(data == NULL){
+        printf("Memory allocation failed\n");
+        return NULL;
+    }
+    data->title = NULL;
     data->authors = malloc(sizeof(char*));
     if(data->authors == NULL){
         printf("Memory allocation failed\n");
-        return;
+        return NULL;
     }
-    data->authors[0] = "";
+    data->authors[0] = NULL;
     data->year = 0;
-    data->path = "";
+    data->path = NULL;
+
+    return data;
 }
 
 void parser_authors(char* authors_str, char** authors){

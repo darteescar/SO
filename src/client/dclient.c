@@ -3,6 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 void error_message(int option){
     switch(option){
@@ -43,6 +47,13 @@ int main(int argc, char* argv[]){
             error_message(1);
             return -1;
         }
+        int fd = open("myfifo", O_WRONLY);
+        write(fd, argv[2], strlen(argv[2]));
+        write(fd, argv[3], strlen(argv[3]));
+        write(fd, argv[4], strlen(argv[4]));
+        write(fd, argv[5], strlen(argv[5]));
+        close(fd);
+
 
         // ADD INDEX
     }else if(strcmp(option, "-c") == 0){
