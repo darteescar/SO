@@ -19,6 +19,7 @@ int main(int argc, char* argv[]){
         printf("FIFO 1 created\n");
     }
     int fd = open("myfifo", O_RDONLY);
+
     DATA* data = init_data();
     if (data == NULL) {
         perror("init_data");
@@ -62,18 +63,36 @@ int main(int argc, char* argv[]){
         free(data);
         return 1;
     }
-    char autores[100];
 
-    read(fd, data->title, 100);//ERRADO
-    read(fd, autores, 100);
-    read(fd, &(data->year), sizeof(int));
-    read(fd, data->path, 100);
+    char *total;
+    total = malloc(100);
+    read(fd, total, 100);
+    char* token;
+    int field = 0;
 
-    parser_authors(autores, data->authors);
+    while ((token = strsep(&total, ";")) != NULL) {
+        switch (field) {
+            case 0:
+                data->title = token;
+                break;
+            case 1:
+                parser_authors(token, data->authors);
+                break;
+            case 2:
+                data->year = atoi(token);
+                break;
+            case 3:
+                data->path = token;
+                break;
+            default:
+                printf("Unknown field\n");
+                break;
+        }
+        field++;
+    }
 
+    close(fd);
     print_data(data);
-
-    
     
     return 0;
 }
