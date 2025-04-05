@@ -1,4 +1,5 @@
 #include "server/functions.h"
+#define SERVER_FIFO "server_fifo"
 
 char *exec_comando (char *buffer) {
 
@@ -111,5 +112,54 @@ void error_message(char option) {
             break;
         default:
             printf("INVALID ENTRY\n");
+    }
+}
+
+
+
+void server(){
+    // Criar FIFO do servidor (se não existir)
+    if (mkfifo(SERVER_FIFO, 0666) == -1) {
+        perror("mkfifo");
+    }
+
+    Message *msg = init_message();
+
+    int index=0;//Serve como chave auto incrementada
+
+    while (1) {
+        int fd = open(SERVER_FIFO, O_RDONLY);
+        if (fd == -1) {
+            perror("open server_fifo");
+            return;
+        }
+
+        ssize_t bytes = read(fd, msg, get_message_size(msg));
+        close(fd);
+
+        if (bytes > 0) {
+            //print_message(msg);
+           
+            if (verifica_comando(msg) == 1) {
+               printf("Comando válido\n");
+                
+               
+            } else {
+                error_message(get_message_command(msg)); // isto terá de ser alterado para um char
+            }
+        }
+
+        if(get_message_command(msg)=='a'){
+            MetaDados *data = create_metaDados(msg, index);//index=key
+            //print_metaDados(data);
+
+            //Guardar os metadados na estrutura de dados
+
+            fd = open(SERVER_FIFO, O_WRONLY);
+            write(fd,&index,sizeof(int));
+            close(fd);
+
+            index++;
+        }
     }
 }

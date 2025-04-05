@@ -15,9 +15,25 @@
 
 typedef struct message Message;
 
+typedef struct metaDados MetaDados;
+
 Message *init_message();
 
 void create_message(Message *msg, char *argv[], int argc);
+
+void print_metaDados(MetaDados *data);
+
+void free_metaDados(MetaDados *data);
+
+char* get_MD_titulo(MetaDados *data);
+
+char* get_MD_path(MetaDados *data);
+
+int get_MD_ano(MetaDados *data);
+
+int get_MD_key(MetaDados *data);
+
+int get_MD_n_autores(MetaDados *data);
 
 size_t get_message_size(Message *msg);
 
@@ -26,5 +42,9 @@ void print_message(Message *msg);
 char get_message_command(Message *msg);
 
 int get_message_argc(Message *msg);
+
+char* get_message_buffer(Message *msg);
+
+MetaDados *create_metaDados(Message *msg, int key);
 
 #endif

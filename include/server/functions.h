@@ -20,4 +20,6 @@ int verifica_comando (Message *msg);
 
 void error_message(char option);
 
+void server();
+
 #endif

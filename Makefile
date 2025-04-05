@@ -23,7 +23,7 @@ OBJ_CLIENT = $(patsubst src/client/%.c, obj/client/%.o, $(SRC_CLIENT))
 # Converte a lista de arquivos .c em .o na pasta obj/client/
 OBJ_SERVER = $(patsubst src/server/%.c, obj/server/%.o, $(SRC_SERVER))
 
-FIFOS = myfifo
+FIFOS = server_fifo server_fifo_2
 
 bin/dserver: $(OBJ_SERVER) obj/utils.o
 	$(CC) $(LDFLAGS) $^ -o $@

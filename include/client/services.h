@@ -10,4 +10,6 @@
 #include <sys/stat.h>
 #include "utils.h"
 
+void client(int argc, char* argv[]);
+
 #endif
