@@ -4,3 +4,9 @@
 # Executable files
 dserver
 dclient
+
+# Folders
+DatasetTest/
+
+# Pipes
+server_fifo

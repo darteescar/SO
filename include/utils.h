@@ -1,20 +1,30 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "client/services.h"
-#include "server/functions.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
 
-typedef struct data{
-    char* title;
-    char** authors;
-    int year;
-    char* path;
-}DATA;
+typedef struct message Message;
 
-DATA* init_data();
+Message *init_message();
 
-void parser_authors(char* authors_str, char** authors);
+void create_message(Message *msg, char *argv[], int argc);
 
-void print_data(DATA* data);
+size_t get_message_size(Message *msg);
+
+void print_message(Message *msg);
+
+char get_message_command(Message *msg);
+
+int get_message_argc(Message *msg);
 
 #endif

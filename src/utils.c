@@ -3,56 +3,66 @@
 #include <stdlib.h>
 #include <string.h>
 
-DATA* init_data(){
-    DATA* data = malloc(sizeof(DATA));
-    if(data == NULL){
-        printf("Memory allocation failed\n");
-        return NULL;
-    }
-    data->title = NULL;
-    data->authors = malloc(sizeof(char*));
-    if(data->authors == NULL){
-        printf("Memory allocation failed\n");
-        return NULL;
-    }
-    data->authors[0] = NULL;
-    data->year = 0;
-    data->path = NULL;
+struct message{
+    char buffer[512];
+    int argc;
+};
 
-    return data;
+Message *init_message() {
+    Message *msg = malloc(sizeof(struct message));
+    if (msg == NULL) {
+         perror("malloc");
+         exit(EXIT_FAILURE);
+    }
+    msg->buffer[0] = '\0';
+    msg->argc = 0;
+    return msg;
 }
 
-void parser_authors(char* authors_str, char** authors){
-    if(authors_str == NULL || authors == NULL){
-        printf("Invalid authors or authors array\n");
-        return;
+void create_message(Message *msg, char *argv[], int argc) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
     }
-    
-    char* token = strtok(authors_str, ";");
-    int i = 0;
-    while(token != NULL){
-        authors[i] = malloc(strlen(token) + 1);
-        if(authors[i] == NULL){
-            printf("Memory allocation failed\n");
-            return;
-        }
-        strcpy(authors[i], token);
-        token = strtok(NULL, ";");
-        i++;
+    msg->argc = argc-2;
+    for (int i = 1; i < argc; i++) {
+         strcat(msg->buffer, argv[i]);
+         if (i < argc - 1) {
+              strcat(msg->buffer, " "); // adiciona espaço entre os argumentos (podia ser um espaço ou outro delimitador)
+         }
     }
-    authors[i] = NULL;
 }
 
-void print_data(DATA* data){
-    if(data == NULL){
-        printf("No data to print\n");
-        return;
+size_t get_message_size(Message *msg) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
     }
-    printf("Title: %s\n", data->title);
-    printf("Authors: ");
-    for(int i = 0; data->authors[i] != NULL; i++){
-        printf("%s ", data->authors[i]);
+    return sizeof(msg->buffer) + sizeof(msg->argc);
+}
+
+void print_message(Message *msg) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
     }
-    printf("\nYear: %d\n", data->year);
-    printf("Path: %s\n", data->path);
+    printf("Buffer: %s\n", msg->buffer);
+    printf("Argc: %d\n", msg->argc);
+}
+
+char get_message_command(Message *msg) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+
+    return msg->buffer[1];
+}
+
+int get_message_argc(Message *msg) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    return msg->argc;
 }
