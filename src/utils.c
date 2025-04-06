@@ -14,10 +14,21 @@ struct metaDados{
      int n_autores;
      int ano;
      char* path;
-     int key;
+     char* key;
 };
 
-MetaDados *create_metaDados(Message *msg, int key) {
+char *generate_key(char *title, char *path, int year) {//Pode ser mudado
+    char *buffer=malloc(512);
+    if (buffer == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    int elem=rand()%1000;
+    sprintf(buffer, "%s|%s|%d|%d", title, path, year, elem);
+    return strdup(buffer);
+}
+
+MetaDados *create_metaDados(Message *msg) {
      char *total = get_message_buffer(msg);
      char *token;
      int field = 0, i = 0;
@@ -68,7 +79,7 @@ MetaDados *create_metaDados(Message *msg, int key) {
         field++;
     }
 
-    data->key = key;
+    data->key = generate_key(data->titulo,data->path,data->ano);
     return data;
 
 }
@@ -81,6 +92,7 @@ void free_metaDados(MetaDados *data) {
          }
          free(data->autores);
          free(data->path);
+         free(data->key);
          free(data);
      }
 }
@@ -98,7 +110,7 @@ void print_metaDados(MetaDados *data) {
      }
      printf("\nAno: %d\n", data->ano);
      printf("Path: %s\n", data->path);
-     printf("Key: %d\n", data->key);
+     printf("Key: %s\n", data->key);
 }
 
 char* get_MD_titulo(MetaDados *data){
@@ -113,8 +125,8 @@ int get_MD_ano(MetaDados *data){
      return data->ano;
 }
 
-int get_MD_key(MetaDados *data){
-     return data->key;
+char* get_MD_key(MetaDados *data){
+     return strdup(data->key);
 }
 
 int get_MD_n_autores(MetaDados *data){

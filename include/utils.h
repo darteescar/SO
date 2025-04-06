@@ -17,6 +17,8 @@ typedef struct message Message;
 
 typedef struct metaDados MetaDados;
 
+char *generate_key(char *title, char *path, int year);
+
 Message *init_message();
 
 void create_message(Message *msg, char *argv[], int argc);
@@ -31,7 +33,7 @@ char* get_MD_path(MetaDados *data);
 
 int get_MD_ano(MetaDados *data);
 
-int get_MD_key(MetaDados *data);
+char* get_MD_key(MetaDados *data);
 
 int get_MD_n_autores(MetaDados *data);
 
@@ -45,6 +47,7 @@ int get_message_argc(Message *msg);
 
 char* get_message_buffer(Message *msg);
 
-MetaDados *create_metaDados(Message *msg, int key);
+MetaDados *create_metaDados(Message *msg);
+
 
 #endif

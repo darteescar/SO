@@ -125,8 +125,6 @@ void server(){
 
     Message *msg = init_message();
 
-    int index=0;//Serve como chave auto incrementada
-
     while (1) {
         int fd = open(SERVER_FIFO, O_RDONLY);
         if (fd == -1) {
@@ -150,16 +148,15 @@ void server(){
         }
 
         if(get_message_command(msg)=='a'){
-            MetaDados *data = create_metaDados(msg, index);//index=key
+            MetaDados *data = create_metaDados(msg);
             //print_metaDados(data);
 
             //Guardar os metadados na estrutura de dados
 
             fd = open(SERVER_FIFO, O_WRONLY);
-            write(fd,&index,sizeof(int));
+            write(fd,get_MD_key(data),512);
             close(fd);
 
-            index++;
         }
     }
 }

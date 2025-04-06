@@ -24,10 +24,10 @@ void client(int argc, char* argv[]){
     if(get_message_command(msg)=='a'){
         fd=open(SERVER_FIFO, O_RDONLY);
 
-        int key;
-        read(fd,&key,sizeof(int));
+        char key[512];
+        read(fd,key,512);
 
-        printf("Key: %d\n", key);
+        printf("Key: %s\n", key);
   
         close(fd);
     }
