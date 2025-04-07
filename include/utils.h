@@ -17,7 +17,7 @@ typedef struct message Message;
 
 typedef struct metaDados MetaDados;
 
-char *generate_key(char *title, char *path, int year);
+char *generate_key();
 
 Message *init_message();
 

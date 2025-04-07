@@ -29,9 +29,7 @@ int main() {
             if (verifica_comando(msg) == 1) {
                //printf("Comando válido\n");
                 exec_comando(msg);
-                
-               
-               
+                 
             } else {
                 error_message(get_message_command(msg)); // isto terá de ser alterado para um char
             }

@@ -6,7 +6,7 @@ char *exec_comando (Message *msg) {
     switch (get_message_command(msg)) {
         case 'a':
             MetaDados *data = create_metaDados(msg);
-            print_metaDados(data);
+            //print_metaDados(data);
 
             //Guardar os metadados na estrutura de dados
             char buffer[512];

@@ -18,14 +18,13 @@ struct metaDados{
      char* key;
 };
 
-char *generate_key(char *title, char *path, int year) {//Pode ser mudado
+char *generate_key() {//Pode ser mudado
     char *buffer=malloc(512);
     if (buffer == NULL) {
         perror("malloc");
         exit(EXIT_FAILURE);
     }
-    int elem=rand()%1000;
-    sprintf(buffer, "%s|%s|%d|%d", title, path, year, elem);
+    sprintf(buffer, "%d", rand()%1000);
     return strdup(buffer);
 }
 
@@ -85,7 +84,7 @@ MetaDados *create_metaDados(Message *msg) {
         field++;
     }
 
-    data->key = generate_key(data->titulo,data->path,data->ano);
+    data->key = generate_key();
     return data;
 
 }
