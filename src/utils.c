@@ -104,19 +104,28 @@ void free_metaDados(MetaDados *data) {
 }
 
 void print_metaDados(MetaDados *data) {
-     if (data == NULL) {
-         printf("MetaDados is NULL\n");
+    if (data == NULL) {
+        write(1, "MetaDados is NULL\n", 18);
          return;
-     }
+    }
 
-     printf("Titulo: %s\n", data->titulo);
-     printf("Autores: ");
-     for (int i = 0; i<data->n_autores; i++) {
-         printf("%s ", data->autores[i]);
-     }
-     printf("\nAno: %d\n", data->ano);
-     printf("Path: %s\n", data->path);
-     printf("Key: %s\n", data->key);
+    write(1, "[MetaDados]\n", 13);
+    write(1, "Titulo: ", 8);
+    write(1, data->titulo, strlen(data->titulo));
+    write(1, "\nAutores: ", 9);
+    for (int i = 0; i<data->n_autores; i++) {
+         write(1, data->autores[i], strlen(data->autores[i]));
+         write(1, " ", 1);
+    }
+    write(1, "\nAno: ", 6);
+    char ano[10];
+    sprintf(ano, "%d", data->ano);
+    write(1, ano, strlen(ano));
+    write(1, "\nPath: ", 7);
+    write(1, data->path, strlen(data->path));
+    write(1, "\nKey: ", 6);
+    write(1, data->key, strlen(data->key));
+    write(1, "\n\n", 2);
 }
 
 char* get_MD_titulo(MetaDados *data){

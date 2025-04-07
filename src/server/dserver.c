@@ -4,7 +4,7 @@
 
 int main() {
 
-    printf("[SERVER STARTED]\n");
+    write(1,"[SERVER STARTED]\n\n", 19);
 
     // Criar FIFO do servidor (se não existir)
     if (mkfifo(SERVER_FIFO, 0666) == -1) {
@@ -40,7 +40,7 @@ int main() {
         
     }
 
-    printf("[SERVER ENDED]\n");
+    write(1,"[SERVER ENDED]\n", 16);
 
     return 0;
 }

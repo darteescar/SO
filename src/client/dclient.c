@@ -35,16 +35,7 @@ int main(int argc, char* argv[]){
     write(fd, msg, get_message_size(msg));
     close(fd);
 
-    if(get_message_command(msg)=='a'){
-        int fifo = open(buffer, O_RDONLY);
-        if (fifo == -1) {
-            perror("open222");
-            return -1;
-        }
-        char key[512];
-        read(fifo, key, 512);
-        printf("Key: %s\n", key);
-        close(fifo);
-    }
+    reply(msg);
+
     return 0;
 }
