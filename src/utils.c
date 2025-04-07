@@ -6,6 +6,7 @@
 struct message{
     char buffer[512];
     int argc;
+    int pid;
 };
 
 struct metaDados{
@@ -141,15 +142,17 @@ Message *init_message() {
     }
     msg->buffer[0] = '\0';
     msg->argc = 0;
+    msg->pid = 0;
     return msg;
 }
 
-void create_message(Message *msg, char *argv[], int argc) {
+void create_message(Message *msg, char *argv[], int argc, int pid) {
     if (msg == NULL) {
          perror("Message is NULL");
          exit(EXIT_FAILURE);
     }
     msg->argc = argc-2;
+    msg->pid = pid;
     for (int i = 1; i < argc; i++) {
          strcat(msg->buffer, argv[i]);
          if (i < argc - 1) {
@@ -163,7 +166,7 @@ size_t get_message_size(Message *msg) {
          perror("Message is NULL");
          exit(EXIT_FAILURE);
     }
-    return sizeof(msg->buffer) + sizeof(msg->argc);
+    return sizeof(struct message);
 }
 
 void print_message(Message *msg) {
@@ -173,6 +176,7 @@ void print_message(Message *msg) {
     }
     printf("Buffer: %s\n", msg->buffer);
     printf("Argc: %d\n", msg->argc);
+    printf("PID: %d\n", msg->pid);
 }
 
 char get_message_command(Message *msg) {
@@ -198,4 +202,12 @@ char* get_message_buffer(Message *msg) {
          exit(EXIT_FAILURE);
     }
     return msg->buffer;
+}
+
+int get_message_pid(Message *msg) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    return msg->pid;
 }

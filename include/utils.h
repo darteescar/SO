@@ -21,7 +21,7 @@ char *generate_key(char *title, char *path, int year);
 
 Message *init_message();
 
-void create_message(Message *msg, char *argv[], int argc);
+void create_message(Message *msg, char *argv[], int argc, int pid);
 
 void print_metaDados(MetaDados *data);
 
@@ -48,6 +48,8 @@ int get_message_argc(Message *msg);
 char* get_message_buffer(Message *msg);
 
 MetaDados *create_metaDados(Message *msg);
+
+int get_message_pid(Message *msg);
 
 
 #endif
