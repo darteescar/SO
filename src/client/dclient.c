@@ -13,7 +13,7 @@ int main(int argc, char* argv[]){
 
     if(argc < 2){
         printf("Invalid entry\n");
-        return;
+        return -1;
     }
 
     Message *msg = init_message();
@@ -25,7 +25,7 @@ int main(int argc, char* argv[]){
     int fd = open(SERVER_FIFO, O_WRONLY);
     if (fd == -1) {
         perror("open");
-        return;
+        return -1;
     }
 
     write(fd, msg, get_message_size(msg));

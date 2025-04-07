@@ -17,7 +17,7 @@ int main() {
         int fd = open(SERVER_FIFO, O_RDONLY);
         if (fd == -1) {
             perror("open server_fifo");
-            return;
+            return -1;
         }
 
         ssize_t bytes = read(fd, msg, get_message_size(msg));
