@@ -59,7 +59,12 @@ MetaDados *create_metaDados(Message *msg) {
 
                 while ((token2 = strsep(&token, ";")) != NULL){
                     if(i>=size){
-                         data->autores=realloc(data->autores,2*size);
+                         char** aux=data->autores;
+                         data->autores=realloc(aux,2*size* sizeof(char*));
+                         if (data->autores == NULL) {
+                             perror("realloc");
+                             exit(EXIT_FAILURE);
+                         }
                          size*=2;
                     }
                     data->autores[i]=token2;
