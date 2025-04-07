@@ -1,48 +1,54 @@
 #include "server/functions.h"
 #define SERVER_FIFO "server_fifo"
 
-char *exec_comando (char *buffer) {
+char *exec_comando (Message *msg) {
 
-     switch (buffer[1]) {
-         case 'a':
- 
-             // Adicionar
+    switch (get_message_command(msg)) {
+        case 'a':
+            MetaDados *data = create_metaDados(msg);
+            //print_metaDados(data);
+
+            //Guardar os metadados na estrutura de dados
+
+            int fd = open(SERVER_FIFO, O_WRONLY);
+            write(fd,get_MD_key(data),512);
+            close(fd);
  
              
-             break;
-         case 'c':
+            break;
+        case 'c':
  
              // Criar
  
-             break;
-         case 'd':
+            break;
+        case 'd':
  
              // Apagar
  
-             break;
-         case 'l':
+            break;
+        case 'l':
          
              // Listar
  
-             break;
-         case 's':
+            break;
+        case 's':
  
              // Pesquisa
  
-             break;
-         case 'f':
+            break;
+        case 'f':
              
              // Encerra o servidor
  
-             break;
-         default:
+            break;
+        default:
              // Comando inválido
-     }
+    }
  
      
-     return "INVALID COMMAND";
+    return "INVALID COMMAND";
  
- }
+}
  
  int verifica_comando (Message *msg) {
 

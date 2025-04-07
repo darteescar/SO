@@ -14,7 +14,7 @@
 #include <fcntl.h>
 #include "utils.h"
 
-char *exec_comando (char *buffer);
+char *exec_comando (Message *msg);
 
 int verifica_comando (Message *msg);
 

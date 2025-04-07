@@ -28,18 +28,9 @@ int main() {
            
             if (verifica_comando(msg) == 1) {
                //printf("Comando válido\n");
+                char *response = exec_comando(msg);
                 
-               if(get_message_command(msg)=='a'){
-                MetaDados *data = create_metaDados(msg);
-                //print_metaDados(data);
-    
-                //Guardar os metadados na estrutura de dados
-    
-                fd = open(SERVER_FIFO, O_WRONLY);
-                write(fd,get_MD_key(data),512);
-                close(fd);
-    
-            }
+               
                
             } else {
                 error_message(get_message_command(msg)); // isto terá de ser alterado para um char
