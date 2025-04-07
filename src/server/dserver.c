@@ -28,7 +28,7 @@ int main() {
            
             if (verifica_comando(msg) == 1) {
                //printf("Comando válido\n");
-                char *response = exec_comando(msg);
+                exec_comando(msg);
                 
                
                

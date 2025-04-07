@@ -9,9 +9,11 @@ char *exec_comando (Message *msg) {
             //print_metaDados(data);
 
             //Guardar os metadados na estrutura de dados
+            char buffer[512];
+            sprintf(buffer, "tmp/%d", get_message_pid(msg));
 
-            int fd = open(SERVER_FIFO, O_WRONLY);
-            write(fd,get_MD_key(data),512);
+            int fd = open(buffer, O_WRONLY);
+            write(fd, get_MD_key(data), 512);
             close(fd);
  
              

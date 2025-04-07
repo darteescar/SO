@@ -22,6 +22,10 @@ int main(int argc, char* argv[]){
 
     create_message(msg, argv, argc, pid);
 
+    char buffer[512];
+    sprintf(buffer, "tmp/%d", pid);
+    mkfifo(buffer, 0600);
+
     int fd = open(SERVER_FIFO, O_WRONLY);
     if (fd == -1) {
         perror("open");
@@ -32,14 +36,15 @@ int main(int argc, char* argv[]){
     close(fd);
 
     if(get_message_command(msg)=='a'){
-        fd=open(SERVER_FIFO, O_RDONLY);
-
+        int fifo = open(buffer, O_RDONLY);
+        if (fifo == -1) {
+            perror("open222");
+            return -1;
+        }
         char key[512];
-        read(fd,key,512);
-
+        read(fifo, key, 512);
         printf("Key: %s\n", key);
-  
-        close(fd);
+        close(fifo);
     }
     return 0;
 }
