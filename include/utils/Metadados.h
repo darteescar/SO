@@ -1,3 +1,6 @@
+#ifndef METADADOS_H
+#define METADADOS_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,3 +33,5 @@ char* get_MD_key(MetaDados *data);
 int get_MD_n_autores(MetaDados *data);
 
 MetaDados *create_metaDados(Message *msg);
+
+#endif

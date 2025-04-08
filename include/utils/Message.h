@@ -31,4 +31,4 @@ char* get_message_buffer(Message *msg);
 
 int get_message_pid(Message *msg);
 
-#endif MESSAGE_H
+#endif
