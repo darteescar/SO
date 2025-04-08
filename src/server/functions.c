@@ -1,7 +1,7 @@
 #include "server/functions.h"
 #define SERVER_FIFO "server_fifo"
 
-char *exec_comando (Message *msg) {
+int exec_comando (Message *msg, Documentos *docs) {
 
     switch (get_message_command(msg)) {
         case 'a':
@@ -12,11 +12,12 @@ char *exec_comando (Message *msg) {
             char buffer[512];
             sprintf(buffer, "tmp/%d", get_message_pid(msg));
 
+            add_documento(docs, data);
+
             int fd = open(buffer, O_WRONLY);
             write(fd, get_MD_key(data), 512);
             close(fd);
  
-             
             break;
         case 'c':
  
@@ -40,19 +41,18 @@ char *exec_comando (Message *msg) {
             break;
         case 'f':
              
-             // Encerra o servidor
- 
+            return 0;
+
+
             break;
         default:
              // Comando inválido
     }
- 
-     
-    return "INVALID COMMAND";
+    return 1;
  
 }
  
- int verifica_comando (Message *msg) {
+int verifica_comando (Message *msg) {
 
     if (msg == NULL) {
         return 0;

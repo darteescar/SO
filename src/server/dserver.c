@@ -11,7 +11,7 @@ int main() {
         perror("mkfifo");
     }
 
-    Message *msg = init_message();
+    Documentos *docs = create_documentos(10);
 
     while (1) {
         int fd = open(SERVER_FIFO, O_RDONLY);
@@ -20,6 +20,7 @@ int main() {
             return -1;
         }
 
+        Message *msg = init_message();
         ssize_t bytes = read(fd, msg, get_message_size(msg));
         close(fd);
 
@@ -28,7 +29,7 @@ int main() {
            
             if (verifica_comando(msg) == 1) {
                //printf("Comando válido\n");
-                exec_comando(msg);
+                if (exec_comando(msg,docs) == 0) {break;}
                  
             } else {
                 error_message(get_message_command(msg)); // isto terá de ser alterado para um char
@@ -37,6 +38,8 @@ int main() {
 
         
     }
+
+    print_documentos(docs);
 
     write(1,"[SERVER ENDED]\n", 16);
 
