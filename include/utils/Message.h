@@ -1,5 +1,5 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef MESSAGE_H
+#define MESSAGE_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,27 +15,9 @@
 
 typedef struct message Message;
 
-typedef struct metaDados MetaDados;
-
-char *generate_key();
-
 Message *init_message();
 
 void create_message(Message *msg, char *argv[], int argc, int pid);
-
-void print_metaDados(MetaDados *data);
-
-void free_metaDados(MetaDados *data);
-
-char* get_MD_titulo(MetaDados *data);
-
-char* get_MD_path(MetaDados *data);
-
-int get_MD_ano(MetaDados *data);
-
-char* get_MD_key(MetaDados *data);
-
-int get_MD_n_autores(MetaDados *data);
 
 size_t get_message_size(Message *msg);
 
@@ -47,9 +29,6 @@ int get_message_argc(Message *msg);
 
 char* get_message_buffer(Message *msg);
 
-MetaDados *create_metaDados(Message *msg);
-
 int get_message_pid(Message *msg);
 
-
-#endif
+#endif MESSAGE_H
