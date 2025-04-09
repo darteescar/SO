@@ -6,67 +6,59 @@ struct metaDados{
      int n_autores;
      int ano;
      char* path;
-     char* key;
 };
 
-char *generate_key() {//Pode ser mudado
-    char *buffer=malloc(512);
-    if (buffer == NULL) {
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
-    sprintf(buffer, "%d", rand()%1000);
-    return strdup(buffer);
-}
+struct documentos {
+    int n_docs;
+    int max_docs;
+    int *ocupados;
+    MetaDados docs[];
+};
 
-MetaDados *create_metaDados(Message *msg) {
-     char *total = get_message_buffer(msg);
-     char *token;
-     int field = 0, i = 0;
+void create_metaDados(Message *msg, Documentos *doc, int i) {
+    char *total = get_message_buffer(msg);
+    char *token;
+    int field = 0;
 
-     MetaDados *data = malloc(sizeof(struct metaDados));
-     if (data == NULL) {
-         perror("malloc");
-         exit(EXIT_FAILURE);
-     }
+    MetaDados *data = &(doc->docs[i]);  // Aponta diretamente para a posição no array
 
-     total+=3;//apontar para o titulo
+    total += 3; // Skip prefixo
 
-     while ((token = strsep(&total, " ")) != NULL) {
+    while ((token = strsep(&total, " ")) != NULL) {
         switch (field) {
             case 0:
-                data->titulo = token;
+                data->titulo = strdup(token);
                 break;
-            case 1:
-                char* token2;
-                int size=10;
-
-                data->autores = malloc(size * sizeof(char*));
+            case 1: {
+                char *token2;
+                int size = 10;
+                int j = 0;
+                data->autores = malloc(size * sizeof(char *));
                 if (data->autores == NULL) {
                     perror("malloc");
                     exit(EXIT_FAILURE);
                 }
 
-                while ((token2 = strsep(&token, ";")) != NULL){
-                    if(i>=size){
-                         char** aux=data->autores;
-                         data->autores=realloc(aux,2*size* sizeof(char*));
-                         if (data->autores == NULL) {
-                             perror("realloc");
-                             exit(EXIT_FAILURE);
-                         }
-                         size*=2;
+                while ((token2 = strsep(&token, ";")) != NULL) {
+                    if (j >= size) {
+                        size *= 2;
+                        data->autores = realloc(data->autores, size * sizeof(char *));
+                        if (data->autores == NULL) {
+                            perror("realloc");
+                            exit(EXIT_FAILURE);
+                        }
                     }
-                    data->autores[i]=token2;
-                    i++;
+                    data->autores[j] = strdup(token2);
+                    j++;
                 }
-                data->n_autores=i;
+                data->n_autores = j;
                 break;
+            }
             case 2:
                 data->ano = atoi(token);
                 break;
             case 3:
-                data->path = token;
+                data->path = strdup(token);
                 break;
             default:
                 printf("Unknown field\n");
@@ -75,10 +67,10 @@ MetaDados *create_metaDados(Message *msg) {
         field++;
     }
 
-    data->key = generate_key();
-    return data;
-
+    doc->ocupados[i] = 1;
+    doc->n_docs++;
 }
+
 
 void free_metaDados(MetaDados *data) {
      if (data != NULL) {
@@ -88,33 +80,25 @@ void free_metaDados(MetaDados *data) {
          }
          free(data->autores);
          free(data->path);
-         free(data->key);
          free(data);
      }
 }
 
-void print_metaDados(MetaDados *data) {
-    if (data == NULL) {
-        write(1, "MetaDados is NULL\n", 18);
-         return;
-    }
-
+void print_metaDados(MetaDados data) {
     write(1, "[MetaDados]\n", 13);
     write(1, "Titulo: ", 8);
-    write(1, data->titulo, strlen(data->titulo));
+    write(1, data.titulo, strlen(data.titulo));
     write(1, "\nAutores: ", 9);
-    for (int i = 0; i<data->n_autores; i++) {
-         write(1, data->autores[i], strlen(data->autores[i]));
+    for (int i = 0; i<data.n_autores; i++) {
+         write(1, data.autores[i], strlen(data.autores[i]));
          write(1, " ", 1);
     }
     write(1, "\nAno: ", 6);
     char ano[10];
-    sprintf(ano, "%d", data->ano);
+    sprintf(ano, "%d", data.ano);
     write(1, ano, strlen(ano));
     write(1, "\nPath: ", 7);
-    write(1, data->path, strlen(data->path));
-    write(1, "\nKey: ", 6);
-    write(1, data->key, strlen(data->key));
+    write(1, data.path, strlen(data.path));
     write(1, "\n\n", 2);
 }
 
@@ -130,11 +114,83 @@ int get_MD_ano(MetaDados *data){
      return data->ano;
 }
 
-char* get_MD_key(MetaDados *data){
-     return strdup(data->key);
-}
-
 int get_MD_n_autores(MetaDados *data){
      return data->n_autores;
 }
 
+Documentos *create_documentos(int max_docs) {
+    Documentos *docs = malloc(sizeof(Documentos) + max_docs * sizeof(MetaDados));
+    if (docs == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    docs->n_docs = 0;
+    docs->max_docs = max_docs;
+    docs->ocupados = malloc(max_docs * sizeof(int));
+    if (docs->ocupados == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    for (int i = 0; i < max_docs; i++) {
+        docs->ocupados[i] = 0;
+    }
+    return docs;
+}
+
+Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add) {
+    if (docs->n_docs < docs->max_docs) {
+        // Encontrar índice livre
+        int i = 0;
+        while (docs->ocupados[i] == 1) i++;
+        printf("a tentar adicionar na posicao %d\n", i);
+        create_metaDados(data, docs, i);
+        printf("adicionado na posicao %d\n", i);
+        *pos_onde_foi_add = i;
+    } else {
+        
+        // Se não houver espaço, aumentar o tamanho do array
+        int new_max_docs = docs->max_docs * 2;
+        Documentos *new_docs = realloc(docs, sizeof(Documentos) + new_max_docs * sizeof(MetaDados));
+        if (new_docs == NULL) {
+            perror("realloc");
+            exit(EXIT_FAILURE);
+        }
+
+        docs = new_docs;
+        docs->max_docs = new_max_docs;
+        docs->ocupados = realloc(docs->ocupados, new_max_docs * sizeof(int));
+        if (docs->ocupados == NULL) {
+            perror("realloc");
+            exit(EXIT_FAILURE);
+        }
+
+        for (int i = docs->max_docs / 2; i < new_max_docs; i++) {
+            docs->ocupados[i] = 0;
+        }
+        
+
+        // Encontrar índice livre
+        int i = 0;
+        while (docs->ocupados[i] == 1) i++;
+        printf("a tentar adicionar na posicao %d\n", i);
+        create_metaDados(data, docs, i);
+        printf("adicionado na posicao %d\n", i);
+        *pos_onde_foi_add = i;
+
+    }
+
+    return docs;  // Retorna o novo ponteiro de documentos
+}
+
+void print_documentos (Documentos *docs) {
+    if (docs == NULL) {
+        write(1, "Documentos is NULL\n", 19);
+        return;
+    }
+    write(1, "[Documentos]\n", 14);
+    for (int i = 0; i < docs->n_docs; i++) {
+        if (docs->ocupados[i] == 1) {
+            print_metaDados(docs->docs[i]);
+        }
+    }
+}

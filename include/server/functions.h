@@ -3,7 +3,6 @@
 
 #include "utils/Message.h"
 #include "utils/Metadados.h"
-#include "utils/Documentos.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,7 +15,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-int exec_comando (Message *msg, Documentos *docs);
+int exec_comando (Message *msg, Documentos **docs);
 
 int verifica_comando (Message *msg);
 

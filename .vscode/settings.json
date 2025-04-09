@@ -65,6 +65,7 @@
     "stat.h": "c",
     "stdlib.h": "c",
     "unistd.h": "c",
-    "string.h": "c"
+    "string.h": "c",
+    "message.h": "c"
   }
 }

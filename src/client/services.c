@@ -6,7 +6,7 @@ void reply(Message *msg){
     switch (get_message_command(msg)) {
         case 'a':
             int pid = getpid();
-            char buffer[512];
+            char buffer[50];
             sprintf(buffer, "tmp/%d", pid);
 
             int fifo = open(buffer, O_RDONLY);
@@ -15,11 +15,14 @@ void reply(Message *msg){
                 return;
             }
 
-            char key[512];
-            read(fifo, key, 512);
+            int key;
+            read(fifo, &key, sizeof(int));
 
-            write(1,"Documento ", 10);
-            write(1, key, strlen(key));
+            char key_str[12];
+            sprintf(key_str, "%d", key);
+
+            write(1, "Documento ", 10);
+            write(1, key_str, strlen(key_str));
             write(1, " indexado\n", 10);
             
             close(fifo);     

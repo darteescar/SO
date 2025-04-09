@@ -1,55 +1,40 @@
 #include "server/functions.h"
 #define SERVER_FIFO "server_fifo"
 
-int exec_comando (Message *msg, Documentos *docs) {
-
+int exec_comando (Message *msg, Documentos **docs) {
     switch (get_message_command(msg)) {
         case 'a':
-            MetaDados *data = create_metaDados(msg);
-            //print_metaDados(data);
+            // Criar o FIFO
+            char fifo[50];
+            sprintf(fifo, "tmp/%d", get_message_pid(msg));
+            int *pos_onde_foi_add = malloc(sizeof(int));
 
-            //Guardar os metadados na estrutura de dados
-            char buffer[512];
-            sprintf(buffer, "tmp/%d", get_message_pid(msg));
+            // Passar &docs para poder atualizar o ponteiro
+            *docs = add_documento(*docs, msg, pos_onde_foi_add);
 
-            add_documento(docs, data);
-
-            int fd = open(buffer, O_WRONLY);
-            write(fd, get_MD_key(data), 512);
+            int fd = open(fifo, O_WRONLY);
+            write(fd, pos_onde_foi_add, sizeof(int));
             close(fd);
- 
             break;
         case 'c':
- 
-             // Criar
- 
+            // Criar
             break;
         case 'd':
- 
-             // Apagar
- 
+            // Apagar
             break;
         case 'l':
-         
-             // Listar
- 
+            // Listar
             break;
         case 's':
- 
-             // Pesquisa
- 
+            // Pesquisa
             break;
         case 'f':
-             
             return 0;
-
-
             break;
         default:
-             // Comando inválido
+            // Comando inválido
     }
     return 1;
- 
 }
  
 int verifica_comando (Message *msg) {

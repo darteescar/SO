@@ -16,9 +16,9 @@
 
 typedef struct metaDados MetaDados;
 
-char *generate_key();
+typedef struct documentos Documentos;
 
-void print_metaDados(MetaDados *data);
+void print_metaDados(MetaDados data);
 
 void free_metaDados(MetaDados *data);
 
@@ -28,10 +28,16 @@ char* get_MD_path(MetaDados *data);
 
 int get_MD_ano(MetaDados *data);
 
-char* get_MD_key(MetaDados *data);
-
 int get_MD_n_autores(MetaDados *data);
 
-MetaDados *create_metaDados(Message *msg);
+void create_metaDados(Message *msg, Documentos *doc, int i);
+
+Documentos *create_documentos(int max_docs);
+
+Documentos *realoca_documentos (Documentos *docs);
+
+Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add);
+
+void print_documentos (Documentos *docs);
 
 #endif
