@@ -17,9 +17,34 @@ int exec_comando (Message *msg, Documentos **docs) {
             close(fd);
             break;
         case 'c':
+            //char fifo2[50];
+            //sprintf(fifo2, "tmp/%d", get_message_pid(msg));
+            //int key = get_key_msg(msg);
             // Criar
             break;
         case 'd':
+            // Criar o FIFO
+            char fifo3[50];
+            sprintf(fifo3, "tmp/%d", get_message_pid(msg));
+
+            //Passa o bit ocupado a 0
+            int key2 = get_key_msg(msg);
+            int flag = remove_documento(*docs, key2);
+
+            char resposta[100];
+            if (flag == 1) {
+                sprintf(resposta, "O documento com a chave %d foi apagado", key2);
+            } else if (flag == -1) {
+                sprintf(resposta, "Posição Inválida");
+            } else if (flag == -2){
+                sprintf(resposta, "Não existe nenhum documento com a chave %d", key2);
+            }
+
+            // Manda uma mensagem para o cliente a dizer que foi apagado ou não
+            int fd3 = open(fifo3, O_WRONLY);
+            write(fd3, resposta, sizeof(char)*100);
+            close(fd3);
+            break;
             // Apagar
             break;
         case 'l':

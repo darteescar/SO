@@ -31,4 +31,6 @@ char* get_message_buffer(Message *msg);
 
 int get_message_pid(Message *msg);
 
+int get_key_msg(Message *msg);
+
 #endif

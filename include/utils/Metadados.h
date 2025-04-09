@@ -34,9 +34,11 @@ void create_metaDados(Message *msg, Documentos *doc, int i);
 
 Documentos *create_documentos(int max_docs);
 
-Documentos *realoca_documentos (Documentos *docs);
+//Documentos *realoca_documentos (Documentos *docs);
 
 Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add);
+
+int remove_documento(Documentos *docs, int pos);
 
 void print_documentos (Documentos *docs);
 

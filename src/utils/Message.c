@@ -83,3 +83,14 @@ Message *init_message() {
      }
      return msg->pid;
  }
+
+int get_key_msg(Message *msg) {
+     if (msg == NULL) {
+          perror("Message is NULL");
+          exit(EXIT_FAILURE);
+     }
+     char *buffer = get_message_buffer(msg);
+     buffer+=3; // Skip prefixo
+     
+     return atoi(buffer);
+} 

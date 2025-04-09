@@ -80,7 +80,7 @@ void free_metaDados(MetaDados *data) {
          }
          free(data->autores);
          free(data->path);
-         free(data);
+         //free(data);
      }
 }
 
@@ -180,6 +180,20 @@ Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add
     }
 
     return docs;  // Retorna o novo ponteiro de documentos
+}
+
+int remove_documento(Documentos *docs, int pos) {
+    if (docs == NULL || pos < 0 || pos >= docs->max_docs) {
+        return -1;
+    }
+    if (docs->ocupados[pos] == 1) {
+        free_metaDados(&(docs->docs[pos]));
+        docs->ocupados[pos] = 0;
+        docs->n_docs--;
+        return 1;
+    } else {
+        return -2;
+    }
 }
 
 void print_documentos (Documentos *docs) {
