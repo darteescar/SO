@@ -122,6 +122,24 @@ char** get_MD_autores(MetaDados *data){
      return data->autores;
 }
 
+char *MD_toString(MetaDados* data, int key){
+    char *str = malloc(1000);
+    if (str == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    sprintf(str, "Meta Informação do documento %d:\n\nTitulo: %s\nAutores: ",key, data->titulo);
+    for (int i = 0; i < data->n_autores; i++) {
+        strcat(str, data->autores[i]);
+        if (i < data->n_autores - 1) {
+            strcat(str, ", ");
+        }
+    }
+    char buffer[256];
+    sprintf(buffer, "\nAno: %d\nPath: %s", data->ano, data->path);
+    strcat(str, buffer);
+    return str;
+}
 Documentos *create_documentos(int max_docs) {
     Documentos *docs = malloc(sizeof(Documentos) + max_docs * sizeof(MetaDados));
     if (docs == NULL) {

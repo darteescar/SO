@@ -28,8 +28,9 @@ int exec_comando (Message *msg, Documentos **docs) {
 
             char respostaC[500];
             if (flagC == 1) {
-                sprintf(respostaC, "Informações do documento %d:\n\nTítulo: %s\nAno: %d\nPath: %s"
-                                , keyC, get_MD_titulo(reply),get_MD_ano(reply), get_MD_path(reply)); 
+                char *str = MD_toString(reply, keyC);
+                sprintf(respostaC, "%s", str);
+                free(str);
             } else if (flagC == -1) {
                 sprintf(respostaC, "Posição Inválida");
             } else if (flagC == -2){

@@ -46,4 +46,6 @@ void print_documentos (Documentos *docs);
 
 char** get_MD_autores(MetaDados *data);
 
+char *MD_toString(MetaDados* data, int key);
+
 #endif

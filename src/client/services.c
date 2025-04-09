@@ -40,8 +40,8 @@ void reply(Message *msg){
                 perror("open");
                 return;
             }
-            //Ler a resposta do servidor
 
+            //Ler a resposta do servidor
             char respostC[500];
             read(fifoC, respostC, sizeof(char)*500);
             printf("%s\n", respostC);
@@ -61,7 +61,8 @@ void reply(Message *msg){
                 perror("open");
                 return;
             }
-
+            
+            //Ler a resposta do servidor
             char respostaD[100];
             read(fifoD, respostaD, sizeof(char)*100);
             printf("%s\n", respostaD);
