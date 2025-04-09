@@ -14,7 +14,7 @@ int exec_comando (Message *msg, Documentos **docs) {
         case 'd':
             Server_opcao_D(msg, docs);
             break;
-            
+
         case 'l':
             // Listar
             break;
@@ -141,7 +141,7 @@ int verifica_comando (Message *msg) {
      
  }
  
-void error_message(char option) {
+void error_message(char option) {//MUDAR ISTO PARA MANDAR PARA O CLIENTE
     switch(option){
         case 'a':
             printf("[TRY] -a <title> <authors> <year> <path>\n");
