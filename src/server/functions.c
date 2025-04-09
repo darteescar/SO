@@ -5,45 +5,65 @@ int exec_comando (Message *msg, Documentos **docs) {
     switch (get_message_command(msg)) {
         case 'a':
             // Criar o FIFO
-            char fifo[50];
-            sprintf(fifo, "tmp/%d", get_message_pid(msg));
+            char fifoA[50];
+            sprintf(fifoA, "tmp/%d", get_message_pid(msg));
             int *pos_onde_foi_add = malloc(sizeof(int));
 
             // Passar &docs para poder atualizar o ponteiro
             *docs = add_documento(*docs, msg, pos_onde_foi_add);
 
-            int fd = open(fifo, O_WRONLY);
-            write(fd, pos_onde_foi_add, sizeof(int));
-            close(fd);
+            int fdA = open(fifoA, O_WRONLY);
+            write(fdA, pos_onde_foi_add, sizeof(int));
+            close(fdA);
+
             break;
         case 'c':
-            //char fifo2[50];
-            //sprintf(fifo2, "tmp/%d", get_message_pid(msg));
-            //int key = get_key_msg(msg);
-            // Criar
+            // Criar o FIFO
+            char fifoC[50];
+            sprintf(fifoC, "tmp/%d", get_message_pid(msg));
+
+            int keyC = get_key_msg(msg);
+            int flagC = 0;
+            MetaDados* reply = consulta_documento(*docs,keyC, &flagC);
+
+            char respostaC[500];
+            if (flagC == 1) {
+                sprintf(respostaC, "Informações do documento %d:\n\nTítulo: %s\nAno: %d\nPath: %s"
+                                , keyC, get_MD_titulo(reply),get_MD_ano(reply), get_MD_path(reply)); 
+            } else if (flagC == -1) {
+                sprintf(respostaC, "Posição Inválida");
+            } else if (flagC == -2){
+                sprintf(respostaC, "Não existe nenhum documento com a chave %d", keyC); 
+            }
+
+            int fdC = open(fifoC, O_WRONLY);
+            write(fdC, respostaC, sizeof(char)*500);
+            close(fdC);
+
             break;
         case 'd':
             // Criar o FIFO
-            char fifo3[50];
-            sprintf(fifo3, "tmp/%d", get_message_pid(msg));
+            char fifoD[50];
+            sprintf(fifoD, "tmp/%d", get_message_pid(msg));
 
             //Passa o bit ocupado a 0
-            int key2 = get_key_msg(msg);
-            int flag = remove_documento(*docs, key2);
+            int keyD = get_key_msg(msg);
+            int flagD = remove_documento(*docs, keyD);
 
-            char resposta[100];
-            if (flag == 1) {
-                sprintf(resposta, "O documento com a chave %d foi apagado", key2);
-            } else if (flag == -1) {
-                sprintf(resposta, "Posição Inválida");
-            } else if (flag == -2){
-                sprintf(resposta, "Não existe nenhum documento com a chave %d", key2);
+            char respostaD[100];
+            if (flagD == 1) {
+                sprintf(respostaD, "O documento com a chave %d foi apagado", keyD);
+            } else if (flagD == -1) {
+                sprintf(respostaD, "Posição Inválida");
+            } else if (flagD == -2){
+                sprintf(respostaD, "Não existe nenhum documento com a chave %d", keyD);
             }
 
             // Manda uma mensagem para o cliente a dizer que foi apagado ou não
-            int fd3 = open(fifo3, O_WRONLY);
-            write(fd3, resposta, sizeof(char)*100);
-            close(fd3);
+            int fdD = open(fifoD, O_WRONLY);
+            write(fdD, respostaD, sizeof(char)*100);
+            close(fdD);
+            
             break;
             // Apagar
             break;

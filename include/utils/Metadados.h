@@ -40,6 +40,10 @@ Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add
 
 int remove_documento(Documentos *docs, int pos);
 
+MetaDados *consulta_documento(Documentos *docs, int pos, int* flag);
+
 void print_documentos (Documentos *docs);
+
+char** get_MD_autores(MetaDados *data);
 
 #endif

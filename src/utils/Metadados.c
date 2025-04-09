@@ -118,6 +118,10 @@ int get_MD_n_autores(MetaDados *data){
      return data->n_autores;
 }
 
+char** get_MD_autores(MetaDados *data){
+     return data->autores;
+}
+
 Documentos *create_documentos(int max_docs) {
     Documentos *docs = malloc(sizeof(Documentos) + max_docs * sizeof(MetaDados));
     if (docs == NULL) {
@@ -194,6 +198,20 @@ int remove_documento(Documentos *docs, int pos) {
     } else {
         return -2;
     }
+}
+
+MetaDados *consulta_documento(Documentos *docs, int pos, int* flag){
+    if (docs == NULL || pos < 0 || pos >= docs->max_docs) {
+        *flag = -1;
+        return NULL;
+    } else if (docs->ocupados[pos] == 0){
+        *flag = -2;
+        return NULL;
+    } else if (docs->ocupados[pos] == 1){
+        *flag = 1;
+        return &(docs->docs[pos]);
+    }
+    return NULL;
 }
 
 void print_documentos (Documentos *docs) {
