@@ -89,22 +89,22 @@ void Client_opcao_C(Message *msg){
 
 void Client_opcao_D(Message *msg){
     int pidD = getpid();
-            char bufferD[512];
-            sprintf(bufferD, "tmp/%d", pidD);
+    char bufferD[512];
+    sprintf(bufferD, "tmp/%d", pidD);
 
-            int fifoD = open(bufferD, O_RDONLY);
-            if (fifoD == -1) {
-                perror("open");
-                return;
-            }
+    int fifoD = open(bufferD, O_RDONLY);
+    if (fifoD == -1) {
+        perror("open");
+        return;
+    }
 
-            //Ler a resposta do servidor
-            char respostaD[100];
-            read(fifoD, respostaD, sizeof(char)*100);
-            printf("%s\n", respostaD);
-            close(fifoD);
+    //Ler a resposta do servidor
+    char respostaD[100];
+    read(fifoD, respostaD, sizeof(char)*100);
+    printf("%s\n", respostaD);
+    close(fifoD);
  
-             // Apagar
+    // Apagar
  
-            return;
+    return;
 }
