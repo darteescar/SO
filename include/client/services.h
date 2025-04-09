@@ -12,4 +12,10 @@
 
 void reply(Message *msg);
 
+void Client_opcao_A(Message *msg);
+
+void Client_opcao_C(Message *msg);
+
+void Client_opcao_D(Message *msg);
+
 #endif

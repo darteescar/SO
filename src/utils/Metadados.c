@@ -164,9 +164,9 @@ Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add
         // Encontrar índice livre
         int i = 0;
         while (docs->ocupados[i] == 1) i++;
-        printf("a tentar adicionar na posicao %d\n", i);
+        //printf("a tentar adicionar na posicao %d\n", i);
         create_metaDados(data, docs, i);
-        printf("adicionado na posicao %d\n", i);
+        //printf("adicionado na posicao %d\n", i);
         *pos_onde_foi_add = i;
     } else {
         
@@ -194,9 +194,9 @@ Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add
         // Encontrar índice livre
         int i = 0;
         while (docs->ocupados[i] == 1) i++;
-        printf("a tentar adicionar na posicao %d\n", i);
+        //printf("a tentar adicionar na posicao %d\n", i);
         create_metaDados(data, docs, i);
-        printf("adicionado na posicao %d\n", i);
+        //printf("adicionado na posicao %d\n", i);
         *pos_onde_foi_add = i;
 
     }
