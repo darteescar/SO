@@ -17,9 +17,7 @@ void reply(Message *msg){
             return;
             
         case 'l':
-         
-             // Listar
- 
+            Client_opcao_L(msg);
             return;
         case 's':
  
@@ -107,4 +105,25 @@ void Client_opcao_D(Message *msg){
     // Apagar
  
     return;
+}
+
+void Client_opcao_L(Message *msg){
+    int pidD = getpid();
+    char bufferD[512];
+    sprintf(bufferD, "tmp/%d", pidD);
+
+    int fifoD = open(bufferD, O_RDONLY);
+    if (fifoD == -1) {
+        perror("open");
+        return;
+    }
+
+    //Ler a resposta do servidor
+    char respostaD[200];
+    read(fifoD, respostaD, sizeof(char)*200);
+    printf("%s\n", respostaD);
+    close(fifoD);
+ 
+    return;
+
 }

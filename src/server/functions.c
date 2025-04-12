@@ -1,7 +1,7 @@
 #include "server/functions.h"
 #define SERVER_FIFO "server_fifo"
 
-Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down) {
+Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down, char *folder) {
     switch (get_message_command(msg)) {
         case 'a':
             return Server_opcao_A(msg, docs);
@@ -14,7 +14,7 @@ Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down) {
             return Server_opcao_D(msg, docs);
 
         case 'l':
-            // Listar
+            Server_opcao_L(msg, docs, folder);
             break;
         case 's':
             // Pesquisa
@@ -90,6 +90,86 @@ Documentos *Server_opcao_D(Message *msg, Documentos *docs){
     close(fdD);
 
     return docs;
+}
+
+void Server_opcao_L(Message *msg, Documentos *docs, char *folder) {
+    char fifo[50];
+    sprintf(fifo, "tmp/%d", get_message_pid(msg));
+
+    char ficheiro[50];
+    char resposta[200];
+
+    char *keyword = get_keyword_msg(msg);
+    int key = get_key_msg(msg);
+
+    int flag = 0;
+    MetaDados *data = consulta_documento(docs, key, &flag);
+
+    if (flag != 1) {
+        sprintf(resposta, "Não existe nenhum documento com a chave %d", key);
+
+        int fdL = open(fifo, O_WRONLY);
+        if (fdL == -1) {
+            perror("open");
+            return;
+        }
+        write(fdL, resposta, sizeof(char) * 100);
+        close(fdL);
+        return;
+    }
+
+    char *path = get_MD_path(data);
+    sprintf(ficheiro, "%s/%s", folder, path);
+    int fd = open(ficheiro, O_RDONLY);
+    if (fd == -1) {
+        perror("open");
+        return;
+    }
+
+    int count = 0;
+    size_t n;
+    char buffer[256];
+    char line[1024];
+    int line_index = 0;
+
+    // Processar o ficheiro linha por linha
+    while ((n = read(fd, buffer, sizeof(buffer))) > 0) {
+        for (size_t i = 0; i < n; i++) {
+            if (buffer[i] == '\n' || line_index >= sizeof(line) - 1) {
+                line[line_index] = '\0'; // Finalizar a linha
+                if (strstr(line, keyword) != NULL) {
+                    count++;
+                }
+                line_index = 0; // Reiniciar o índice da linha
+            } else {
+                line[line_index++] = buffer[i];
+            }
+        }
+    }
+
+    // Verificar a última linha (caso não termine com '\n')
+    if (line_index > 0) {
+        line[line_index] = '\0';
+        if (strstr(line, keyword) != NULL) {
+            count++;
+        }
+    }
+
+    close(fd);
+
+    if (count > 0) {
+        sprintf(resposta, "A palavra %s aparece em %d linha(s) no ficheiro %s", keyword, count, path);
+    } else {
+        sprintf(resposta, "A palavra %s não aparece em nenhuma linha no ficheiro %s", keyword, path);
+    }
+
+    int fdL = open(fifo, O_WRONLY);
+    if (fdL == -1) {
+        perror("open");
+        return;
+    }
+    write(fdL, resposta, sizeof(char) * 200);
+    close(fdL);
 }
  
 int verifica_comando (Message *msg) {

@@ -18,4 +18,6 @@ void Client_opcao_C(Message *msg);
 
 void Client_opcao_D(Message *msg);
 
+void Client_opcao_L(Message *msg);
+
 #endif
