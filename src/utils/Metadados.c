@@ -58,14 +58,6 @@ void create_metaDados(Message *msg, Documentos *doc, int i) {
                 data->ano = atoi(token);
                 break;
             case 3:
-                /*char *path = malloc(strlen(PATH) + strlen(token) + 1);
-                if (path == NULL) {
-                    perror("malloc");
-                    exit(EXIT_FAILURE);
-                }
-                strcpy(path, PATH);
-                strcat(path, token);
-                */
                 data->path = token;
                 break;
             default:
@@ -202,9 +194,7 @@ Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add
         // Encontrar índice livre
         int i = 0;
         while (docs->ocupados[i] == 1) i++;
-        //printf("a tentar adicionar na posicao %d\n", i);
         create_metaDados(data, docs, i);
-        //printf("adicionado na posicao %d\n", i);
         *pos_onde_foi_add = i;
 
     }
