@@ -28,7 +28,7 @@ Message *init_message() {
      for (int i = 1; i < argc; i++) {
           strcat(msg->buffer, argv[i]);
           if (i < argc - 1) {
-               strcat(msg->buffer, "+"); // adiciona « entre os argumentos
+               strcat(msg->buffer, "+"); // adiciona '+' entre os argumentos
           }
      }
  }

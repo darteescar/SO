@@ -87,11 +87,14 @@ void print_metaDados(MetaDados data) {
     write(1, "[MetaDados]\n", 13);
     write(1, "Titulo: ", 8);
     write(1, data.titulo, strlen(data.titulo));
-    write(1, "\nAutores: ", 9);
+    write(1, "\nAutores: ", 10);
     for (int i = 0; i<data.n_autores; i++) {
          write(1, data.autores[i], strlen(data.autores[i]));
          write(1, " ", 1);
     }
+    char aa[20];
+    sprintf(aa, "\nNº Autores: %d", data.n_autores);
+    write(1, aa, strlen(aa));
     write(1, "\nAno: ", 6);
     char ano[10];
     sprintf(ano, "%d", data.ano);
@@ -164,9 +167,8 @@ Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add
         // Encontrar índice livre
         int i = 0;
         while (docs->ocupados[i] == 1) i++;
-        //printf("a tentar adicionar na posicao %d\n", i);
+
         create_metaDados(data, docs, i);
-        //printf("adicionado na posicao %d\n", i);
         *pos_onde_foi_add = i;
     } else {
         
