@@ -28,7 +28,7 @@ Message *init_message() {
      for (int i = 1; i < argc; i++) {
           strcat(msg->buffer, argv[i]);
           if (i < argc - 1) {
-               strcat(msg->buffer, " "); // adiciona espaço entre os argumentos (podia ser um espaço ou outro delimitador)
+               strcat(msg->buffer, "+"); // adiciona « entre os argumentos
           }
      }
  }
@@ -94,3 +94,22 @@ int get_key_msg(Message *msg) {
      
      return atoi(buffer);
 } 
+
+char *get_message_argv(Message *msg, int x) {
+     if (msg == NULL) {
+          perror("Message is NULL");
+          exit(EXIT_FAILURE);
+     }
+     char *buffer = get_message_buffer(msg);
+     buffer+=3; // Skip prefixo
+     
+     char *token;
+     int i = 0;
+     while ((token = strsep(&buffer, " ")) != NULL) {
+          if (i == x) {
+               return strdup(token);
+          }
+          i++;
+     }
+     return NULL;
+}

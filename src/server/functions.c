@@ -15,6 +15,7 @@ Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down) {
 
         case 'l':
             // Listar
+            Server_opcao_L(msg, docs);
             break;
         case 's':
             // Pesquisa
@@ -50,18 +51,18 @@ void Server_opcao_C(Message *msg, Documentos *docs){
     sprintf(fifoC, "tmp/%d", get_message_pid(msg));
 
     int keyC = get_key_msg(msg);
-    int flagC = 0;
-    MetaDados* reply = consulta_documento(docs,keyC, &flagC);
-
+    int doc_existe = documento_existe(docs, keyC);
     char respostaC[500];
-    if (flagC == 1) {
+    if (doc_existe == 1) {
+        MetaDados* reply = get_documento(docs,keyC);
         char *str = MD_toString(reply, keyC);
         sprintf(respostaC, "%s", str);
-        free(str);
-    } else if (flagC == -1) {
+        free(str);        
+    } else if (doc_existe == -2) {
+        sprintf(respostaC, "Não existe nenhum documento com a chave %d", keyC);
+    
+    } else if (doc_existe == -1) {
         sprintf(respostaC, "Posição Inválida");
-    } else if (flagC == -2){
-        sprintf(respostaC, "Não existe nenhum documento com a chave %d", keyC); 
     }
 
     int fdC = open(fifoC, O_WRONLY);
@@ -92,6 +93,70 @@ Documentos *Server_opcao_D(Message *msg, Documentos *docs){
     return docs;
 }
  
+void Server_opcao_L(Message *msg, Documentos *docs) {
+    char fifoC[50];
+    sprintf(fifoC, "tmp/%d", get_message_pid(msg));
+
+    int key = get_key_msg(msg);
+    char *keyword = get_message_argv(msg, 1);
+    int idx = documento_existe(docs, key);
+
+    if (idx == -2) {
+        dprintf(STDERR_FILENO, "Não existe nenhum documento com a chave %d\n", key);
+        return;
+    } else if (idx == -1) {
+        dprintf(STDERR_FILENO, "Posição Inválida\n");
+        return;
+    }
+
+    // Obtem o path do documento
+    char *filepath = get_MD_path(get_documento(docs, key));
+    if (filepath == NULL) {
+        dprintf(STDERR_FILENO, "Erro ao obter o path do documento\n");
+        return;
+    }
+
+    int pipefd[2];
+    if (pipe(pipefd) == -1) {
+        perror("pipe");
+        return;
+    }
+
+    int pid = fork();
+    if (pid == -1) {
+        perror("fork");
+        return;
+    } else if (pid == 0) {
+        // Processo filho
+        close(pipefd[0]);
+        dup2(pipefd[1], STDOUT_FILENO);
+        close(pipefd[1]);
+
+        execlp("grep", "grep", "-c", keyword, filepath, NULL);
+        perror("execlp grep");
+        _exit(1);
+    } else {
+        // Processo pai
+        close(pipefd[1]);
+        char buffer[16] = {0};
+        read(pipefd[0], buffer, sizeof(buffer));
+        close(pipefd[0]);
+
+        // Espera que o filho termine
+        wait(NULL);
+
+        // Envia o resultado para o cliente
+        int fd = open(fifoC, O_WRONLY);
+        if (fd == -1) {
+            perror("open fifo cliente");
+            return;
+        }
+        write(fd, buffer, strlen(buffer));
+        close(fd);
+    }
+}
+
+
 int verifica_comando (Message *msg) {
 
     if (msg == NULL) {
@@ -162,4 +227,3 @@ void error_message(char option) {//MUDAR ISTO PARA MANDAR PARA O CLIENTE
             printf("INVALID ENTRY\n");
     }
 }
-

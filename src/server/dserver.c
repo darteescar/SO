@@ -12,6 +12,7 @@ int main() {
 
     Documentos *docs = create_documentos(10);
     int *server_down = malloc(sizeof(int));
+    *server_down = 0;
 
     while (1) {
         Message *msg = init_message();
@@ -28,7 +29,7 @@ int main() {
             if (verifica_comando(msg) == 1) {
                 docs = exec_comando(msg, docs,server_down);
                 if (*server_down == 1) {
-                    //server_shutdown();
+                    //server_shutdown(docs);
                     break;
                 }
             } else {

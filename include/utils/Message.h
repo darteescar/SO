@@ -33,4 +33,6 @@ int get_message_pid(Message *msg);
 
 int get_key_msg(Message *msg);
 
+char *get_message_argv(Message *msg, int x);
+
 #endif

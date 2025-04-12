@@ -20,11 +20,11 @@ void create_metaDados(Message *msg, Documentos *doc, int i) {
     char *token;
     int field = 0;
 
-    MetaDados *data = &(doc->docs[i]);  // Aponta diretamente para a posição no array
+    MetaDados *data = &(doc->docs[i]);
 
     total += 3; // Skip prefixo
 
-    while ((token = strsep(&total, " ")) != NULL) {
+    while ((token = strsep(&total, "+")) != NULL) {
         switch (field) {
             case 0:
                 data->titulo = strdup(token);
@@ -70,7 +70,6 @@ void create_metaDados(Message *msg, Documentos *doc, int i) {
     doc->ocupados[i] = 1;
     doc->n_docs++;
 }
-
 
 void free_metaDados(MetaDados *data) {
      if (data != NULL) {
@@ -140,6 +139,7 @@ char *MD_toString(MetaDados* data, int key){
     strcat(str, buffer);
     return str;
 }
+
 Documentos *create_documentos(int max_docs) {
     Documentos *docs = malloc(sizeof(Documentos) + max_docs * sizeof(MetaDados));
     if (docs == NULL) {
@@ -218,18 +218,20 @@ int remove_documento(Documentos *docs, int pos) {
     }
 }
 
-MetaDados *consulta_documento(Documentos *docs, int pos, int* flag){
+int documento_existe(Documentos *docs, int pos) {
     if (docs == NULL || pos < 0 || pos >= docs->max_docs) {
-        *flag = -1;
-        return NULL;
-    } else if (docs->ocupados[pos] == 0){
-        *flag = -2;
-        return NULL;
-    } else if (docs->ocupados[pos] == 1){
-        *flag = 1;
-        return &(docs->docs[pos]);
+        return -1;
     }
-    return NULL;
+    else if (docs->ocupados[pos] == 0) {
+        return -2;
+    } else if (docs->ocupados[pos] == 1) {
+        return 1;
+    }
+    return 0;
+}
+
+MetaDados *get_documento (Documentos *docs, int pos) {
+    return &(docs->docs[pos]);
 }
 
 void print_documentos (Documentos *docs) {
