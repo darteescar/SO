@@ -118,9 +118,10 @@ void Client_opcao_L(Message *msg){
     }
 
     //Ler a resposta do servidor
-    char resposta[100];
-    read(fifo, resposta, sizeof(char)*100);
-    printf("%s\n", resposta);
+    char resposta[10];
+    read(fifo, resposta, sizeof(char)*10);
+    strcat(resposta, "\0");
+    printf("%s", resposta);
     close(fifo);
  
     return;

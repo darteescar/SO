@@ -148,9 +148,10 @@ void Server_opcao_L(Message *msg, Documentos *docs, char* folder) {
         // Processo filho
         close(pipefd[0]);
         dup2(pipefd[1], 1);
-        execlp("grep", "grep", "-c", keyword, filepath, NULL);
         close(pipefd[1]);
 
+        execlp("grep", "grep", "-c", keyword, filepath, NULL);
+        perror("execlp");
         _exit(1);
     } else {
         // Processo pai
