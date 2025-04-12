@@ -2,13 +2,15 @@
 
 #define SERVER_FIFO "server_fifo"
 
-int main() {
+int main(int argc, char* argv[]) {
     write(1, "[SERVER STARTED]\n\n", 19);
 
     // Criar FIFO do servidor (se não existir)
     if (mkfifo(SERVER_FIFO, 0666) == -1) {
         perror("mkfifo");
     }
+
+    char* folder = argv[1];
 
     Documentos *docs = create_documentos(10);
     int *server_down = malloc(sizeof(int));
@@ -27,7 +29,7 @@ int main() {
 
         if (bytes > 0) {
             if (verifica_comando(msg) == 1) {
-                docs = exec_comando(msg, docs,server_down);
+                docs = exec_comando(msg, docs,server_down,folder);
                 if (*server_down == 1) {
                     //server_shutdown(docs);
                     break;

@@ -16,7 +16,7 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 
-Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down);
+Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down, char* folder);
 
 Documentos *Server_opcao_A(Message *msg, Documentos *docs);
 

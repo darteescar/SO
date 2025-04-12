@@ -1,7 +1,7 @@
 #include "server/functions.h"
 #define SERVER_FIFO "server_fifo"
 
-Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down) {
+Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down, char *folder) {
     switch (get_message_command(msg)) {
         case 'a':
             return Server_opcao_A(msg, docs);
