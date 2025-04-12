@@ -58,17 +58,18 @@ void create_metaDados(Message *msg, Documentos *doc, int i) {
                 data->ano = atoi(token);
                 break;
             case 3:
-                char *path = malloc(strlen(PATH) + strlen(token) + 1);
+                /*char *path = malloc(strlen(PATH) + strlen(token) + 1);
                 if (path == NULL) {
                     perror("malloc");
                     exit(EXIT_FAILURE);
                 }
                 strcpy(path, PATH);
                 strcat(path, token);
-                data->path = path;
+                */
+                data->path = token;
                 break;
             default:
-                printf("Unknown field\n");
+                //printf("Unknown field\n");
                 break;
         }
         field++;

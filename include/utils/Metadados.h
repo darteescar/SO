@@ -14,7 +14,7 @@
 #include <fcntl.h>
 #include "Message.h"
 
-#define PATH "DatasetTest/Gdataset/Gdataset/"
+//#define PATH "DatasetTest/Gdataset/"
 
 typedef struct metaDados MetaDados;
 

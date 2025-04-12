@@ -94,7 +94,7 @@ int get_key_msg(Message *msg) {
      
      return atoi(buffer);
 } 
-
+/*
 char *get_message_argv(Message *msg, int x) {
      if (msg == NULL) {
           perror("Message is NULL");
@@ -112,4 +112,17 @@ char *get_message_argv(Message *msg, int x) {
           i++;
      }
      return NULL;
+}
+*/
+char *get_keyword_msg(Message *msg) {
+     if (msg == NULL) {
+          perror("Message is NULL");
+          exit(EXIT_FAILURE);
+     }
+     char *buffer = get_message_buffer(msg);
+     buffer+=3;
+
+     char *token = strsep(&buffer, "+");
+     token = strsep(&buffer, "+");
+     return token;
 }

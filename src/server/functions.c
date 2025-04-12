@@ -15,7 +15,7 @@ Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down, char
 
         case 'l':
             // Listar
-            Server_opcao_L(msg, docs);
+            Server_opcao_L(msg, docs, folder);
             break;
         case 's':
             // Pesquisa
@@ -93,28 +93,46 @@ Documentos *Server_opcao_D(Message *msg, Documentos *docs){
     return docs;
 }
  
-void Server_opcao_L(Message *msg, Documentos *docs) {
-    char fifoC[50];
-    sprintf(fifoC, "tmp/%d", get_message_pid(msg));
+void Server_opcao_L(Message *msg, Documentos *docs, char* folder) {
+    char fifoL[50];
+    sprintf(fifoL, "tmp/%d", get_message_pid(msg));
 
     int key = get_key_msg(msg);
-    char *keyword = get_message_argv(msg, 1);
-    int idx = documento_existe(docs, key);
-
-    if (idx == -2) {
-        dprintf(STDERR_FILENO, "Não existe nenhum documento com a chave %d\n", key);
+    int flag = documento_existe(docs, key);
+    char *keyword = get_keyword_msg(msg);
+    if (keyword == NULL) {
+        perror("get_keyword_msg");
         return;
-    } else if (idx == -1) {
-        dprintf(STDERR_FILENO, "Posição Inválida\n");
+    }
+
+    char resposta[200];
+    if (flag == -2){
+        sprintf(resposta, "Não existe nenhum documento com a chave %d", key);
+
+        int fdL = open(fifoL, O_WRONLY);
+        if (fdL == -1) {
+            perror("open");
+            return;
+        }
+        write(fdL, resposta, sizeof(char) * 200);
+        close(fdL);
+        return;
+    } else if (flag == -1) {
+        sprintf(resposta, "Posição Inválida");
+
+        int fdL = open(fifoL, O_WRONLY);
+        if (fdL == -1) {
+            perror("open");
+            return;
+        }
+        write(fdL, resposta, sizeof(char) * 200);
+        close(fdL);
         return;
     }
 
     // Obtem o path do documento
-    char *filepath = get_MD_path(get_documento(docs, key));
-    if (filepath == NULL) {
-        dprintf(STDERR_FILENO, "Erro ao obter o path do documento\n");
-        return;
-    }
+    char filepath[100];
+    sprintf(filepath, "%s%s", folder, get_MD_path(get_documento(docs, key)));
 
     int pipefd[2];
     if (pipe(pipefd) == -1) {
@@ -129,29 +147,29 @@ void Server_opcao_L(Message *msg, Documentos *docs) {
     } else if (pid == 0) {
         // Processo filho
         close(pipefd[0]);
-        dup2(pipefd[1], STDOUT_FILENO);
+        dup2(pipefd[1], 1);
+        execlp("grep", "grep", "-c", keyword, filepath, NULL);
         close(pipefd[1]);
 
-        execlp("grep", "grep", "-c", keyword, filepath, NULL);
-        perror("execlp grep");
         _exit(1);
     } else {
         // Processo pai
         close(pipefd[1]);
-        char buffer[16] = {0};
-        read(pipefd[0], buffer, sizeof(buffer));
+        char buffer[100];
+        read(pipefd[0], buffer, 100*sizeof(char));
+
         close(pipefd[0]);
 
         // Espera que o filho termine
         wait(NULL);
 
         // Envia o resultado para o cliente
-        int fd = open(fifoC, O_WRONLY);
+        int fd = open(fifoL, O_WRONLY);
         if (fd == -1) {
             perror("open fifo cliente");
             return;
         }
-        write(fd, buffer, strlen(buffer));
+        write(fd, buffer, 100*sizeof(char));
         close(fd);
     }
 }

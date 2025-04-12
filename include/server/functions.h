@@ -24,7 +24,7 @@ void Server_opcao_C(Message *msg, Documentos *docs);
 
 Documentos *Server_opcao_D(Message *msg, Documentos *docs);
 
-void Server_opcao_L (Message *msg, Documentos *docs);
+void Server_opcao_L (Message *msg, Documentos *docs, char *folder);
 
 int verifica_comando (Message *msg);
 

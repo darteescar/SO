@@ -108,21 +108,21 @@ void Client_opcao_D(Message *msg){
 }
 
 void Client_opcao_L(Message *msg){
-    int pidD = getpid();
-    char bufferD[512];
-    sprintf(bufferD, "tmp/%d", pidD);
+    int pid = getpid();
+    char buffer[512];
+    sprintf(buffer, "tmp/%d", pid);
 
-    int fifoD = open(bufferD, O_RDONLY);
-    if (fifoD == -1) {
+    int fifo = open(buffer, O_RDONLY);
+    if (fifo == -1) {
         perror("open");
         return;
     }
 
     //Ler a resposta do servidor
-    char respostaD[200];
-    read(fifoD, respostaD, sizeof(char)*200);
-    printf("%s\n", respostaD);
-    close(fifoD);
+    char resposta[100];
+    read(fifo, resposta, sizeof(char)*100);
+    printf("%s\n", resposta);
+    close(fifo);
  
     return;
 
