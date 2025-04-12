@@ -15,13 +15,13 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-int exec_comando (Message *msg, Documentos **docs);
+Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down);
 
-void Server_opcao_A(Message *msg, Documentos **docs);
+Documentos *Server_opcao_A(Message *msg, Documentos *docs);
 
-void Server_opcao_C(Message *msg, Documentos **docs);
+void Server_opcao_C(Message *msg, Documentos *docs);
 
-void Server_opcao_D(Message *msg, Documentos **docs);
+Documentos *Server_opcao_D(Message *msg, Documentos *docs);
 
 int verifica_comando (Message *msg);
 

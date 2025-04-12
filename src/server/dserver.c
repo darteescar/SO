@@ -11,6 +11,7 @@ int main() {
     }
 
     Documentos *docs = create_documentos(10);
+    int *server_down = malloc(sizeof(int));
 
     while (1) {
         Message *msg = init_message();
@@ -25,7 +26,11 @@ int main() {
 
         if (bytes > 0) {
             if (verifica_comando(msg) == 1) {
-                if (exec_comando(msg, &docs) == 0) { break; }
+                docs = exec_comando(msg, docs,server_down);
+                if (*server_down == 1) {
+                    //server_shutdown();
+                    break;
+                }
             } else {
                 error_message(get_message_command(msg));
             }

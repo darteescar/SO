@@ -1,19 +1,17 @@
 #include "server/functions.h"
 #define SERVER_FIFO "server_fifo"
 
-int exec_comando (Message *msg, Documentos **docs) {
+Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down) {
     switch (get_message_command(msg)) {
         case 'a':
-            Server_opcao_A(msg, docs);
-            break;
+            return Server_opcao_A(msg, docs);
 
         case 'c':
             Server_opcao_C(msg, docs);
             break;
 
         case 'd':
-            Server_opcao_D(msg, docs);
-            break;
+            return Server_opcao_D(msg, docs);
 
         case 'l':
             // Listar
@@ -22,36 +20,38 @@ int exec_comando (Message *msg, Documentos **docs) {
             // Pesquisa
             break;
         case 'f':
-            return 0;
+            // Fechar
+            *server_down = 1;
             break;
         default:
             // Comando inválido
     }
-    return 1;
+    return docs;
 }
 
-void Server_opcao_A(Message *msg, Documentos **docs){
+Documentos *Server_opcao_A(Message *msg, Documentos *docs){
     // Criar o FIFO
     char fifoA[50];
     sprintf(fifoA, "tmp/%d", get_message_pid(msg));
     int *pos_onde_foi_add = malloc(sizeof(int));
 
-    // Passar &docs para poder atualizar o ponteiro
-    *docs = add_documento(*docs, msg, pos_onde_foi_add);
+    docs = add_documento(docs, msg, pos_onde_foi_add);
 
     int fdA = open(fifoA, O_WRONLY);
     write(fdA, pos_onde_foi_add, sizeof(int));
     close(fdA);
+    //free(pos_onde_foi_add);
+    return docs;
 }
 
-void Server_opcao_C(Message *msg, Documentos **docs){
+void Server_opcao_C(Message *msg, Documentos *docs){
     // Criar o FIFO
     char fifoC[50];
     sprintf(fifoC, "tmp/%d", get_message_pid(msg));
 
     int keyC = get_key_msg(msg);
     int flagC = 0;
-    MetaDados* reply = consulta_documento(*docs,keyC, &flagC);
+    MetaDados* reply = consulta_documento(docs,keyC, &flagC);
 
     char respostaC[500];
     if (flagC == 1) {
@@ -69,14 +69,12 @@ void Server_opcao_C(Message *msg, Documentos **docs){
     close(fdC);
 }
 
-void Server_opcao_D(Message *msg, Documentos **docs){
-    // Criar o FIFO
+Documentos *Server_opcao_D(Message *msg, Documentos *docs){
     char fifoD[50];
     sprintf(fifoD, "tmp/%d", get_message_pid(msg));
 
-    //Passa o bit ocupado a 0
     int keyD = get_key_msg(msg);
-    int flagD = remove_documento(*docs, keyD);
+    int flagD = remove_documento(docs, keyD);
 
     char respostaD[100];
     if (flagD == 1) {
@@ -87,12 +85,11 @@ void Server_opcao_D(Message *msg, Documentos **docs){
         sprintf(respostaD, "Não existe nenhum documento com a chave %d", keyD);
     }
 
-    // Manda uma mensagem para o cliente a dizer que foi apagado ou não
     int fdD = open(fifoD, O_WRONLY);
     write(fdD, respostaD, sizeof(char)*100);
     close(fdD);
-    
-    // Apagar
+
+    return docs;
 }
  
 int verifica_comando (Message *msg) {
