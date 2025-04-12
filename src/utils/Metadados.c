@@ -207,7 +207,7 @@ int remove_documento(Documentos *docs, int pos) {
         return -1;
     }
     if (docs->ocupados[pos] == 1) {
-        free_metaDados(&(docs->docs[pos]));
+        //free_metaDados(&(docs->docs[pos]));
         docs->ocupados[pos] = 0;
         docs->n_docs--;
         return 1;
