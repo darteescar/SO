@@ -31,13 +31,14 @@ void reply(Message *msg){
 
     // Ler a resposta do servidor
     char resposta[512];
-    int bytes_read = read(fifo, resposta, sizeof(resposta));
+    int bytes_read = read(fifo, resposta, 512*sizeof(char));
     if (bytes_read == -1) {
         perror("read");
         close(fifo);
         return;
     }
-    write(1, resposta, bytes_read);
+    printf("%s", resposta);
+    //write(1, resposta, bytes_read);
     close(fifo);
     
 }

@@ -24,7 +24,7 @@ Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down, char
             // Pesquisa
             break;
         case 'f':
-            // Fechar
+            Server_opcao_F(msg, docs);
             *server_down = 1;
             break;
         default:
@@ -67,13 +67,13 @@ void Server_opcao_C(Message *msg, Documentos *docs){
     if (doc_existe == 1) {
         MetaDados* reply = get_documento(docs,keyC);
         char *str = MD_toString(reply, keyC);
-        sprintf(respostaC, "%s", str);
+        sprintf(respostaC, "%s\n", str);
         free(str);        
     } else if (doc_existe == -2) {
-        sprintf(respostaC, "Não existe nenhum documento com a chave %d", keyC);
+        sprintf(respostaC, "Não existe nenhum documento com a chave %d\n", keyC);
     
     } else if (doc_existe == -1) {
-        sprintf(respostaC, "Posição Inválida");
+        sprintf(respostaC, "Posição Inválida\n");
     }
 
     int fdC = open(fifoC, O_WRONLY);
@@ -90,11 +90,11 @@ Documentos *Server_opcao_D(Message *msg, Documentos *docs){
 
     char respostaD[100];
     if (flagD == 1) {
-        sprintf(respostaD, "O documento com a chave %d foi apagado", keyD);
+        sprintf(respostaD, "O documento com a chave %d foi apagado\n", keyD);
     } else if (flagD == -1) {
-        sprintf(respostaD, "Posição Inválida");
+        sprintf(respostaD, "Posição Inválida\n");
     } else if (flagD == -2){
-        sprintf(respostaD, "Não existe nenhum documento com a chave %d", keyD);
+        sprintf(respostaD, "Não existe nenhum documento com a chave %d\n", keyD);
     }
 
     int fdD = open(fifoD, O_WRONLY);
@@ -118,7 +118,7 @@ void Server_opcao_L(Message *msg, Documentos *docs, char* folder) {
 
     char resposta[200];
     if (flag == -2){
-        sprintf(resposta, "Não existe nenhum documento com a chave %d", key);
+        sprintf(resposta, "Não existe nenhum documento com a chave %d\n", key);
 
         int fdL = open(fifoL, O_WRONLY);
         if (fdL == -1) {
@@ -129,7 +129,7 @@ void Server_opcao_L(Message *msg, Documentos *docs, char* folder) {
         close(fdL);
         return;
     } else if (flag == -1) {
-        sprintf(resposta, "Posição Inválida");
+        sprintf(resposta, "Posição Inválida\n");
 
         int fdL = open(fifoL, O_WRONLY);
         if (fdL == -1) {
@@ -182,8 +182,26 @@ void Server_opcao_L(Message *msg, Documentos *docs, char* folder) {
             return;
         }
         write(fd, buffer, 100*sizeof(char));
+        write(fd, "\n", 1);
         close(fd);
     }
+}
+
+void Server_opcao_F(Message *msg, Documentos *docs){
+    char fifo[50];
+    sprintf(fifo, "tmp/%d", get_message_pid(msg));
+
+    int fd = open(fifo, O_WRONLY);
+    if (fd == -1) {
+        perror("open");
+        return;
+    }
+
+    char resposta[100];
+    sprintf(resposta, "Servidor a terminar...\n");
+    write(fd, resposta, sizeof(resposta));
+    close(fd);
+
 }
 
 int verifica_comando (Message *msg) {
