@@ -28,6 +28,6 @@ void Server_opcao_L (Message *msg, Documentos *docs, char *folder);
 
 int verifica_comando (Message *msg);
 
-void error_message(char option);
+void error_message(Message *msg);
 
 #endif

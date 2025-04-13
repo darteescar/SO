@@ -10,14 +10,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+void send_message(Message *msg);
+
 void reply(Message *msg);
 
-void Client_opcao_A(Message *msg);
-
-void Client_opcao_C(Message *msg);
-
-void Client_opcao_D(Message *msg);
-
-void Client_opcao_L(Message *msg);
 
 #endif

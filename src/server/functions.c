@@ -4,13 +4,16 @@
 Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down, char *folder) {
     switch (get_message_command(msg)) {
         case 'a':
+            // Adicionar
             return Server_opcao_A(msg, docs);
 
         case 'c':
+            // Consultar
             Server_opcao_C(msg, docs);
             break;
 
         case 'd':
+            // Apagar
             return Server_opcao_D(msg, docs);
 
         case 'l':
@@ -31,7 +34,6 @@ Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down, char
 }
 
 Documentos *Server_opcao_A(Message *msg, Documentos *docs){
-    // Criar o FIFO
     char fifoA[50];
     sprintf(fifoA, "tmp/%d", get_message_pid(msg));
     int *pos_onde_foi_add = malloc(sizeof(int));
@@ -39,9 +41,18 @@ Documentos *Server_opcao_A(Message *msg, Documentos *docs){
     docs = add_documento(docs, msg, pos_onde_foi_add);
 
     int fdA = open(fifoA, O_WRONLY);
-    write(fdA, pos_onde_foi_add, sizeof(int));
+    if (fdA == -1) {
+        perror("open");
+        free(pos_onde_foi_add);
+        return docs;
+    }
+
+    char respostaA[100];
+    sprintf(respostaA, "Documento %d adicionado\n", *pos_onde_foi_add);
+    write(fdA, respostaA, strlen(respostaA));
     close(fdA);
-    //free(pos_onde_foi_add);
+
+    free(pos_onde_foi_add);
     return docs;
 }
 
@@ -52,7 +63,7 @@ void Server_opcao_C(Message *msg, Documentos *docs){
 
     int keyC = get_key_msg(msg);
     int doc_existe = documento_existe(docs, keyC);
-    char respostaC[500];
+    char respostaC[512];
     if (doc_existe == 1) {
         MetaDados* reply = get_documento(docs,keyC);
         char *str = MD_toString(reply, keyC);
@@ -175,7 +186,6 @@ void Server_opcao_L(Message *msg, Documentos *docs, char* folder) {
     }
 }
 
-
 int verifica_comando (Message *msg) {
 
     if (msg == NULL) {
@@ -222,27 +232,37 @@ int verifica_comando (Message *msg) {
      
  }
  
-void error_message(char option) {//MUDAR ISTO PARA MANDAR PARA O CLIENTE
+void error_message(Message *msg) {//MUDAR ISTO PARA MANDAR PARA O CLIENTE
+    char fifo[50];
+    sprintf(fifo, "tmp/%d", get_message_pid(msg));
+    int fd = open(fifo, O_WRONLY);
+    if (fd == -1) {
+        perror("open");
+        return;
+    }
+    char option = get_message_command(msg);
     switch(option){
         case 'a':
-            printf("[TRY] -a <title> <authors> <year> <path>\n");
+            write(fd, "[TRY] -a <title> <authors> <year> <path>\n", 17);
             break;
         case 'c':
-            printf("[TRY] -c <key>\n");
+            write(fd, "[TRY] -c <key>\n", 14);
             break;
         case 'd':
-            printf("[TRY] -d <key>\n");
+            write(fd, "[TRY] -d <key>\n", 14);
             break;
         case 'l':
-            printf("[TRY] -l <key> <keyword>\n");
+            write(fd, "[TRY] -l <key> <keyword>\n", 24);
             break;
         case 's':
-            printf("[TRY] -s <keyword>\n");
+            write(fd, "[TRY] -s <key> <keyword>\n", 24);
             break;
         case 'f':
-            printf("[TRY] -f\n");
+            write(fd, "[TRY] -f\n", 9);
             break;
         default:
-            printf("INVALID ENTRY\n");
+            write(fd, "[TRY] <command>\n", 16);
+            break;
     }
+    close(fd);
 }

@@ -3,6 +3,12 @@
 #define SERVER_FIFO "server_fifo"
 
 int main(int argc, char* argv[]) {
+
+    if (argc < 2) {
+        write(1, "[TRY]: ./dclient <folder> <cache_size>\n",40);
+        return -1;
+    }
+    
     write(1, "[SERVER STARTED]\n\n", 19);
 
     // Criar FIFO do servidor (se não existir)
@@ -35,7 +41,7 @@ int main(int argc, char* argv[]) {
                     break;
                 }
             } else {
-                error_message(get_message_command(msg));
+                error_message(msg);
             }
         }
     }
