@@ -48,7 +48,7 @@ Documentos *Server_opcao_A(Message *msg, Documentos *docs){
         return docs;
     }
 
-    char respostaA[100];
+    char respostaA[100]={0};
     sprintf(respostaA, "Documento %d adicionado\n", *pos_onde_foi_add);
     write(fdA, respostaA, strlen(respostaA));
     close(fdA);
@@ -64,7 +64,7 @@ void Server_opcao_C(Message *msg, Documentos *docs){
 
     int keyC = get_key_msg(msg);
     int doc_existe = documento_existe(docs, keyC);
-    char respostaC[512];
+    char respostaC[512]={0};
     if (doc_existe == 1) {
         MetaDados* reply = get_documento(docs,keyC);
         char *str = MD_toString(reply, keyC);
@@ -89,7 +89,7 @@ Documentos *Server_opcao_D(Message *msg, Documentos *docs){
     int keyD = get_key_msg(msg);
     int flagD = remove_documento(docs, keyD);
 
-    char respostaD[100];
+    char respostaD[100]={0};
     if (flagD == 1) {
         sprintf(respostaD, "O documento com a chave %d foi apagado\n", keyD);
     } else if (flagD == -1) {
@@ -343,7 +343,7 @@ void Server_opcao_F(Message *msg, Documentos *docs){
         return;
     }
 
-    char resposta[100]; 
+    char resposta[100]={0}; 
     sprintf(resposta, "Servidor a terminar...\n");
     write(fd, resposta, sizeof(resposta));
     close(fd);
