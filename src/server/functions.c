@@ -231,18 +231,13 @@ void Server_opcao_S(Message *msg, Documentos *docs, char* folder) {
             }
 
             if (pid == 0) {
-                // Processo filho: executa grep -q
                 execlp("grep", "grep", "-q", keyword, filepath, NULL);
-                // Se falhar
                 _exit(1);
             } else {
-                // Processo pai: espera e analisa o resultado
                 int status;
                 waitpid(pid, &status, 0);
 
                 if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
-                    // Encontrou a keyword neste documento
-
                     char num[20];
                     snprintf(num, sizeof(num), "%d", i);
                     int num_len = strlen(num);
@@ -287,7 +282,6 @@ void Server_opcao_S(Message *msg, Documentos *docs, char* folder) {
         strcpy(resposta, "[]");
     }
 
-    // Envia a resposta para o cliente
     int fd = open(fifoS, O_WRONLY);
     if (fd == -1) {
         perror("open fifoS");
