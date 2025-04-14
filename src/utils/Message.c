@@ -26,12 +26,12 @@ Message *init_message() {
      msg->argc = argc-2;
      msg->pid = pid;
      for (int i = 1; i < argc; i++) {
-          strcat(msg->buffer, argv[i]);
-          if (i < argc - 1) {
+         strcat(msg->buffer, argv[i]);
+         if (i < argc - 1) {
                strcat(msg->buffer, "+"); // adiciona '+' entre os argumentos
-          }
+         }
      }
- }
+ } 
  
  size_t get_message_size(Message *msg) {
      if (msg == NULL) {
@@ -124,5 +124,17 @@ char *get_keyword_msg(Message *msg) {
 
      char *token = strsep(&buffer, "+");
      token = strsep(&buffer, "+");
+     return token;
+}
+
+char *get_keyword_msg_s(Message *msg) {
+     if (msg == NULL) {
+          perror("Message is NULL");
+          exit(EXIT_FAILURE);
+     }
+     char *buffer = get_message_buffer(msg);
+     buffer+=3;
+
+     char *token = strsep(&buffer, "+");
      return token;
 }

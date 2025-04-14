@@ -22,6 +22,7 @@ Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down, char
             break;
         case 's':
             // Pesquisa
+            Server_opcao_S(msg, docs, folder);
             break;
         case 'f':
             Server_opcao_F(msg, docs);
@@ -193,6 +194,143 @@ void Server_opcao_L(Message *msg, Documentos *docs, char* folder) {
         write(fd, buffer, n);
         close(fd);
     }
+}
+
+void Server_opcao_S(Message *msg, Documentos *docs, char* folder) {
+
+    // Criar o FIFO
+    char fifoS[50];
+    sprintf(fifoS, "tmp/%d", get_message_pid(msg));
+
+    char *keyword = get_keyword_msg_s(msg);
+    if (keyword == NULL) {
+        perror("get_keyword_msg");
+        return;
+    }
+    char *resposta = malloc(sizeof(char) * 100);
+    int size = 0;
+    int max_size = 100;
+
+    int num_docs = get_num_docs(docs);
+    for (int i = 0; i < num_docs; i++) {
+        // Verifica se o documento existe
+        if (documento_existe(docs, i) == 1) {
+            // Get do documento
+            MetaDados *doc = get_documento(docs, i);
+            //print_metaDados(doc);
+            // Cria o caminho até ao documento 
+            char filepath[100];
+            sprintf(filepath, "%s%s", folder, get_MD_path(doc));
+
+            // Cria o pipe que vai receber o resultado do grep
+            int pipefd[2];
+            if (pipe(pipefd) == -1) {
+                perror("pipe");
+                return;
+            }
+
+            // Cria o processo filho
+            int pid = fork();
+            if (pid == -1) {
+                perror("fork");
+                return;
+            } else if (pid == 0) {
+                // Processo filho
+                close(pipefd[0]);
+                dup2(pipefd[1], 1);
+                close(pipefd[1]);
+
+                execlp("wc", "wc", "-w", filepath, NULL);
+                perror("execlp");
+                _exit(1);
+            } else {
+                // Processo pai
+                close(pipefd[1]);
+                char buffer[10] = {0};
+
+                // Espera que o filho termine
+                wait(NULL);
+
+                // Lê o resultado do pipe
+                ssize_t n = read(pipefd[0], buffer, sizeof(buffer));
+                if (n == -1) {
+                    perror("read");
+                    close(pipefd[0]);
+                    return;
+                }
+                close(pipefd[0]);
+                buffer[n] = '\0'; // Adiciona o terminador nulo
+                int word_count = atoi(buffer);
+                // Verifica se a palavra-chave está presente no documento
+                if (word_count != 0) {
+                    // Converter o identificador para string
+                    char linha[20];
+                    snprintf(linha, sizeof(linha), "%d", i);
+                    int linha_len = strlen(linha);
+                
+                    // Se for o primeiro elemento, abre o colchete
+                    if (size == 0) {
+                        strcpy(resposta, "[");
+                        size = 1;
+                    } else {
+                        // Adiciona vírgula e espaço se já houver outros elementos
+                        if (size + 2 > max_size) {
+                            max_size *= 2;
+                            resposta = realloc(resposta, sizeof(char) * max_size);
+                            if (resposta == NULL) {
+                                perror("realloc");
+                                return;
+                            }
+                        }
+                        strcat(resposta, ", ");
+                        size += 2;
+                    }
+                
+                    // Verifica se há espaço suficiente e copia o número
+                    if (size + linha_len + 2 > max_size) {
+                        max_size = (size + linha_len + 2) * 2;
+                        resposta = realloc(resposta, sizeof(char) * max_size);
+                        if (resposta == NULL) {
+                            perror("realloc");
+                            return;
+                        }
+                    }
+                    strcat(resposta, linha);
+                    size += linha_len;
+                }
+                
+            
+        }
+    }
+}
+    if (size > 0) {
+        if (size + 2 > max_size) {
+            max_size += 2;
+            resposta = realloc(resposta, sizeof(char) * max_size);
+            if (resposta == NULL) {
+                perror("realloc");
+                return;
+            }
+        }
+        strcat(resposta, "]");
+        size += 1;
+    } else {
+        // Se não encontrou nada, devolve lista vazia
+        strcpy(resposta, "[]");
+        size = 2;
+    }
+
+
+    // Envia a resposta para o cliente
+    int fd = open(fifoS, O_WRONLY);
+    if (fd == -1) {
+    perror("open");
+            return;
+    }
+    resposta[size] = '\0';
+    write(fd, resposta, strlen(resposta));
+    close(fd);
+    free(resposta);
 }
 
 void Server_opcao_F(Message *msg, Documentos *docs){

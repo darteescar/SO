@@ -66,6 +66,7 @@ void create_metaDados(Message *msg, Documentos *doc, int i) {
         }
         field++;
     }
+    
 
     doc->ocupados[i] = 1;
     doc->n_docs++;
@@ -83,26 +84,31 @@ void free_metaDados(MetaDados *data) {
      }
 }
 
-void print_metaDados(MetaDados data) {
-    write(1, "[MetaDados]\n", 13);
-    write(1, "Titulo: ", 8);
-    write(1, data.titulo, strlen(data.titulo));
-    write(1, "\nAutores: ", 10);
-    for (int i = 0; i<data.n_autores; i++) {
-         write(1, data.autores[i], strlen(data.autores[i]));
-         write(1, " ", 1);
+void print_metaDados(MetaDados *data) {
+    if (data == NULL) {
+        write(1, "MetaDados is NULL\n", 18);
+        return;
     }
-    char aa[20];
-    sprintf(aa, "\nNº Autores: %d", data.n_autores);
-    write(1, aa, strlen(aa));
+    write(1, "[MetaDados]\n", 12);
+    write(1, "Titulo: ", 8);
+    write(1, data->titulo, strlen(data->titulo));
+    write(1, "\nAutores: ", 9);
+    for (int i = 0; i < data->n_autores; i++) {
+        write(1, data->autores[i], strlen(data->autores[i]));
+        if (i < data->n_autores - 1) {
+            write(1, ", ", 2);
+        }
+    }
     write(1, "\nAno: ", 6);
-    char ano[10];
-    sprintf(ano, "%d", data.ano);
-    write(1, ano, strlen(ano));
+    char buffer[10];
+    sprintf(buffer, "%d", data->ano);
+    write(1, buffer, strlen(buffer));
     write(1, "\nPath: ", 7);
-    write(1, data.path, strlen(data.path));
-    write(1, "\n\n", 2);
+    write(1, data->path, strlen(data->path));
+    write(1, "\n", 1);
 }
+
+
 
 char* get_MD_titulo(MetaDados *data){
      return strdup(data->titulo);
@@ -242,7 +248,12 @@ void print_documentos (Documentos *docs) {
     write(1, "[Documentos]\n", 14);
     for (int i = 0; i < docs->n_docs; i++) {
         if (docs->ocupados[i] == 1) {
-            print_metaDados(docs->docs[i]);
+            print_metaDados(&(docs->docs[i]));
         }
     }
 }
+
+int get_num_docs(Documentos *docs) {
+    return docs->n_docs;
+}
+

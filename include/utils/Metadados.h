@@ -22,7 +22,7 @@ void create_metaDados(Message *msg, Documentos *doc, int i);
 
 void free_metaDados(MetaDados *data);
 
-void print_metaDados(MetaDados data);
+void print_metaDados(MetaDados *data);
 
 char* get_MD_titulo(MetaDados *data);
 
@@ -47,5 +47,7 @@ int documento_existe(Documentos *docs, int pos);
 MetaDados *get_documento (Documentos *docs, int pos);
 
 void print_documentos (Documentos *docs);
+
+int get_num_docs(Documentos *docs);
 
 #endif
