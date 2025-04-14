@@ -20,18 +20,21 @@ Message *init_message() {
  
  void create_message(Message *msg, char *argv[], int argc, int pid) {
      if (msg == NULL) {
-          perror("Message is NULL");
-          exit(EXIT_FAILURE);
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
      }
-     msg->argc = argc-2;
+ 
+     msg->argc = argc - 2;
      msg->pid = pid;
+     msg->buffer[0] = '\0'; // limpa buffer
+ 
      for (int i = 1; i < argc; i++) {
          strcat(msg->buffer, argv[i]);
          if (i < argc - 1) {
-               strcat(msg->buffer, "+"); // adiciona '+' entre os argumentos
+             strcat(msg->buffer, FIELD_SEP); // separador seguro
          }
      }
- } 
+ }
  
  size_t get_message_size(Message *msg) {
      if (msg == NULL) {

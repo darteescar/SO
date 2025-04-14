@@ -22,9 +22,9 @@ void create_metaDados(Message *msg, Documentos *doc, int i) {
 
     MetaDados *data = &(doc->docs[i]);
 
-    total += 3; // Skip prefixo
+    total += 3; // Salta prefixo, se necessário (verifica se deves manter isto)
 
-    while ((token = strsep(&total, "+")) != NULL) {
+    while ((token = strsep(&total, FIELD_SEP)) != NULL) {
         switch (field) {
             case 0:
                 data->titulo = strdup(token);
@@ -39,7 +39,7 @@ void create_metaDados(Message *msg, Documentos *doc, int i) {
                     exit(EXIT_FAILURE);
                 }
 
-                while ((token2 = strsep(&token, ";")) != NULL) {
+                while ((token2 = strsep(&token, AUTHOR_SEP)) != NULL) {
                     if (j >= size) {
                         size *= 2;
                         data->autores = realloc(data->autores, size * sizeof(char *));
@@ -48,9 +48,9 @@ void create_metaDados(Message *msg, Documentos *doc, int i) {
                             exit(EXIT_FAILURE);
                         }
                     }
-                    data->autores[j] = strdup(token2);
-                    j++;
+                    data->autores[j++] = strdup(token2);
                 }
+
                 data->n_autores = j;
                 break;
             }
@@ -58,15 +58,13 @@ void create_metaDados(Message *msg, Documentos *doc, int i) {
                 data->ano = atoi(token);
                 break;
             case 3:
-                data->path = token;
+                data->path = strdup(token);
                 break;
             default:
-                //printf("Unknown field\n");
                 break;
         }
         field++;
     }
-    
 
     doc->ocupados[i] = 1;
     doc->n_docs++;
