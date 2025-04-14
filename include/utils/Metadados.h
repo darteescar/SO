@@ -53,4 +53,8 @@ void print_documentos (Documentos *docs);
 
 int get_num_docs(Documentos *docs);
 
+int get_nTotal(Documentos *docs);
+
+int* get_ocupados(Documentos *docs);
+
 #endif

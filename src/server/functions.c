@@ -170,8 +170,10 @@ void Server_opcao_S(Message *msg, Documentos *docs, char* folder) {
     int size = 0;
     int max_size = 100;
 
-    int num_docs = get_num_docs(docs);
-    for (int i = 0; i < num_docs; i++) {
+    int n_total = get_nTotal(docs);
+    
+
+    for (int i = 0; i < n_total; i++) {
         if (documento_existe(docs, i) == 1) {
             MetaDados *doc = get_documento(docs, i);
 

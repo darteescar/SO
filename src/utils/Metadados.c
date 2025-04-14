@@ -12,8 +12,17 @@ struct documentos {
     int n_docs;
     int max_docs;
     int *ocupados;
+    int ntotal;
     MetaDados docs[];
 };
+
+int* get_ocupados(Documentos *docs) {
+    return docs->ocupados;//fazer copia dps
+}
+
+int get_nTotal(Documentos *docs) {
+    return docs->ntotal;
+}
 
 void create_metaDados(Message *msg, Documentos *doc, int i) {
     char *total = get_message_buffer(msg);
@@ -68,6 +77,7 @@ void create_metaDados(Message *msg, Documentos *doc, int i) {
 
     doc->ocupados[i] = 1;
     doc->n_docs++;
+    doc->ntotal++;
 }
 
 void free_metaDados(MetaDados *data) {
@@ -154,6 +164,7 @@ Documentos *create_documentos(int max_docs) {
         exit(EXIT_FAILURE);
     }
     docs->n_docs = 0;
+    docs->ntotal = 0;
     docs->max_docs = max_docs;
     docs->ocupados = malloc(max_docs * sizeof(int));
     if (docs->ocupados == NULL) {
