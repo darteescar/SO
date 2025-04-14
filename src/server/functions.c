@@ -77,7 +77,7 @@ void Server_opcao_C(Message *msg, Documentos *docs){
     }
 
     int fdC = open(fifoC, O_WRONLY);
-    write(fdC, respostaC, sizeof(char)*500);
+    write(fdC, respostaC, strlen(respostaC));
     close(fdC);
 }
 
@@ -116,8 +116,8 @@ void Server_opcao_L(Message *msg, Documentos *docs, char* folder) {
         return;
     }
 
-    char resposta[200];
     if (flag == -2){
+        char resposta[200] = {0};
         sprintf(resposta, "Não existe nenhum documento com a chave %d\n", key);
 
         int fdL = open(fifoL, O_WRONLY);
@@ -125,10 +125,11 @@ void Server_opcao_L(Message *msg, Documentos *docs, char* folder) {
             perror("open");
             return;
         }
-        write(fdL, resposta, sizeof(char) * 200);
+        write(fdL, resposta, strlen(resposta));
         close(fdL);
         return;
     } else if (flag == -1) {
+        char resposta[200] = {0};
         sprintf(resposta, "Posição Inválida\n");
 
         int fdL = open(fifoL, O_WRONLY);
@@ -167,13 +168,20 @@ void Server_opcao_L(Message *msg, Documentos *docs, char* folder) {
     } else {
         // Processo pai
         close(pipefd[1]);
-        char buffer[100];
-        read(pipefd[0], buffer, 100*sizeof(char));
-
-        close(pipefd[0]);
+        char buffer[100] = {0};
 
         // Espera que o filho termine
         wait(NULL);
+
+        // Lê o resultado do pipe
+        ssize_t n = read(pipefd[0], buffer, sizeof(buffer));
+        if (n == -1) {
+            perror("read");
+            close(pipefd[0]);
+            return;
+        }
+        close(pipefd[0]);
+        buffer[n] = '\0'; // Adiciona o terminador nulo
 
         // Envia o resultado para o cliente
         int fd = open(fifoL, O_WRONLY);
@@ -181,8 +189,8 @@ void Server_opcao_L(Message *msg, Documentos *docs, char* folder) {
             perror("open fifo cliente");
             return;
         }
-        write(fd, buffer, 100*sizeof(char));
-        write(fd, "\n", 1);
+        
+        write(fd, buffer, n);
         close(fd);
     }
 }
@@ -197,7 +205,7 @@ void Server_opcao_F(Message *msg, Documentos *docs){
         return;
     }
 
-    char resposta[100];
+    char resposta[100]; 
     sprintf(resposta, "Servidor a terminar...\n");
     write(fd, resposta, sizeof(resposta));
     close(fd);
@@ -261,25 +269,25 @@ void error_message(Message *msg) {//MUDAR ISTO PARA MANDAR PARA O CLIENTE
     char option = get_message_command(msg);
     switch(option){
         case 'a':
-            write(fd, "[TRY] -a <title> <authors> <year> <path>\n", 17);
+            write(fd, "[TRY] -a <title> <authors> <year> <path>\n", 42);
             break;
         case 'c':
-            write(fd, "[TRY] -c <key>\n", 14);
+            write(fd, "[TRY] -c <key>\n", 16);
             break;
         case 'd':
-            write(fd, "[TRY] -d <key>\n", 14);
+            write(fd, "[TRY] -d <key>\n", 16);
             break;
         case 'l':
-            write(fd, "[TRY] -l <key> <keyword>\n", 24);
+            write(fd, "[TRY] -l <key> <keyword>\n", 26);
             break;
         case 's':
-            write(fd, "[TRY] -s <key> <keyword>\n", 24);
+            write(fd, "[TRY] -s <key> <keyword>\n", 26);
             break;
         case 'f':
-            write(fd, "[TRY] -f\n", 9);
+            write(fd, "[TRY] -f\n", 10);
             break;
         default:
-            write(fd, "[TRY] <command>\n", 16);
+            write(fd, "[TRY] <command>\n", 17);
             break;
     }
     close(fd);
