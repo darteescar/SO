@@ -18,26 +18,49 @@ void send_message (Message *msg){
 }
 
 void reply(Message *msg){
-    // Criar o FIFO
     int pid = getpid();
-    char buffer[512];
-    sprintf(buffer, "tmp/%d", pid);
+    char fifo_path[512];
+    sprintf(fifo_path, "tmp/%d", pid);
 
-    int fifo = open(buffer, O_RDONLY);
+    int fifo = open(fifo_path, O_RDONLY);
     if (fifo == -1) {
         perror("open");
         return;
     }
 
-    // Ler a resposta do servidor
-    char resposta[512];
-    int bytes_read = read(fifo, resposta, sizeof(resposta));
-    if (bytes_read == -1) {
-        perror("read");
+    size_t buffer_size = 512;
+    size_t total_read = 0;
+    char *resposta = malloc(buffer_size);
+    if (!resposta) {
+        perror("malloc");
         close(fifo);
         return;
     }
-    write(1, resposta, bytes_read);
+
+    ssize_t bytes;
+    while ((bytes = read(fifo, resposta + total_read, buffer_size - total_read)) > 0) {
+        total_read += bytes;
+
+        // Se buffer estiver cheio, duplicamos
+        if (total_read == buffer_size) {
+            buffer_size *= 2;
+            char *temp = realloc(resposta, buffer_size);
+            if (!temp) {
+                perror("realloc");
+                free(resposta);
+                close(fifo);
+                return;
+            }
+            resposta = temp;
+        }
+    }
+
+    if (bytes == -1) {
+        perror("read");
+    } else {
+        write(1, resposta, total_read);
+    }
+
+    free(resposta);
     close(fifo);
-    
 }
