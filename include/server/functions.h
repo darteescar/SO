@@ -34,4 +34,6 @@ int verifica_comando (Message *msg);
 
 void error_message(Message *msg);
 
+void envia_resposta_cliente(const char *msg, Message *msg_cliente);
+
 #endif

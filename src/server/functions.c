@@ -35,32 +35,20 @@ Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down, char
 }
 
 Documentos *Server_opcao_A(Message *msg, Documentos *docs){
-    char fifoA[50];
-    sprintf(fifoA, "tmp/%d", get_message_pid(msg));
+    
     int *pos_onde_foi_add = malloc(sizeof(int));
 
     docs = add_documento(docs, msg, pos_onde_foi_add);
-
-    int fdA = open(fifoA, O_WRONLY);
-    if (fdA == -1) {
-        perror("open");
-        free(pos_onde_foi_add);
-        return docs;
-    }
-
     char respostaA[100]={0};
+
     sprintf(respostaA, "Documento %d adicionado\n", *pos_onde_foi_add);
-    write(fdA, respostaA, strlen(respostaA));
-    close(fdA);
+    envia_resposta_cliente(respostaA, msg);
 
     free(pos_onde_foi_add);
     return docs;
 }
 
 void Server_opcao_C(Message *msg, Documentos *docs){
-    // Criar o FIFO
-    char fifoC[50];
-    sprintf(fifoC, "tmp/%d", get_message_pid(msg));
 
     int keyC = get_key_msg(msg);
     int doc_existe = documento_existe(docs, keyC);
@@ -77,14 +65,10 @@ void Server_opcao_C(Message *msg, Documentos *docs){
         sprintf(respostaC, "Posição Inválida\n");
     }
 
-    int fdC = open(fifoC, O_WRONLY);
-    write(fdC, respostaC, strlen(respostaC));
-    close(fdC);
+    envia_resposta_cliente(respostaC, msg);
 }
 
 Documentos *Server_opcao_D(Message *msg, Documentos *docs){
-    char fifoD[50];
-    sprintf(fifoD, "tmp/%d", get_message_pid(msg));
 
     int keyD = get_key_msg(msg);
     int flagD = remove_documento(docs, keyD);
@@ -98,17 +82,11 @@ Documentos *Server_opcao_D(Message *msg, Documentos *docs){
         sprintf(respostaD, "Não existe nenhum documento com a chave %d\n", keyD);
     }
 
-    int fdD = open(fifoD, O_WRONLY);
-    write(fdD, respostaD, sizeof(char)*100);
-    close(fdD);
-
+    envia_resposta_cliente(respostaD, msg);
     return docs;
 }
  
 void Server_opcao_L(Message *msg, Documentos *docs, char* folder) {
-    char fifoL[50];
-    sprintf(fifoL, "tmp/%d", get_message_pid(msg));
-
     int key = get_key_msg(msg);
     int flag = documento_existe(docs, key);
     char *keyword = get_keyword_msg(msg);
@@ -122,25 +100,13 @@ void Server_opcao_L(Message *msg, Documentos *docs, char* folder) {
         char resposta[200] = {0};
         sprintf(resposta, "Não existe nenhum documento com a chave %d\n", key);
 
-        int fdL = open(fifoL, O_WRONLY);
-        if (fdL == -1) {
-            perror("open");
-            return;
-        }
-        write(fdL, resposta, strlen(resposta));
-        close(fdL);
+        envia_resposta_cliente(resposta, msg);
         return;
     } else if (flag == -1) {
         char resposta[200] = {0};
         sprintf(resposta, "Posição Inválida\n");
 
-        int fdL = open(fifoL, O_WRONLY);
-        if (fdL == -1) {
-            perror("open");
-            return;
-        }
-        write(fdL, resposta, sizeof(char) * 200);
-        close(fdL);
+        envia_resposta_cliente(resposta, msg);
         return;
     }
 
@@ -185,22 +151,11 @@ void Server_opcao_L(Message *msg, Documentos *docs, char* folder) {
         close(pipefd[0]);
         buffer[n] = '\0'; // Adiciona o terminador nulo
 
-        // Envia o resultado para o cliente
-        int fd = open(fifoL, O_WRONLY);
-        if (fd == -1) {
-            perror("open fifo cliente");
-            return;
-        }
-        
-        write(fd, buffer, n);
-        close(fd);
+        envia_resposta_cliente(buffer, msg);
     }
 }
 
 void Server_opcao_S(Message *msg, Documentos *docs, char* folder) {
-    char fifoS[50];
-    sprintf(fifoS, "tmp/%d", get_message_pid(msg));
-
     char *keyword = get_keyword_msg_s(msg);
     if (keyword == NULL) {
         perror("get_keyword_msg_s");
@@ -282,33 +237,15 @@ void Server_opcao_S(Message *msg, Documentos *docs, char* folder) {
         strcpy(resposta, "[]");
     }
 
-    int fd = open(fifoS, O_WRONLY);
-    if (fd == -1) {
-        perror("open fifoS");
-        free(resposta);
-        return;
-    }
+    
     strcat(resposta, "\n");
-    write(fd, resposta, strlen(resposta));
-    close(fd);
-    free(resposta);
+    envia_resposta_cliente(resposta, msg);
 }
 
 void Server_opcao_F(Message *msg, Documentos *docs){
-    char fifo[50];
-    sprintf(fifo, "tmp/%d", get_message_pid(msg));
-
-    int fd = open(fifo, O_WRONLY);
-    if (fd == -1) {
-        perror("open");
-        return;
-    }
-
     char resposta[100]={0}; 
     sprintf(resposta, "Servidor a terminar...\n");
-    write(fd, resposta, sizeof(resposta));
-    close(fd);
-
+    envia_resposta_cliente(resposta, msg);
 }
 
 int verifica_comando (Message *msg) {
@@ -357,37 +294,44 @@ int verifica_comando (Message *msg) {
      
  }
  
-void error_message(Message *msg) {
+ void error_message(Message *msg) {
+    const char *resposta;  // Use um ponteiro para string literal, não precisa de malloc
+    char option = get_message_command(msg);  // Supondo que você tenha um método para pegar o comando da mensagem
+    switch(option){
+        case 'a':
+            resposta = "[TRY] -a <title> <authors> <year> <path>\n";
+            break;
+        case 'c':
+            resposta = "[TRY] -c <key>\n";
+            break;
+        case 'd':
+            resposta = "[TRY] -d <key>\n";
+            break;
+        case 'l':
+            resposta = "[TRY] -l <key> <keyword>\n";
+            break;
+        case 's':
+            resposta = "[TRY] -s <key> <keyword>\n";
+            break;
+        case 'f':
+            resposta = "[TRY] -f\n";
+            break;
+        default:
+            resposta = "[TRY] <command>\n";
+            break;
+    }
+    
+    envia_resposta_cliente(resposta, msg);
+}
+
+void envia_resposta_cliente(const char *msg, Message *msg_cliente) {
     char fifo[50];
-    sprintf(fifo, "tmp/%d", get_message_pid(msg));
+    sprintf(fifo, "tmp/%d", get_message_pid(msg_cliente));
     int fd = open(fifo, O_WRONLY);
     if (fd == -1) {
         perror("open");
         return;
     }
-    char option = get_message_command(msg);
-    switch(option){
-        case 'a':
-            write(fd, "[TRY] -a <title> <authors> <year> <path>\n", 42);
-            break;
-        case 'c':
-            write(fd, "[TRY] -c <key>\n", 16);
-            break;
-        case 'd':
-            write(fd, "[TRY] -d <key>\n", 16);
-            break;
-        case 'l':
-            write(fd, "[TRY] -l <key> <keyword>\n", 26);
-            break;
-        case 's':
-            write(fd, "[TRY] -s <key> <keyword>\n", 26);
-            break;
-        case 'f':
-            write(fd, "[TRY] -f\n", 10);
-            break;
-        default:
-            write(fd, "[TRY] <command>\n", 17);
-            break;
-    }
+    write(fd, msg, strlen(msg));
     close(fd);
 }
