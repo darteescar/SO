@@ -39,7 +39,7 @@ void create_metaDados(Message *msg, Documentos *doc, int i) {
                     exit(EXIT_FAILURE);
                 }
 
-                while ((token2 = strsep(&token, ';')) != NULL) {
+                while ((token2 = strsep(&token, ";")) != NULL) {
                     if (j >= size) {
                         size *= 2;
                         data->autores = realloc(data->autores, size * sizeof(char *));
