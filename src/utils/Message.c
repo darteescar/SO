@@ -125,8 +125,8 @@ char *get_keyword_msg(Message *msg) {
      char *buffer = get_message_buffer(msg);
      buffer+=3;
 
-     char *token = strsep(&buffer, "+");
-     token = strsep(&buffer, "+");
+     char *token = strsep(&buffer, FIELD_SEP);
+     token = strsep(&buffer, FIELD_SEP);
      return token;
 }
 
@@ -138,6 +138,6 @@ char *get_keyword_msg_s(Message *msg) {
      char *buffer = get_message_buffer(msg);
      buffer+=3;
 
-     char *token = strsep(&buffer, "+");
+     char *token = strsep(&buffer, FIELD_SEP);
      return token;
 }
