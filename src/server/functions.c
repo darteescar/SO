@@ -39,7 +39,7 @@ Documentos *Server_opcao_A(Message *msg, Documentos *docs){
     int *pos_onde_foi_add = malloc(sizeof(int));
 
     docs = add_documento(docs, msg, pos_onde_foi_add);
-    char respostaA[100]={0};
+    char respostaA[51];
 
     sprintf(respostaA, "Documento %d adicionado\n", *pos_onde_foi_add);
     envia_resposta_cliente(respostaA, msg);
@@ -52,7 +52,7 @@ void Server_opcao_C(Message *msg, Documentos *docs){
 
     int keyC = get_key_msg(msg);
     int doc_existe = documento_existe(docs, keyC);
-    char respostaC[512]={0};
+    char respostaC[512];
     if (doc_existe == 1) {
         MetaDados* reply = get_documento(docs,keyC);
         char *str = MD_toString(reply, keyC);
@@ -73,7 +73,7 @@ Documentos *Server_opcao_D(Message *msg, Documentos *docs){
     int keyD = get_key_msg(msg);
     int flagD = remove_documento(docs, keyD);
 
-    char respostaD[100]={0};
+    char respostaD[50];
     if (flagD == 1) {
         sprintf(respostaD, "O documento com a chave %d foi apagado\n", keyD);
     } else if (flagD == -1) {
@@ -243,8 +243,7 @@ void Server_opcao_S(Message *msg, Documentos *docs, char* folder) {
 }
 
 void Server_opcao_F(Message *msg, Documentos *docs){
-    char resposta[100]={0}; 
-    sprintf(resposta, "Servidor a terminar...\n");
+    char *resposta= "Servidor a terminar...\n";
     envia_resposta_cliente(resposta, msg);
 }
 
@@ -294,7 +293,7 @@ int verifica_comando (Message *msg) {
      
  }
  
- void error_message(Message *msg) {
+void error_message(Message *msg) {
     const char *resposta;  // Use um ponteiro para string literal, não precisa de malloc
     char option = get_message_command(msg);  // Supondo que você tenha um método para pegar o comando da mensagem
     switch(option){
@@ -320,7 +319,6 @@ int verifica_comando (Message *msg) {
             resposta = "[TRY] <command>\n";
             break;
     }
-    
     envia_resposta_cliente(resposta, msg);
 }
 
