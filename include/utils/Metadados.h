@@ -14,6 +14,9 @@
 #include <fcntl.h>
 #include "Message.h"
 
+#define FIELD_SEP "\x1E"
+#define AUTHOR_SEP "\x1F"
+
 typedef struct metaDados MetaDados;
 
 typedef struct documentos Documentos;

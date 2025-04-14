@@ -13,6 +13,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#define FIELD_SEP "\x1E"
+
 typedef struct message Message;
 
 Message *init_message();
