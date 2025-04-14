@@ -16,8 +16,6 @@ int main(int argc, char* argv[]){
 
     create_message(msg, argv, argc, pid);
 
-    //print_message(msg);
-
     // Enviar a mensagem para o servidor
     send_message(msg);
 

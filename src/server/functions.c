@@ -114,6 +114,7 @@ void Server_opcao_L(Message *msg, Documentos *docs, char* folder) {
     char *keyword = get_keyword_msg(msg);
     if (keyword == NULL) {
         perror("get_keyword_msg");
+        printf("Keyword is NULL\n");
         return;
     }
 

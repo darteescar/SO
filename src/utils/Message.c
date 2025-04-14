@@ -97,26 +97,7 @@ int get_key_msg(Message *msg) {
      
      return atoi(buffer);
 } 
-/*
-char *get_message_argv(Message *msg, int x) {
-     if (msg == NULL) {
-          perror("Message is NULL");
-          exit(EXIT_FAILURE);
-     }
-     char *buffer = get_message_buffer(msg);
-     buffer+=3; // Skip prefixo
-     
-     char *token;
-     int i = 0;
-     while ((token = strsep(&buffer, " ")) != NULL) {
-          if (i == x) {
-               return strdup(token);
-          }
-          i++;
-     }
-     return NULL;
-}
-*/
+
 char *get_keyword_msg(Message *msg) {
      if (msg == NULL) {
           perror("Message is NULL");
@@ -124,9 +105,9 @@ char *get_keyword_msg(Message *msg) {
      }
      char *buffer = get_message_buffer(msg);
      buffer+=3;
-
-     char *token = strsep(&buffer, "+");
-     token = strsep(&buffer, "+");
+     
+     char *token = strsep(&buffer, FIELD_SEP);
+     token = strsep(&buffer, FIELD_SEP);
      return token;
 }
 
@@ -138,6 +119,6 @@ char *get_keyword_msg_s(Message *msg) {
      char *buffer = get_message_buffer(msg);
      buffer+=3;
 
-     char *token = strsep(&buffer, "+");
+     char *token = strsep(&buffer, FIELD_SEP);
      return token;
 }
