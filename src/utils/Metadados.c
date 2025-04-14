@@ -16,14 +16,6 @@ struct documentos {
     MetaDados docs[];
 };
 
-int* get_ocupados(Documentos *docs) {
-    return docs->ocupados;//fazer copia dps
-}
-
-int get_nTotal(Documentos *docs) {
-    return docs->ntotal;
-}
-
 void create_metaDados(Message *msg, Documentos *doc, int i) {
     char *total = get_message_buffer(msg);
     char *token;
@@ -264,5 +256,9 @@ void print_documentos (Documentos *docs) {
 
 int get_num_docs(Documentos *docs) {
     return docs->n_docs;
+}
+
+int get_nTotal(Documentos *docs) {
+    return docs->ntotal;
 }
 
