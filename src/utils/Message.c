@@ -122,3 +122,16 @@ char *get_keyword_msg_s(Message *msg) {
      char *token = strsep(&buffer, FIELD_SEP);
      return token;
 }
+
+int get_nProcessos_msg_s(Message *msg) {
+     if (msg == NULL) {
+          perror("Message is NULL");
+          exit(EXIT_FAILURE);
+     }
+     char *buffer = get_message_buffer(msg);
+     buffer+=3;
+     
+     char *token = strsep(&buffer, FIELD_SEP);
+     token = strsep(&buffer, FIELD_SEP);
+     return atoi(token);
+}

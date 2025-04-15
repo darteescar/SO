@@ -239,19 +239,19 @@ Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add
         escreve_em_disco(docs, docs->next_to_disc);
         
         create_metaDados(data, docs, docs->next_to_disc);
+        *pos_onde_foi_add = docs->next_to_disc+10;
         docs->next_to_disc++;
         
-        *pos_onde_foi_add = docs->next_to_disc;
     }
 
     return docs;  // Retorna o novo ponteiro de documentos
 }
 
 int remove_documento(Documentos *docs, int pos) {
-    if (docs == NULL || pos < 0 || pos >= docs->n_docs) {
+    if (docs == NULL || pos < 0 || pos >= docs->n_total) {
         return -1;
     }
-    if (docs->ocupados[pos] == 1) {
+    if (docs->ocupados[pos%docs->max_docs] == 1) {
         //free_metaDados(&(docs->docs[pos]));
         docs->ocupados[pos] = 0;
         docs->n_docs--;
@@ -265,16 +265,16 @@ int documento_existe(Documentos *docs, int pos) {
     if (docs == NULL || pos < 0 || pos >= docs->max_docs) {
         return -1;
     }
-    else if (docs->ocupados[pos] == 0) {
+    else if (docs->ocupados[pos%docs->max_docs] == 0) {
         return -2;
-    } else if (docs->ocupados[pos] == 1) {
+    } else if (docs->ocupados[pos%docs->max_docs] == 1) {
         return 1;
     }
     return 0;
 }
 
 MetaDados *get_documento (Documentos *docs, int pos) {
-    return &(docs->docs[pos]);
+    return &(docs->docs[pos%docs->max_docs]);
 }
 
 void print_documentos (Documentos *docs) {
@@ -283,7 +283,7 @@ void print_documentos (Documentos *docs) {
         return;
     }
     write(1, "[Documentos]\n", 14);
-    for (int i = 0; i < docs->n_docs; i++) {
+    for (int i = 0; i < docs->max_docs; i++) {
         if (docs->ocupados[i] == 1) {
             print_metaDados(&(docs->docs[i]));
         }
@@ -296,4 +296,16 @@ int get_num_docs(Documentos *docs) {
 
 int get_nTotal(Documentos *docs) {
     return docs->n_total;
+}
+
+int get_next_to_disc(Documentos *docs) {
+    return docs->next_to_disc;
+}
+
+void inc_next_to_disc(Documentos *docs) {
+    docs->next_to_disc++;
+}
+
+int get_max_docs(Documentos *docs) {
+    return docs->max_docs;
 }

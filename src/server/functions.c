@@ -249,6 +249,12 @@ void Server_opcao_S(Message *msg, Documentos *docs, char* folder) {
 }
 
 void Server_opcao_F(Message *msg, Documentos *docs){
+    for(int i=0; i<get_max_docs(docs); i++){
+        if (documento_existe(docs, (get_next_to_disc(docs)%get_max_docs(docs))) == 1) {
+            escreve_em_disco(docs, get_next_to_disc(docs));
+            inc_next_to_disc(docs);
+        }  
+    }
     char *resposta= "Servidor a terminar...\n";
     envia_resposta_cliente(resposta, msg);
 }

@@ -55,4 +55,16 @@ int get_num_docs(Documentos *docs);
 
 int get_nTotal(Documentos *docs);
 
+int get_next_to_disc(Documentos *docs);
+
+int get_max_docs(Documentos *docs);
+
+void inc_next_to_disc(Documentos *docs);
+
+void escreve_em_disco(Documentos *docs, int pos);
+
+char *serializa_metaDados(MetaDados *data);
+
+
+
 #endif
