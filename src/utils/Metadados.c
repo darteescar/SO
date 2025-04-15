@@ -14,7 +14,6 @@ struct documentos {
     int n_docs;
     int max_docs;
     int *ocupados;
-    int next_to_disc;
     MetaDados docs[];
 };
 
@@ -71,6 +70,7 @@ void create_metaDados(Message *msg, Documentos *doc, int i) {
 
     doc->ocupados[i%doc->max_docs] = 1;
     doc->n_docs++;
+    doc->ntotal++;
 }
 
 void free_metaDados(MetaDados *data) {
@@ -155,6 +155,7 @@ Documentos *create_documentos(int max_docs) {
         exit(EXIT_FAILURE);
     }
     docs->n_docs = 0;
+    docs->ntotal = 0;
     docs->max_docs = max_docs;
     docs->next_to_disc = 0;
  
@@ -291,5 +292,9 @@ void print_documentos (Documentos *docs) {
 
 int get_num_docs(Documentos *docs) {
     return docs->n_docs;
+}
+
+int get_nTotal(Documentos *docs) {
+    return docs->ntotal;
 }
 
