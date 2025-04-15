@@ -21,7 +21,7 @@ typedef struct metaDados MetaDados;
 
 typedef struct documentos Documentos;
 
-void create_metaDados(Message *msg, Documentos *doc, int i);
+void send_to_Cache(Message *msg, Documentos *doc, int i);
 
 void free_metaDados(MetaDados *data);
 

@@ -2,6 +2,10 @@
 
 #define SERVER_STORAGE "tmp/server_storage"
 
+#define EM_CACHE 'c'
+#define EM_DISCO 'd'
+#define LIVRE 'l'
+
 struct metaDados{
      char* titulo;
      char** autores;
@@ -13,13 +17,15 @@ struct metaDados{
 struct documentos {
     int n_docs;
     int max_docs;
-    int *ocupados;
+    char *ocupados;
+    int redimensionamentos;
     int next_to_disc;
     int n_total;
+
     MetaDados docs[];
 };
 
-void create_metaDados(Message *msg, Documentos *doc, int i) {
+void send_to_Cache(Message *msg, Documentos *doc, int i) {
     char *total = get_message_buffer(msg);
     char *token;
     int field = 0;
@@ -70,7 +76,7 @@ void create_metaDados(Message *msg, Documentos *doc, int i) {
         field++;
     }
 
-    doc->ocupados[i%doc->max_docs] = 1;
+    doc->ocupados[i%doc->max_docs] = EM_CACHE;
     doc->n_docs++;
 }
 
@@ -159,13 +165,14 @@ Documentos *create_documentos(int max_docs) {
     docs->max_docs = max_docs;
     docs->next_to_disc = 0;
     docs->n_total = 0;
-    docs->ocupados = malloc(max_docs * sizeof(int));
+    docs->redimensionamentos = 2;
+    docs->ocupados = malloc(max_docs * sizeof(char));
     if (docs->ocupados == NULL) {
         perror("malloc");
         exit(EXIT_FAILURE);
     }
     for (int i = 0; i < max_docs; i++) {
-        docs->ocupados[i] = 0;
+        docs->ocupados[i] = LIVRE;
     }
     return docs;
 }
@@ -189,7 +196,7 @@ char *serializa_metaDados(MetaDados *data) {
     char buffer[256];
     sprintf(buffer, "|%d|%s",  data->ano, data->path);
     strcat(str, buffer);
-    printf("Serializando: %s\n", str);
+    //printf("Serializando: %s\n", str);
     return str;
 }
 
@@ -198,7 +205,7 @@ void escreve_em_disco(Documentos *docs, int pos) {
         return;
     }
 
-    printf("Escrevendo em disco...\n");
+    //printf("Escrevendo em disco...\n");
     int fd = open(SERVER_STORAGE, O_WRONLY | O_CREAT , 0644);
     if (fd == -1) {
         perror("open");
@@ -223,23 +230,51 @@ void escreve_em_disco(Documentos *docs, int pos) {
     }
     
     close(fd);
-    docs->ocupados[pos%docs->max_docs] = 0;
+    docs->ocupados[pos%docs->max_docs] = EM_DISCO;
+}
+
+void redimensionar_ocupados(Documentos *docs) {
+    printf("Redimensionando ocupados...\n");
+    if (docs == NULL) {
+        return;
+    }
+
+    int old_size = docs->max_docs * docs->redimensionamentos;
+
+    docs->redimensionamentos *= 2;
+
+    int new_size = docs->max_docs * docs->redimensionamentos;
+    printf("Old size: %d, New size: %d\n", old_size, new_size);
+
+    char *new_ocupados = realloc(docs->ocupados, new_size * sizeof(char));
+    if (new_ocupados == NULL) {
+        perror("realloc");
+        exit(EXIT_FAILURE);
+    }
+
+    docs->ocupados = new_ocupados;
+
+    for (int i = old_size; i < new_size; i++) {
+        docs->ocupados[i] = LIVRE;
+    }
 }
 
 Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add) {
     if (docs->n_docs < docs->max_docs) {
         // Encontrar índice livre
         int i = 0;
-        while (docs->ocupados[i] == 1) i++;
+        while (docs->ocupados[i] == LIVRE) i++;
 
-        create_metaDados(data, docs, i);
+        send_to_Cache(data, docs, i);
         *pos_onde_foi_add = i;
         
     } else {
+        printf("N-Docs: %d\n", docs->n_docs);
+        if (docs->n_docs >= docs->max_docs * docs->redimensionamentos)redimensionar_ocupados(docs);
         escreve_em_disco(docs, docs->next_to_disc);
         
-        create_metaDados(data, docs, docs->next_to_disc);
-        *pos_onde_foi_add = docs->next_to_disc+10;
+        send_to_Cache(data, docs, docs->next_to_disc);
+        *pos_onde_foi_add = docs->next_to_disc+docs->max_docs;
         docs->next_to_disc++;
         
     }
@@ -251,9 +286,9 @@ int remove_documento(Documentos *docs, int pos) {
     if (docs == NULL || pos < 0 || pos >= docs->n_total) {
         return -1;
     }
-    if (docs->ocupados[pos%docs->max_docs] == 1) {
+    if (docs->ocupados[pos%docs->max_docs] == EM_CACHE || docs->ocupados[pos%docs->max_docs] == EM_DISCO) {
         //free_metaDados(&(docs->docs[pos]));
-        docs->ocupados[pos] = 0;
+        docs->ocupados[pos] = LIVRE;
         docs->n_docs--;
         return 1;
     } else {
@@ -265,9 +300,9 @@ int documento_existe(Documentos *docs, int pos) {
     if (docs == NULL || pos < 0 || pos >= docs->max_docs) {
         return -1;
     }
-    else if (docs->ocupados[pos%docs->max_docs] == 0) {
+    else if (docs->ocupados[pos%docs->max_docs] == LIVRE) {
         return -2;
-    } else if (docs->ocupados[pos%docs->max_docs] == 1) {
+    } else if (docs->ocupados[pos%docs->max_docs] == EM_CACHE || docs->ocupados[pos%docs->max_docs] == EM_DISCO) {
         return 1;
     }
     return 0;
@@ -284,7 +319,7 @@ void print_documentos (Documentos *docs) {
     }
     write(1, "[Documentos]\n", 14);
     for (int i = 0; i < docs->max_docs; i++) {
-        if (docs->ocupados[i] == 1) {
+        if (docs->ocupados[i] == EM_CACHE || docs->ocupados[i] == EM_DISCO) {
             print_metaDados(&(docs->docs[i]));
         }
     }
