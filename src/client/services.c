@@ -1,6 +1,6 @@
 #include "client/services.h"
 
-#define SERVER_FIFO "server_fifo"
+#define SERVER_FIFO "tmp/server_fifo"
 
 void send_message (Message *msg){
     char buffer[512];

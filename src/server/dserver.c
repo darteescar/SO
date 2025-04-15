@@ -1,6 +1,6 @@
 #include "server/functions.h"
 
-#define SERVER_FIFO "server_fifo"
+#define SERVER_FIFO "tmp/server_fifo"
 
 int main(int argc, char* argv[]) {
 
@@ -17,8 +17,9 @@ int main(int argc, char* argv[]) {
     }
 
     char* folder = argv[1];
+    int cache_size = atoi(argv[2]); // definir que se o segundo argumento for nulo, o array é dinâmico
 
-    Documentos *docs = create_documentos(10);
+    Documentos *docs = create_documentos(cache_size);
     int *server_down = malloc(sizeof(int));
     *server_down = 0;
 

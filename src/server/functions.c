@@ -37,6 +37,10 @@ Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down, char
 Documentos *Server_opcao_A(Message *msg, Documentos *docs){
     
     int *pos_onde_foi_add = malloc(sizeof(int));
+    if (pos_onde_foi_add == NULL) {
+        perror("malloc");
+        return NULL;
+    }
 
     docs = add_documento(docs, msg, pos_onde_foi_add);
     char respostaA[51];

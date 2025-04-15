@@ -1,5 +1,7 @@
 #include "utils/Metadados.h"
 
+#define SERVER_STORAGE "tmp/server_storage"
+
 struct metaDados{
      char* titulo;
      char** autores;
@@ -12,6 +14,7 @@ struct documentos {
     int n_docs;
     int max_docs;
     int *ocupados;
+    int next_to_disc;
     MetaDados docs[];
 };
 
@@ -20,7 +23,7 @@ void create_metaDados(Message *msg, Documentos *doc, int i) {
     char *token;
     int field = 0;
 
-    MetaDados *data = &(doc->docs[i]);
+    MetaDados *data = &(doc->docs[i%doc->max_docs]);
 
     total += 3; // Salta prefixo, se necessário (verifica se deves manter isto)
 
@@ -66,7 +69,7 @@ void create_metaDados(Message *msg, Documentos *doc, int i) {
         field++;
     }
 
-    doc->ocupados[i] = 1;
+    doc->ocupados[i%doc->max_docs] = 1;
     doc->n_docs++;
 }
 
@@ -106,8 +109,6 @@ void print_metaDados(MetaDados *data) {
     write(1, "\n", 1);
 }
 
-
-
 char* get_MD_titulo(MetaDados *data){
      return strdup(data->titulo);
 }
@@ -138,7 +139,7 @@ char *MD_toString(MetaDados* data, int key){
     for (int i = 0; i < data->n_autores; i++) {
         strcat(str, data->autores[i]);
         if (i < data->n_autores - 1) {
-            strcat(str, ", ");
+            strcat(str, "; ");
         }
     }
     char buffer[256];
@@ -155,6 +156,8 @@ Documentos *create_documentos(int max_docs) {
     }
     docs->n_docs = 0;
     docs->max_docs = max_docs;
+    docs->next_to_disc = 0;
+ 
     docs->ocupados = malloc(max_docs * sizeof(int));
     if (docs->ocupados == NULL) {
         perror("malloc");
@@ -166,6 +169,62 @@ Documentos *create_documentos(int max_docs) {
     return docs;
 }
 
+char *serializa_metaDados(MetaDados *data) {
+    if (data == NULL) {
+        return NULL;
+    }
+    char *str = malloc(512);
+    if (str == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    sprintf(str, "%s|", data->titulo);
+    for (int i = 0; i < data->n_autores; i++) {
+        strcat(str, data->autores[i]);
+        if (i < data->n_autores - 1) {
+            strcat(str, ";");
+        }
+    }
+    char buffer[256];
+    sprintf(buffer, "|%d|%s",  data->ano, data->path);
+    strcat(str, buffer);
+    printf("Serializando: %s\n", str);
+    return str;
+}
+
+void escreve_em_disco(Documentos *docs, int pos) {
+    if (docs == NULL || pos < 0 || pos >= docs->n_docs) {
+        return;
+    }
+
+    printf("Escrevendo em disco...\n");
+    int fd = open(SERVER_STORAGE, O_WRONLY | O_CREAT , 0644);
+    if (fd == -1) {
+        perror("open");
+        return;
+    }
+
+    // Escrever os dados do documento no disco
+    int offset = pos * 512; // Supondo que cada documento ocupa 512 bytes (caracteres de separação tidos em conta)
+    int x = lseek(fd, offset, SEEK_SET);
+    if (x == -1) {
+        perror("lseek");
+        close(fd);
+        return;
+    }
+    char *data = serializa_metaDados(&(docs->docs[pos%docs->max_docs]));
+    int size = strlen(data);
+    ssize_t bytes_written = write(fd, data, size);
+    if (bytes_written == -1) {
+        perror("write");
+        close(fd);
+        return;
+    }
+    
+    close(fd);
+    docs->ocupados[pos%docs->max_docs] = 0;
+}
+
 Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add) {
     if (docs->n_docs < docs->max_docs) {
         // Encontrar índice livre
@@ -174,42 +233,21 @@ Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add
 
         create_metaDados(data, docs, i);
         *pos_onde_foi_add = i;
+        
     } else {
+        escreve_em_disco(docs, docs->next_to_disc);
         
-        // Se não houver espaço, aumentar o tamanho do array
-        int new_max_docs = docs->max_docs * 2;
-        Documentos *new_docs = realloc(docs, sizeof(Documentos) + new_max_docs * sizeof(MetaDados));
-        if (new_docs == NULL) {
-            perror("realloc");
-            exit(EXIT_FAILURE);
-        }
-
-        docs = new_docs;
-        docs->max_docs = new_max_docs;
-        docs->ocupados = realloc(docs->ocupados, new_max_docs * sizeof(int));
-        if (docs->ocupados == NULL) {
-            perror("realloc");
-            exit(EXIT_FAILURE);
-        }
-
-        for (int i = docs->max_docs / 2; i < new_max_docs; i++) {
-            docs->ocupados[i] = 0;
-        }
+        create_metaDados(data, docs, docs->next_to_disc);
+        docs->next_to_disc++;
         
-
-        // Encontrar índice livre
-        int i = 0;
-        while (docs->ocupados[i] == 1) i++;
-        create_metaDados(data, docs, i);
-        *pos_onde_foi_add = i;
-
+        *pos_onde_foi_add = docs->next_to_disc;
     }
 
     return docs;  // Retorna o novo ponteiro de documentos
 }
 
 int remove_documento(Documentos *docs, int pos) {
-    if (docs == NULL || pos < 0 || pos >= docs->max_docs) {
+    if (docs == NULL || pos < 0 || pos >= docs->n_docs) {
         return -1;
     }
     if (docs->ocupados[pos] == 1) {

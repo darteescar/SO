@@ -29,8 +29,6 @@ OBJ_SERVER = $(patsubst src/server/%.c, obj/server/%.o, $(SRC_SERVER))
 # Converte a lista de arquivos .c em .o na pasta obj/utils/
 OBJ_UTILS = $(patsubst src/utils/%.c, obj/utils/%.o, $(SRC_UTILS))
 
-FIFOS = server_fifo server_fifo_2
-
 bin/dserver: $(OBJ_SERVER) $(OBJ_UTILS)
 	$(CC) $(LDFLAGS) $^ -o $@
 	ln -sf bin/dserver dserver  
@@ -50,4 +48,3 @@ obj/utils/%.o: src/utils/%.c
 
 clean:
 	rm -f  obj/server/* obj/client/* obj/utils/* tmp/* bin/* dserver dclient
-	rm -f $(FIFOS)
