@@ -70,11 +70,43 @@ Cache *add_documento(Cache *docs, Message *data, int *pos_onde_foi_add) {
             docs->next_to_disc++;
         } else {
             int pos = pop(docs->stack);
-            escreve_em_disco(docs, pos);
+            
+            escreve_em_disco_from_Stack(docs, data, pos);
             *pos_onde_foi_add = pos;
         }   
     }
     return docs;  // Retorna o novo ponteiro de Cache
+}
+
+void escreve_em_disco_from_Stack(Cache *docs,Message* msg, int pos) {
+    char *buffer = get_message_buffer(msg);
+    MetaDados *doc = criar_metaDados(buffer);
+    char *result = to_disk_format(doc);
+
+    int fd = open(SERVER_STORAGE, O_WRONLY | O_CREAT , 0644);
+    if (fd == -1) {
+        perror("open");
+        return;
+    }
+
+    // Escrever os dados do documento no disco
+    int offset = pos * 512; // Supondo que cada documento ocupa 512 bytes (caracteres de separação tidos em conta)
+    int x = lseek(fd, offset, SEEK_SET);
+    if (x == -1) {
+        perror("lseek");
+        close(fd);
+        return;
+    }
+    int size = strlen(result);
+    ssize_t bytes_written = write(fd, result, size);
+    if (bytes_written == -1) {
+        perror("write");
+        close(fd);
+        return;
+    }
+     
+    close(fd);
+    docs->ocupados[pos] = EM_DISCO;
 }
 
 void print_Cache (Cache *docs) {
@@ -286,10 +318,10 @@ void send_to_Cache(char *buffer, Cache *doc, int i) {
     doc->docs[pos] = criar_metaDados(buffer);
 
     if (doc->ocupados[i] == EM_DISCO) {
-        printf("Já está em disco...\n");
+        //printf("Já está em disco...\n");
         return;
     } else {
-        printf("Adicionando documento %d à cache...\n", i);
+        //printf("Adicionando documento %d à cache...\n", i);
         doc->ocupados[i] = EM_CACHE;
         doc->n_docs++;
         doc->n_total++;

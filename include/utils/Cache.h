@@ -53,6 +53,8 @@ char get_docs_estado(Cache *docs, int pos);
 
 void send_to_Cache(char *buffer, Cache *doc, int i);
 
+void escreve_em_disco_from_Stack(Cache *docs,Message* msg, int pos);
+
 
 
 #endif
