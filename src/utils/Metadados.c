@@ -109,126 +109,15 @@ char *to_disk_format(MetaDados *data) {
     return str;
 }
 
-void escreve_em_disco(Documentos *docs, int pos) {
-    if (docs == NULL || pos < 0 || pos >= docs->n_docs) {
-        return;
-    }
-
-    //printf("Escrevendo em disco...\n");
-    int fd = open(SERVER_STORAGE, O_WRONLY | O_CREAT , 0644);
-    if (fd == -1) {
-        perror("open");
-        return;
-    }
-
-    // Escrever os dados do documento no disco
-    int offset = pos * 512; // Supondo que cada documento ocupa 512 bytes (caracteres de separação tidos em conta)
-    int x = lseek(fd, offset, SEEK_SET);
-    if (x == -1) {
-        perror("lseek");
-        close(fd);
-        return;
-    }
-    char *data = serializa_metaDados(&(docs->docs[pos%docs->max_docs]));
-    int size = strlen(data);
-    ssize_t bytes_written = write(fd, data, size);
-    if (bytes_written == -1) {
-        perror("write");
-        close(fd);
-        return;
-    }
-    
-    close(fd);
-    docs->ocupados[pos] = EM_DISCO;
-}
-
-void redimensiona_ocupados(Documentos *docs) {
-    //printf("Redimensionando ocupados...\n");
-    if (docs == NULL) {
-        return;
-    }
-
-    int old_size = docs->max_docs * docs->redimensionamentos;
-
-    docs->redimensionamentos *= 2;
-
-    int new_size = docs->max_docs * docs->redimensionamentos;
-    //printf("Old size: %d, New size: %d\n", old_size, new_size);
-
-    char *new_ocupados = realloc(docs->ocupados, new_size * sizeof(char));
-    if (new_ocupados == NULL) {
-        perror("realloc");
-        exit(EXIT_FAILURE);
-    }
-
-    docs->ocupados = new_ocupados;
-    for (int i = old_size; i < new_size; i++) {
-        docs->ocupados[i] = LIVRE;
-    }
-}
-
-void redimensionar_auxiliares(Documentos *docs) {
-    redimensiona_ocupados(docs);
-    increase_capacity(docs->stack);
-}
-
-Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add) {
-    if (docs->n_docs < docs->max_docs) {
-        // Encontrar índice livre
-        int i = 0;
-        while (docs->ocupados[i] != LIVRE) i++;
-        char* buffer = get_message_buffer(data);
-
-        send_to_Cache(buffer, docs, i);
-        *pos_onde_foi_add = i;
-        
-    } else {
-        //printf("N-Docs: %d\n", docs->n_docs);
-        if (docs->n_docs >= docs->max_docs * docs->redimensionamentos) redimensionar_auxiliares(docs);
-
-        if (is_empty(docs->stack)) {
-            if (docs->ocupados[docs->next_to_disc]==EM_CACHE) escreve_em_disco(docs, docs->next_to_disc);
-
-            char* buffer = get_message_buffer(data);
-            
-            send_to_Cache(buffer, docs, docs->next_to_disc + docs->max_docs);
-            *pos_onde_foi_add = docs->next_to_disc+docs->max_docs;
-            docs->next_to_disc++;
-        } else {
-            int pos = pop(docs->stack);
-            char* buffer = get_message_buffer(data);
-            send_to_Cache(buffer, docs, pos);
-            *pos_onde_foi_add = pos;
+void free_metaDados(MetaDados *data) {
+    if (data != NULL) {
+        free(data->titulo);
+        for (int i = 0; i<data->n_autores; i++) {
+            free(data->autores[i]);
         }
-        
-    }
-
-    return docs;  // Retorna o novo ponteiro de documentos
-}
-
-int remove_documento(Documentos *docs, int pos) {
-    if (docs == NULL || pos < 0 || pos >= docs->n_total) {
-        return -1;
-    }
-    if (docs->ocupados[pos] == EM_CACHE || docs->ocupados[pos] == EM_DISCO) {
-        //free_metaDados(&(docs->docs[pos]));
-        docs->ocupados[pos] = LIVRE;
-        docs->n_docs--;
-        push(docs->stack, pos);
-        return 1;
-    } else {
-        return -2;
-    }
-}
-
-int documento_existe(Documentos *docs, int pos) {
-    if (docs == NULL || pos < 0 || pos >= docs->n_total) {
-        return -1;
-    }
-    else if (docs->ocupados[pos] == LIVRE) {
-        return -2;
-    } else if (docs->ocupados[pos] == EM_CACHE || docs->ocupados[pos] == EM_DISCO) {
-        return 1;
+        free(data->autores);
+        free(data->path);
+        //free(data);
     }
 }
 
