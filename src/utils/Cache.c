@@ -11,6 +11,12 @@ struct cache {
     MetaDados **docs;
  };
 
+/*
+----------------------------------------------------------------------------------------------------------------------
+--------------------------------------FUNÇÕES PARA A ABSTRAÇÃO DA CACHE-----------------------------------------------
+----------------------------------------------------------------------------------------------------------------------
+*/
+
 Cache *create_Cache(int max_docs) {
     Cache *docs = malloc(sizeof(Cache));
     if (docs == NULL) {
@@ -125,26 +131,6 @@ void print_Cache (Cache *docs) {
         }
     }
 }
- 
-int get_num_docs(Cache *docs) {
-    return docs->n_docs;
-}
- 
-int get_nTotal(Cache *docs) {
-    return docs->n_total;
-}
- 
-int get_next_to_disc(Cache *docs) {
-    return docs->next_to_disc;
-}
- 
-void inc_next_to_disc(Cache *docs) {
-    docs->next_to_disc++;
-}
- 
-int get_max_docs(Cache *docs) {
-    return docs->max_docs;
-} 
 
 void escreve_em_disco(Cache *docs, int pos) {
     if (docs == NULL || pos < 0 || pos >= docs->n_docs) {
@@ -236,40 +222,6 @@ int documento_existe(Cache *docs, int pos) {
     return 0;
  }
  
-MetaDados *get_documento(Cache *docs, int pos) {
-    return docs->docs[pos % docs->max_docs];
-}
-
-MetaDados *get_anywhere_documento(Cache *docs, int pos) {
-    if (docs == NULL || pos < 0 || pos >= docs->n_total) {
-        return NULL;
-    }
-    if (docs->ocupados[pos] == EM_CACHE || docs->ocupados[pos] == EM_DISCO_E_CACHE ) {
-        return docs->docs[pos % docs->max_docs];
-    } else {
-        char *data = malloc(512);
-        if (data == NULL) {
-            perror("Malloc disco_to_cache");
-            return NULL;
-        }
-        int fd = open(SERVER_STORAGE, O_RDONLY);
-        if (fd == -1) {
-            perror("Open disco_to_cache");
-            free(data);
-            return NULL;
-        }
-        int offset = pos * 512; // Supondo que cada documento ocupa 512 bytes
-        lseek(fd, offset, SEEK_SET);
-        read(fd, data, 512);
-        close(fd);
-        MetaDados *new = criar_metaDados(desserializa_metaDados(data));
-        if (new == NULL) {
-            return NULL;
-        }
-        return new;
-    }
-}
-
 char* desserializa_metaDados(char *data) {
     char *titulo = strsep(&data, "|");
     char *autores = strsep(&data, "|");
@@ -335,13 +287,6 @@ void disco_to_cache(Cache *docs, int pos) {
     }
 }
  
-char get_docs_estado(Cache *docs, int pos) {
-    if (docs == NULL) {
-        return '0';
-    }
-    return docs->ocupados[pos];
-}
-
 void send_to_Cache(char *buffer, Cache *doc, int i) {
     int pos = i % doc->max_docs;
 
@@ -361,3 +306,70 @@ void send_to_Cache(char *buffer, Cache *doc, int i) {
         doc->n_total++;
     }
 }
+
+/*
+-------------------------------------------------------------------------------------------------------------------
+------------------------------------------- GETTERS E SETTERS -----------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------
+*/
+
+char get_docs_estado(Cache *docs, int pos) {
+    if (docs == NULL) {
+        return '0';
+    }
+    return docs->ocupados[pos];
+}
+
+MetaDados *get_documento(Cache *docs, int pos) {
+    return docs->docs[pos % docs->max_docs];
+}
+
+MetaDados *get_anywhere_documento(Cache *docs, int pos) {
+    if (docs == NULL || pos < 0 || pos >= docs->n_total) {
+        return NULL;
+    }
+    if (docs->ocupados[pos] == EM_CACHE || docs->ocupados[pos] == EM_DISCO_E_CACHE ) {
+        return docs->docs[pos % docs->max_docs];
+    } else {
+        char *data = malloc(512);
+        if (data == NULL) {
+            perror("Malloc disco_to_cache");
+            return NULL;
+        }
+        int fd = open(SERVER_STORAGE, O_RDONLY);
+        if (fd == -1) {
+            perror("Open disco_to_cache");
+            free(data);
+            return NULL;
+        }
+        int offset = pos * 512; // Supondo que cada documento ocupa 512 bytes
+        lseek(fd, offset, SEEK_SET);
+        read(fd, data, 512);
+        close(fd);
+        MetaDados *new = criar_metaDados(desserializa_metaDados(data));
+        if (new == NULL) {
+            return NULL;
+        }
+        return new;
+    }
+}
+
+int get_num_docs(Cache *docs) {
+    return docs->n_docs;
+}
+ 
+int get_nTotal(Cache *docs) {
+    return docs->n_total;
+}
+ 
+int get_next_to_disc(Cache *docs) {
+    return docs->next_to_disc;
+}
+ 
+void inc_next_to_disc(Cache *docs) {
+    docs->next_to_disc++;
+}
+ 
+int get_max_docs(Cache *docs) {
+    return docs->max_docs;
+} 
