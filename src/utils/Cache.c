@@ -70,8 +70,7 @@ Cache *add_documento(Cache *docs, Message *data, int *pos_onde_foi_add) {
             docs->next_to_disc++;
         } else {
             int pos = pop(docs->stack);
-            char* buffer = get_message_buffer(data);
-            send_to_Cache(buffer, docs, pos);
+            escreve_em_disco(docs, pos);
             *pos_onde_foi_add = pos;
         }   
     }
