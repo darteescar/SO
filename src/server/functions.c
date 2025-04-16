@@ -346,7 +346,7 @@ void envia_resposta_cliente(const char *msg, Message *msg_cliente) {
     sprintf(fifo, "tmp/%d", get_message_pid(msg_cliente));
     int fd = open(fifo, O_WRONLY);
     if (fd == -1) {
-        perror("open");
+        perror("Open envia_resposta_cliente");
         return;
     }
     write(fd, msg, strlen(msg));
