@@ -352,7 +352,7 @@ void send_to_Cache(char *buffer, Cache *doc, int i) {
     doc->docs[pos] = criar_metaDados(buffer);
 
     if (doc->ocupados[i] == EM_DISCO || doc->ocupados[i] == EM_DISCO_E_CACHE) {
-        printf("Já está em disco...\n");
+        //printf("Já está em disco...\n");
         return;
     } else {
         //printf("Adicionando documento %d à cache...\n", i);

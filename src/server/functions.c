@@ -189,7 +189,6 @@ void Server_opcao_S(Message *msg, Cache *docs, char* folder) {
             MetaDados *doc = get_anywhere_documento(docs, i);
             char filepath[100];
             sprintf(filepath, "%s%s", folder, get_MD_path(doc));
-            printf("Filepath: %s\n", filepath);
             int pid = fork();
             if (pid == -1) {
                 perror("Fork Server_opcao_S");
@@ -205,7 +204,6 @@ void Server_opcao_S(Message *msg, Cache *docs, char* folder) {
                 waitpid(pid, &status, 0);
 
                 if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
-                    printf("i: %d, resposta: %s\n", i, resposta);
                     char num[20];
                     snprintf(num, sizeof(num), "%d", i);
                     int num_len = strlen(num);
