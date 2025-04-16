@@ -63,10 +63,14 @@ Cache *add_documento(Cache *docs, Message *data, int *pos_onde_foi_add) {
         if (is_empty(docs->stack)) {
             if (docs->ocupados[docs->next_to_disc] == EM_CACHE) escreve_em_disco(docs, docs->next_to_disc);
 
+            if(docs->ocupados[docs->next_to_disc] == EM_DISCO_E_CACHE) {//ele vai deixar de estar na cache
+                docs->ocupados[docs->next_to_disc] = EM_DISCO;
+            }
+
             char* buffer = get_message_buffer(data);
             
             send_to_Cache(buffer, docs, docs->next_to_disc + docs->max_docs);
-            *pos_onde_foi_add = docs->next_to_disc+docs->max_docs;
+            *pos_onde_foi_add = docs->next_to_disc + docs->max_docs;
             docs->next_to_disc++;
         } else {
             int pos = pop(docs->stack);
@@ -287,47 +291,48 @@ void disco_to_cache(Cache *docs, int pos) {
     if (docs == NULL || pos < 0 || pos >= docs->n_total) {
         return;
     }
-    char *data = malloc(512);
-    if (data == NULL) {
-        perror("Malloc disco_to_cache");
-        return;
-    }
-    int fd = open(SERVER_STORAGE, O_RDONLY);
-    if (fd == -1) {
-        perror("Open disco_to_cache");
-        free(data);
-        return;
-    }
-    int offset = pos * 512; // Supondo que cada documento ocupa 512 bytes
-    lseek(fd, offset, SEEK_SET);
-    read(fd, data, 512);
-    close(fd);
-
-    char *buffer = desserializa_metaDados(data);
-
-    int aux = pos%docs->max_docs; // posicao onde queremos meter na cache
-    int aux2 = docs->next_to_disc%docs->max_docs; // proxima posicao a meter em disco
-
-    if (docs->ocupados[aux] == LIVRE) {
-        send_to_Cache(buffer, docs, pos);
-    } else if (docs->ocupados[aux] == EM_DISCO) {
-        // Enviar para o cache
-        send_to_Cache(buffer, docs, pos);
-    } else {
-        if (aux==aux2){//se for a mesma posicao procede-se normalmente
-            escreve_em_disco(docs, docs->next_to_disc);
+    if (docs->ocupados[pos] == EM_DISCO) {
+        char *data = malloc(512);
+        if (data == NULL) {
+            perror("Malloc disco_to_cache");
+            return;
+        }
+        int fd = open(SERVER_STORAGE, O_RDONLY);
+        if (fd == -1) {
+            perror("Open disco_to_cache");
+            free(data);
+            return;
+        }
+        int offset = pos * 512; // Supondo que cada documento ocupa 512 bytes
+        lseek(fd, offset, SEEK_SET);
+        read(fd, data, 512);
+        close(fd);
+    
+        char *buffer = desserializa_metaDados(data);
+    
+        int aux = pos%docs->max_docs; // posicao onde queremos meter na cache
+        int aux2 = docs->next_to_disc%docs->max_docs; // proxima posicao a meter em disco
+    
+        if (docs->ocupados[aux] == LIVRE) {
             send_to_Cache(buffer, docs, pos);
-            docs->next_to_disc++;
-        } else if (aux<aux2){//senao acha-se qual seria o indice do metadados que estaria em aux2 e mandamo-lo para a cache antecipadamente
-            escreve_em_disco(docs, (aux2+aux)+docs->next_to_disc);
+        } else if (docs->ocupados[aux] == EM_DISCO) {
+            // Enviar para o cache
             send_to_Cache(buffer, docs, pos);
         } else {
-            escreve_em_disco(docs, docs->next_to_disc+(aux-aux2));
-            send_to_Cache(buffer, docs, pos);
+            if (aux==aux2){//se for a mesma posicao procede-se normalmente
+                escreve_em_disco(docs, docs->next_to_disc);
+                send_to_Cache(buffer, docs, pos);
+                docs->next_to_disc++;
+            } else if (aux<aux2){//senao acha-se qual seria o indice do metadados que estaria em aux2 e mandamo-lo para a cache antecipadamente
+                escreve_em_disco(docs, (aux2+aux)+docs->next_to_disc);
+                send_to_Cache(buffer, docs, pos);
+            } else {
+                escreve_em_disco(docs, docs->next_to_disc+(aux-aux2));
+                send_to_Cache(buffer, docs, pos);
+            }
         }
+        docs->ocupados[pos] = EM_DISCO_E_CACHE;
     }
-    docs->ocupados[pos] = EM_DISCO_E_CACHE;
-
 }
  
 char get_docs_estado(Cache *docs, int pos) {
@@ -346,7 +351,7 @@ void send_to_Cache(char *buffer, Cache *doc, int i) {
 
     doc->docs[pos] = criar_metaDados(buffer);
 
-    if (doc->ocupados[i] == EM_DISCO) {
+    if (doc->ocupados[i] == EM_DISCO || doc->ocupados[i] == EM_DISCO_E_CACHE) {
         printf("Já está em disco...\n");
         return;
     } else {
