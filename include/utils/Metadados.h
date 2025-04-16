@@ -19,10 +19,6 @@
 
 #define SERVER_STORAGE "tmp/server_storage"
 
-#define EM_CACHE 'c'
-#define EM_DISCO 'd'
-#define LIVRE 'l'
-
 typedef struct metaDados MetaDados;
 
 MetaDados *criar_metaDados(char *buffer);

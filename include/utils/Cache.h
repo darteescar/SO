@@ -15,6 +15,11 @@
 #include "Stack.h"
 #include "Metadados.h"
 
+#define EM_CACHE 'c'
+#define EM_DISCO 'd'
+#define LIVRE 'l'
+#define EM_DISCO_E_CACHE 'b'
+
 typedef struct cache Cache;
 
 Cache *create_Cache(int max_docs);
@@ -55,6 +60,8 @@ void send_to_Cache(char *buffer, Cache *doc, int i);
 
 void escreve_em_disco_from_Stack(Cache *docs,Message* msg, int pos);
 
+void print_ocupados(Cache *docs);
 
+MetaDados *get_anywhere_documento(Cache *docs, int pos);
 
 #endif

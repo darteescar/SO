@@ -59,7 +59,6 @@ void Server_opcao_C(Message *msg, Cache *docs){
     char respostaC[512];
     if (doc_existe == 1) {
         if (get_docs_estado(docs, keyC) == EM_DISCO) {
-            //printf("Lendo do disco...\n");
             disco_to_cache(docs, keyC);
         }
         MetaDados* reply = get_documento(docs,keyC);
@@ -93,7 +92,8 @@ Cache *Server_opcao_D(Message *msg, Cache *docs){
     envia_resposta_cliente(respostaD, msg);
     return docs;
 }
- 
+
+// Esta função procura a keyword no documento ( se o documento nao estiver em cache, ele escreve-o na cache )
 void Server_opcao_L(Message *msg, Cache *docs, char* folder) {
     int key = get_key_msg(msg);
     int flag = documento_existe(docs, key);
@@ -170,34 +170,29 @@ void Server_opcao_L(Message *msg, Cache *docs, char* folder) {
 void Server_opcao_S(Message *msg, Cache *docs, char* folder) {
     char *keyword = get_keyword_msg_s(msg);
     if (keyword == NULL) {
-        perror("get_keyword_msg_s");
+        perror("get_keyword_msg_s Server_opcao_S");
         return;
     }
 
     char *resposta = malloc(sizeof(char) * 100);
     if (resposta == NULL) {
-        perror("malloc");
+        perror("Malloc Server_opcao_S");
         return;
     }
     int size = 0;
     int max_size = 100;
 
     int n_total = get_nTotal(docs);
-    
 
     for (int i = 0; i < n_total; i++) {
         if (documento_existe(docs, i) == 1) {
-            if(get_docs_estado(docs, i) == EM_DISCO) { //Meter o MetaDados de indice i em cache
-                disco_to_cache(docs, i);
-            }
-            MetaDados *doc = get_documento(docs, i);
-
+            MetaDados *doc = get_anywhere_documento(docs, i);
             char filepath[100];
             sprintf(filepath, "%s%s", folder, get_MD_path(doc));
-
+            printf("Filepath: %s\n", filepath);
             int pid = fork();
             if (pid == -1) {
-                perror("fork");
+                perror("Fork Server_opcao_S");
                 free(resposta);
                 return;
             }
@@ -210,6 +205,7 @@ void Server_opcao_S(Message *msg, Cache *docs, char* folder) {
                 waitpid(pid, &status, 0);
 
                 if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+                    printf("i: %d, resposta: %s\n", i, resposta);
                     char num[20];
                     snprintf(num, sizeof(num), "%d", i);
                     int num_len = strlen(num);
@@ -219,7 +215,7 @@ void Server_opcao_S(Message *msg, Cache *docs, char* folder) {
                         max_size *= 2;
                         resposta = realloc(resposta, sizeof(char) * max_size);
                         if (resposta == NULL) {
-                            perror("realloc");
+                            perror("Realloc Server_opcao_S");
                             return;
                         }
                     }

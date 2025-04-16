@@ -37,6 +37,7 @@ int main(int argc, char* argv[]) {
         if (bytes > 0) {
             if (verifica_comando(msg) == 1) {
                 docs = exec_comando(msg, docs,server_down,folder);
+                //print_Cache(docs);
                 if (*server_down == 1) {
                     //server_shutdown(docs);
                     break;
