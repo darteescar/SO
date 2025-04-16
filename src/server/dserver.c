@@ -71,8 +71,10 @@ int main(int argc, char* argv[]) {
                     break;
                 }
             } else {
-                error_message(msg);
+                error_message(msg); 
             }
+
+            free_message(msg); // talvez deve ser um filho a fazer isto ?
         }
     }
 

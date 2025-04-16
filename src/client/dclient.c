@@ -17,8 +17,16 @@ int main(int argc, char* argv[]){
     create_message(msg, argv, argc, pid);
 
     // Enviar a mensagem para o servidor
-    send_message(msg);
+    int x = send_message(msg);
 
+    if (x == -1) {
+        perror("Send_message na main do dclient");
+        free_message(msg);
+        return -1;
+    } else {
+        free_message(msg);
+    }
+    
     // Espera pela resposta do servidor (FIFO)
 
     // Ler a resposta do servidor

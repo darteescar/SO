@@ -36,15 +36,23 @@ Message *init_message() {
      }
  }
  
- size_t get_message_size(Message *msg) {
+size_t get_message_size(Message *msg) {
      if (msg == NULL) {
           perror("Message is NULL");
           exit(EXIT_FAILURE);
      }
      return sizeof(struct message);
+}
+
+void free_message(Message *msg) {
+     if (msg == NULL) {
+          perror("Message is NULL");
+          return;
+     }
+     free(msg);
  }
- 
- void print_message(Message *msg) {
+
+void print_message(Message *msg) {
      if (msg == NULL) {
           perror("Message is NULL");
           exit(EXIT_FAILURE);

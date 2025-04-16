@@ -23,6 +23,8 @@ void create_message(Message *msg, char *argv[], int argc, int pid);
 
 size_t get_message_size(Message *msg);
 
+void free_message(Message *msg);
+
 void print_message(Message *msg);
 
 char get_message_command(Message *msg);

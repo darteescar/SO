@@ -2,7 +2,7 @@
 
 #define SERVER_FIFO "tmp/server_fifo"
 
-void send_message (Message *msg){
+int send_message (Message *msg){
     char buffer[512];
     sprintf(buffer, "tmp/%d", get_message_pid(msg));
     mkfifo(buffer, 0600);
@@ -10,11 +10,12 @@ void send_message (Message *msg){
     int fd = open(SERVER_FIFO, O_WRONLY);
     if (fd == -1) {
         perror("open");
-        return;
+        return -1;
     }
 
-    write(fd, msg, get_message_size(msg));
+    ssize_t x = write(fd, msg, get_message_size(msg));
     close(fd);
+    return x;
 }
 
 void reply(Message *msg){

@@ -10,7 +10,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-void send_message(Message *msg);
+int send_message(Message *msg);
 
 void reply(Message *msg);
 

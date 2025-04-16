@@ -80,7 +80,6 @@ Cache *add_documento(Cache *docs, Message *data, int *pos_onde_foi_add) {
             docs->next_to_disc++;
         } else {
             int pos = pop(docs->stack);
-            
             escreve_em_disco_from_Stack(docs, data, pos);
             *pos_onde_foi_add = pos;
         }   
@@ -100,7 +99,7 @@ void escreve_em_disco_from_Stack(Cache *docs,Message* msg, int pos) {
     }
 
     // Escrever os dados do documento no disco
-    int offset = pos * 512; // Supondo que cada documento ocupa 512 bytes (caracteres de separação tidos em conta)
+    int offset = pos * 516; // Supondo que cada documento ocupa 516 bytes (caracteres de separação tidos em conta)
     int x = lseek(fd, offset, SEEK_SET);
     if (x == -1) {
         perror("lseek");
@@ -116,6 +115,7 @@ void escreve_em_disco_from_Stack(Cache *docs,Message* msg, int pos) {
     }
      
     close(fd);
+    free(result);
     docs->ocupados[pos] = EM_DISCO;
 }
 
@@ -145,7 +145,7 @@ void escreve_em_disco(Cache *docs, int pos) {
     }
 
     // Escrever os dados do documento no disco
-    int offset = pos * 512; // Supondo que cada documento ocupa 512 bytes (caracteres de separação tidos em conta)
+    int offset = pos * 516; // Supondo que cada documento ocupa 516 bytes (caracteres de separação tidos em conta)
     int x = lseek(fd, offset, SEEK_SET);
     if (x == -1) {
         perror("lseek");
@@ -162,6 +162,7 @@ void escreve_em_disco(Cache *docs, int pos) {
     }
      
     close(fd);
+    free(data);
     docs->ocupados[pos] = EM_DISCO;
  }
  
@@ -227,7 +228,7 @@ char* desserializa_metaDados(char *data) {
     char *autores = strsep(&data, "|");
     char *ano = strsep(&data, "|");
     char *path = strsep(&data, "|");
-    char *buffer = malloc(512);
+    char *buffer = malloc(516);
     if (buffer == NULL) {
         perror("malloc");
         return NULL;
@@ -244,7 +245,7 @@ void disco_to_cache(Cache *docs, int pos) {
         return;
     }
     if (docs->ocupados[pos] == EM_DISCO) {
-        char *data = malloc(512);
+        char *data = malloc(516);
         if (data == NULL) {
             perror("Malloc disco_to_cache");
             return;
@@ -255,9 +256,9 @@ void disco_to_cache(Cache *docs, int pos) {
             free(data);
             return;
         }
-        int offset = pos * 512; // Supondo que cada documento ocupa 512 bytes
+        int offset = pos * 516; // Supondo que cada documento ocupa 516 bytes
         lseek(fd, offset, SEEK_SET);
-        read(fd, data, 512);
+        read(fd, data, 516);
         close(fd);
     
         char *buffer = desserializa_metaDados(data);
@@ -290,17 +291,15 @@ void disco_to_cache(Cache *docs, int pos) {
 void send_to_Cache(char *buffer, Cache *doc, int i) {
     int pos = i % doc->max_docs;
 
-    /*if (doc->docs[pos] != NULL) {
-        free_metaDados(doc->docs[pos]);  // Se já existir, limpa antes
-    }*/
+    if (doc->ocupados[pos] != LIVRE) {
+        free_metaDados(doc->docs[pos]);
+    }
 
     doc->docs[pos] = criar_metaDados(buffer);
 
     if (doc->ocupados[i] == EM_DISCO || doc->ocupados[i] == EM_DISCO_E_CACHE) {
-        //printf("Já está em disco...\n");
         return;
     } else {
-        //printf("Adicionando documento %d à cache...\n", i);
         doc->ocupados[i] = EM_CACHE;
         doc->n_docs++;
         doc->n_total++;
@@ -331,7 +330,7 @@ MetaDados *get_anywhere_documento(Cache *docs, int pos) {
     if (docs->ocupados[pos] == EM_CACHE || docs->ocupados[pos] == EM_DISCO_E_CACHE ) {
         return docs->docs[pos % docs->max_docs];
     } else {
-        char *data = malloc(512);
+        char *data = malloc(516);
         if (data == NULL) {
             perror("Malloc disco_to_cache");
             return NULL;
@@ -342,9 +341,9 @@ MetaDados *get_anywhere_documento(Cache *docs, int pos) {
             free(data);
             return NULL;
         }
-        int offset = pos * 512; // Supondo que cada documento ocupa 512 bytes
+        int offset = pos * 516; // Supondo que cada documento ocupa 516 bytes
         lseek(fd, offset, SEEK_SET);
-        read(fd, data, 512);
+        read(fd, data, 516);
         close(fd);
         MetaDados *new = criar_metaDados(desserializa_metaDados(data));
         if (new == NULL) {
