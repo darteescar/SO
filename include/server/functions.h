@@ -1,8 +1,6 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
-#include "utils/Message.h"
-#include "utils/Metadados.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,19 +14,23 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 
-Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down, char* folder);
+#include "utils/Cache.h"
+#include "utils/Message.h"
+#include "utils/Metadados.h"
 
-Documentos *Server_opcao_A(Message *msg, Documentos *docs);
+Cache *exec_comando (Message *msg, Cache *docs, int *server_down, char* folder);
 
-void Server_opcao_C(Message *msg, Documentos *docs);
+Cache *Server_opcao_A(Message *msg, Cache *docs);
 
-Documentos *Server_opcao_D(Message *msg, Documentos *docs);
+void Server_opcao_C(Message *msg, Cache *docs);
 
-void Server_opcao_L (Message *msg, Documentos *docs, char *folder);
+Cache *Server_opcao_D(Message *msg, Cache *docs);
 
-void Server_opcao_S(Message *msg, Documentos *docs, char *folder);
+void Server_opcao_L (Message *msg, Cache *docs, char *folder);
 
-void Server_opcao_F(Message *msg, Documentos *docs);
+void Server_opcao_S(Message *msg, Cache *docs, char *folder);
+
+void Server_opcao_F(Message *msg, Cache *docs);
 
 int verifica_comando (Message *msg);
 

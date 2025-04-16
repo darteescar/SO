@@ -1,7 +1,7 @@
 #include "server/functions.h"
 #define SERVER_FIFO "server_fifo"
 
-Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down, char *folder) {
+Cache *exec_comando (Message *msg, Cache *docs, int *server_down, char *folder) {
     switch (get_message_command(msg)) {
         case 'a':
             // Adicionar
@@ -34,7 +34,7 @@ Documentos *exec_comando (Message *msg, Documentos *docs, int *server_down, char
     return docs;
 }
 
-Documentos *Server_opcao_A(Message *msg, Documentos *docs){
+Cache *Server_opcao_A(Message *msg, Cache *docs){
     
     int *pos_onde_foi_add = malloc(sizeof(int));
     if (pos_onde_foi_add == NULL) {
@@ -52,7 +52,7 @@ Documentos *Server_opcao_A(Message *msg, Documentos *docs){
     return docs;
 }
 
-void Server_opcao_C(Message *msg, Documentos *docs){
+void Server_opcao_C(Message *msg, Cache *docs){
 
     int keyC = get_key_msg(msg);
     int doc_existe = documento_existe(docs, keyC);
@@ -76,7 +76,7 @@ void Server_opcao_C(Message *msg, Documentos *docs){
     envia_resposta_cliente(respostaC, msg);
 }
 
-Documentos *Server_opcao_D(Message *msg, Documentos *docs){
+Cache *Server_opcao_D(Message *msg, Cache *docs){
 
     int keyD = get_key_msg(msg);
     int flagD = remove_documento(docs, keyD);
@@ -94,7 +94,7 @@ Documentos *Server_opcao_D(Message *msg, Documentos *docs){
     return docs;
 }
  
-void Server_opcao_L(Message *msg, Documentos *docs, char* folder) {
+void Server_opcao_L(Message *msg, Cache *docs, char* folder) {
     int key = get_key_msg(msg);
     int flag = documento_existe(docs, key);
     char *keyword = get_keyword_msg(msg);
@@ -167,7 +167,7 @@ void Server_opcao_L(Message *msg, Documentos *docs, char* folder) {
     }
 }
 
-void Server_opcao_S(Message *msg, Documentos *docs, char* folder) {
+void Server_opcao_S(Message *msg, Cache *docs, char* folder) {
     char *keyword = get_keyword_msg_s(msg);
     if (keyword == NULL) {
         perror("get_keyword_msg_s");
@@ -259,7 +259,7 @@ void Server_opcao_S(Message *msg, Documentos *docs, char* folder) {
     envia_resposta_cliente(resposta, msg);
 }
 
-void Server_opcao_F(Message *msg, Documentos *docs){
+void Server_opcao_F(Message *msg, Cache *docs){
     for(int i=0; i<get_max_docs(docs); i++){
         if (documento_existe(docs, (get_next_to_disc(docs)%get_max_docs(docs))) == 1) {
             escreve_em_disco(docs, get_next_to_disc(docs));

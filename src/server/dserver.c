@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
     char* folder = argv[1];
     int cache_size = atoi(argv[2]); // definir que se o segundo argumento for nulo, o array é dinâmico
 
-    Documentos *docs = create_documentos(cache_size);
+    Cache *docs = create_Cache(cache_size);
     int *server_down = malloc(sizeof(int));
     *server_down = 0;
 
@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
         Message *msg = init_message();
         int fd = open(SERVER_FIFO, O_RDONLY);
         if (fd == -1) {
-            perror("open server_fifo");
+            perror("Open server_fifo");
             return -1;
         }
 
@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    print_documentos(docs);
+    print_Cache(docs);
 
     write(1, "[SERVER ENDED]\n", 16);
 
