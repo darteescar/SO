@@ -58,6 +58,10 @@ void Server_opcao_C(Message *msg, Documentos *docs){
     int doc_existe = documento_existe(docs, keyC);
     char respostaC[512];
     if (doc_existe == 1) {
+        if (get_docs_estado(docs, keyC) == EM_DISCO) {
+            //printf("Lendo do disco...\n");
+            disco_to_cache(docs, keyC);
+        }
         MetaDados* reply = get_documento(docs,keyC);
         char *str = MD_toString(reply, keyC);
         sprintf(respostaC, "%s\n", str);
@@ -112,6 +116,10 @@ void Server_opcao_L(Message *msg, Documentos *docs, char* folder) {
 
         envia_resposta_cliente(resposta, msg);
         return;
+    }
+
+    if(get_docs_estado(docs, key) == EM_DISCO) {//Meter o MetaDados de indice key em cache
+        disco_to_cache(docs, key);
     }
 
     // Obtem o path do documento
@@ -179,6 +187,9 @@ void Server_opcao_S(Message *msg, Documentos *docs, char* folder) {
 
     for (int i = 0; i < n_total; i++) {
         if (documento_existe(docs, i) == 1) {
+            if(get_docs_estado(docs, i) == EM_DISCO) {//Meter o MetaDados de indice i em cache
+                disco_to_cache(docs, i);
+            }
             MetaDados *doc = get_documento(docs, i);
 
             char filepath[100];

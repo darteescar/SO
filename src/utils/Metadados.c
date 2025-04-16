@@ -1,11 +1,5 @@
 #include "utils/Metadados.h"
 
-#define SERVER_STORAGE "tmp/server_storage"
-
-#define EM_CACHE 'c'
-#define EM_DISCO 'd'
-#define LIVRE 'l'
-
 struct metaDados{
      char* titulo;
      char** autores;
@@ -75,11 +69,13 @@ void send_to_Cache(char* buffer, Documentos *doc, int i) {
         }
         field++;
     }
+
     if (doc->ocupados[i] == EM_DISCO) {
         return;
     } else {
         doc->ocupados[i] = EM_CACHE;
         doc->n_docs++;
+        doc->n_total++;
     }
 }
 
@@ -275,11 +271,12 @@ Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add
     } else {
         //printf("N-Docs: %d\n", docs->n_docs);
         if (docs->n_docs >= docs->max_docs * docs->redimensionamentos) redimensionar_ocupados(docs);
+
         if (docs->ocupados[docs->next_to_disc]==EM_CACHE) escreve_em_disco(docs, docs->next_to_disc);
 
         char* buffer = get_message_buffer(data);
         
-        send_to_Cache(buffer, docs, docs->next_to_disc);
+        send_to_Cache(buffer, docs, docs->next_to_disc + docs->max_docs);
         *pos_onde_foi_add = docs->next_to_disc+docs->max_docs;
         docs->next_to_disc++;
         
@@ -303,7 +300,7 @@ int remove_documento(Documentos *docs, int pos) {
 }
 
 int documento_existe(Documentos *docs, int pos) {
-    if (docs == NULL || pos < 0 || pos >= docs->max_docs) {
+    if (docs == NULL || pos < 0 || pos >= docs->n_total) {
         return -1;
     }
     else if (docs->ocupados[pos] == LIVRE) {
@@ -393,14 +390,11 @@ void disco_to_cache(Documentos *docs, int pos) {
 
         char *buffer = transform(data);
 
-
-
         int aux = pos%docs->max_docs;//posicao onde queremos meter na cache
-
         int aux2 = docs->next_to_disc%docs->max_docs;//proxima posicao a meter em disco
 
         if (docs->ocupados[aux] == LIVRE) {
-            send_to_Cache(buffer, docs, aux);
+            send_to_Cache(buffer, docs, pos);
         } else if (docs->ocupados[aux] == EM_DISCO) {
             // Enviar para o cache
             send_to_Cache(buffer, docs, pos);
@@ -408,10 +402,10 @@ void disco_to_cache(Documentos *docs, int pos) {
         } else {
             if (aux==aux2){//se for a mesma posicao procede-se normalmente
                 escreve_em_disco(docs, docs->next_to_disc);
-                send_to_Cache(buffer, docs, docs->next_to_disc);
+                send_to_Cache(buffer, docs, pos);
                 docs->next_to_disc++;
             } else if (aux<aux2){//senao acha-se qual seria o indice do metadados que estaria em aux2 e mandamo-lo para a cache antecipadamente
-                escreve_em_disco(docs, aux2+aux+docs->next_to_disc);
+                escreve_em_disco(docs, (aux2+aux)+docs->next_to_disc);
                 send_to_Cache(buffer, docs, pos);
             } else {
                 escreve_em_disco(docs, docs->next_to_disc+(aux-aux2));
@@ -425,5 +419,12 @@ void disco_to_cache(Documentos *docs, int pos) {
         //printf("Não existe documento...\n");
         return;
     }
+}
+
+char get_docs_estado(Documentos *docs, int pos) {
+    if (docs == NULL) {
+        return '0';
+    }
+    return docs->ocupados[pos];
 }
 

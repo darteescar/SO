@@ -17,6 +17,12 @@
 #define FIELD_SEP "\x1E"
 #define AUTHOR_SEP "\x1F"
 
+#define SERVER_STORAGE "tmp/server_storage"
+
+#define EM_CACHE 'c'
+#define EM_DISCO 'd'
+#define LIVRE 'l'
+
 typedef struct metaDados MetaDados;
 
 typedef struct documentos Documentos;
@@ -70,6 +76,8 @@ char *serializa_metaDados(MetaDados *data);
 void disco_to_cache(Documentos *docs, int pos);
 
 char* transform(char *data);
+
+char get_docs_estado(Documentos *docs, int pos);
 
 
 
