@@ -21,7 +21,7 @@ typedef struct metaDados MetaDados;
 
 typedef struct documentos Documentos;
 
-void send_to_Cache(Message *msg, Documentos *doc, int i);
+void send_to_Cache(char* buffer, Documentos *doc, int i);
 
 void free_metaDados(MetaDados *data);
 
@@ -42,6 +42,8 @@ char *MD_toString(MetaDados* data, int key);
 Documentos *create_documentos(int max_docs);
 
 Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add);
+
+void redimensionar_ocupados(Documentos *docs);
 
 int remove_documento(Documentos *docs, int pos);
 
@@ -64,6 +66,10 @@ void inc_next_to_disc(Documentos *docs);
 void escreve_em_disco(Documentos *docs, int pos);
 
 char *serializa_metaDados(MetaDados *data);
+
+void disco_to_cache(Documentos *docs, int pos);
+
+char* transform(char *data);
 
 
 
