@@ -187,7 +187,7 @@ void Server_opcao_S(Message *msg, Documentos *docs, char* folder) {
 
     for (int i = 0; i < n_total; i++) {
         if (documento_existe(docs, i) == 1) {
-            if(get_docs_estado(docs, i) == EM_DISCO) {//Meter o MetaDados de indice i em cache
+            if(get_docs_estado(docs, i) == EM_DISCO) { //Meter o MetaDados de indice i em cache
                 disco_to_cache(docs, i);
             }
             MetaDados *doc = get_documento(docs, i);
@@ -317,7 +317,7 @@ int verifica_comando (Message *msg) {
  }
  
 void error_message(Message *msg) {
-    const char *resposta;  // Use um ponteiro para string literal, não precisa de malloc
+    const char *resposta;
     char option = get_message_command(msg);  // Supondo que você tenha um método para pegar o comando da mensagem
     switch(option){
         case 'a':

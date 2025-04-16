@@ -13,6 +13,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include "Message.h"
+#include "Stack.h"
 
 #define FIELD_SEP "\x1E"
 #define AUTHOR_SEP "\x1F"
@@ -49,7 +50,11 @@ Documentos *create_documentos(int max_docs);
 
 Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add);
 
-void redimensionar_ocupados(Documentos *docs);
+void redimensiona_ocupados(Documentos *docs);
+
+void redimensionar_auxiliares(Documentos *docs);
+
+void redimensionar_auxiliares(Documentos *docs);
 
 int remove_documento(Documentos *docs, int pos);
 
@@ -75,7 +80,7 @@ char *serializa_metaDados(MetaDados *data);
 
 void disco_to_cache(Documentos *docs, int pos);
 
-char* transform(char *data);
+char* desserializa_metaDados(char *data);
 
 char get_docs_estado(Documentos *docs, int pos);
 

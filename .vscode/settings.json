@@ -67,6 +67,7 @@
     "unistd.h": "c",
     "string.h": "c",
     "message.h": "c",
-    "metadados.h": "c"
+    "metadados.h": "c",
+    "stdio.h": "c"
   }
 }

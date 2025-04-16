@@ -15,9 +15,86 @@ struct documentos {
     int redimensionamentos;
     int next_to_disc;
     int n_total;
-
+    Stack *stack;
     MetaDados docs[];
 };
+
+/*---------------------------------------------------MetaDados-----------------------------------------------------*/
+
+void free_metaDados(MetaDados *data) {
+    if (data != NULL) {
+        free(data->titulo);
+        for (int i = 0; i<data->n_autores; i++) {
+            free(data->autores[i]);
+        }
+        free(data->autores);
+        free(data->path);
+        //free(data);
+    }
+}
+
+void print_metaDados(MetaDados *data) {
+   if (data == NULL) {
+       write(1, "MetaDados is NULL\n", 18);
+       return;
+   }
+   write(1, "[MetaDados]\n", 12);
+   write(1, "Titulo: ", 8);
+   write(1, data->titulo, strlen(data->titulo));
+   write(1, "\nAutores: ", 9);
+   for (int i = 0; i < data->n_autores; i++) {
+       write(1, data->autores[i], strlen(data->autores[i]));
+       if (i < data->n_autores - 1) {
+           write(1, ", ", 2);
+       }
+   }
+   write(1, "\nAno: ", 6);
+   char buffer[10];
+   sprintf(buffer, "%d", data->ano);
+   write(1, buffer, strlen(buffer));
+   write(1, "\nPath: ", 7);
+   write(1, data->path, strlen(data->path));
+   write(1, "\n", 1);
+}
+
+char* get_MD_titulo(MetaDados *data){
+    return strdup(data->titulo);
+}
+
+char* get_MD_path(MetaDados *data){
+    return strdup(data->path);
+}
+
+int get_MD_ano(MetaDados *data){
+    return data->ano;
+}
+
+int get_MD_n_autores(MetaDados *data){
+    return data->n_autores;
+}
+
+char** get_MD_autores(MetaDados *data){
+    return data->autores;
+}
+
+char *MD_toString(MetaDados* data, int key){
+   char *str = malloc(1000);
+   if (str == NULL) {
+       perror("malloc");
+       exit(EXIT_FAILURE);
+   }
+   sprintf(str, "Meta Informação do documento %d:\n\nTitulo: %s\nAutores: ",key, data->titulo);
+   for (int i = 0; i < data->n_autores; i++) {
+       strcat(str, data->autores[i]);
+       if (i < data->n_autores - 1) {
+           strcat(str, "; ");
+       }
+   }
+   char buffer[256];
+   sprintf(buffer, "\nAno: %d\nPath: %s", data->ano, data->path);
+   strcat(str, buffer);
+   return str;
+}
 
 void send_to_Cache(char* buffer, Documentos *doc, int i) {
     char *total = buffer;
@@ -71,87 +148,14 @@ void send_to_Cache(char* buffer, Documentos *doc, int i) {
     }
 
     if (doc->ocupados[i] == EM_DISCO) {
+        printf("Já está em disco...\n");
         return;
     } else {
+        printf("Adicionando documento %d à cache...\n", i);
         doc->ocupados[i] = EM_CACHE;
         doc->n_docs++;
         doc->n_total++;
     }
-}
-
-void free_metaDados(MetaDados *data) {
-     if (data != NULL) {
-         free(data->titulo);
-         for (int i = 0; i<data->n_autores; i++) {
-             free(data->autores[i]);
-         }
-         free(data->autores);
-         free(data->path);
-         //free(data);
-     }
-}
-
-void print_metaDados(MetaDados *data) {
-    if (data == NULL) {
-        write(1, "MetaDados is NULL\n", 18);
-        return;
-    }
-    write(1, "[MetaDados]\n", 12);
-    write(1, "Titulo: ", 8);
-    write(1, data->titulo, strlen(data->titulo));
-    write(1, "\nAutores: ", 9);
-    for (int i = 0; i < data->n_autores; i++) {
-        write(1, data->autores[i], strlen(data->autores[i]));
-        if (i < data->n_autores - 1) {
-            write(1, ", ", 2);
-        }
-    }
-    write(1, "\nAno: ", 6);
-    char buffer[10];
-    sprintf(buffer, "%d", data->ano);
-    write(1, buffer, strlen(buffer));
-    write(1, "\nPath: ", 7);
-    write(1, data->path, strlen(data->path));
-    write(1, "\n", 1);
-}
-
-char* get_MD_titulo(MetaDados *data){
-     return strdup(data->titulo);
-}
-
-char* get_MD_path(MetaDados *data){
-     return strdup(data->path);
-}
-
-int get_MD_ano(MetaDados *data){
-     return data->ano;
-}
-
-int get_MD_n_autores(MetaDados *data){
-     return data->n_autores;
-}
-
-char** get_MD_autores(MetaDados *data){
-     return data->autores;
-}
-
-char *MD_toString(MetaDados* data, int key){
-    char *str = malloc(1000);
-    if (str == NULL) {
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
-    sprintf(str, "Meta Informação do documento %d:\n\nTitulo: %s\nAutores: ",key, data->titulo);
-    for (int i = 0; i < data->n_autores; i++) {
-        strcat(str, data->autores[i]);
-        if (i < data->n_autores - 1) {
-            strcat(str, "; ");
-        }
-    }
-    char buffer[256];
-    sprintf(buffer, "\nAno: %d\nPath: %s", data->ano, data->path);
-    strcat(str, buffer);
-    return str;
 }
 
 Documentos *create_documentos(int max_docs) {
@@ -165,6 +169,7 @@ Documentos *create_documentos(int max_docs) {
     docs->next_to_disc = 0;
     docs->n_total = 0;
     docs->redimensionamentos = 1;
+    docs->stack = criar_stack(max_docs);
     docs->ocupados = malloc(max_docs * sizeof(char));
     if (docs->ocupados == NULL) {
         perror("malloc");
@@ -232,7 +237,7 @@ void escreve_em_disco(Documentos *docs, int pos) {
     docs->ocupados[pos] = EM_DISCO;
 }
 
-void redimensionar_ocupados(Documentos *docs) {
+void redimensiona_ocupados(Documentos *docs) {
     //printf("Redimensionando ocupados...\n");
     if (docs == NULL) {
         return;
@@ -252,10 +257,14 @@ void redimensionar_ocupados(Documentos *docs) {
     }
 
     docs->ocupados = new_ocupados;
-
     for (int i = old_size; i < new_size; i++) {
         docs->ocupados[i] = LIVRE;
     }
+}
+
+void redimensionar_auxiliares(Documentos *docs) {
+    redimensiona_ocupados(docs);
+    increase_capacity(docs->stack);
 }
 
 Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add) {
@@ -270,15 +279,22 @@ Documentos *add_documento(Documentos *docs, Message *data, int *pos_onde_foi_add
         
     } else {
         //printf("N-Docs: %d\n", docs->n_docs);
-        if (docs->n_docs >= docs->max_docs * docs->redimensionamentos) redimensionar_ocupados(docs);
+        if (docs->n_docs >= docs->max_docs * docs->redimensionamentos) redimensionar_auxiliares(docs);
 
-        if (docs->ocupados[docs->next_to_disc]==EM_CACHE) escreve_em_disco(docs, docs->next_to_disc);
+        if (is_empty(docs->stack)) {
+            if (docs->ocupados[docs->next_to_disc]==EM_CACHE) escreve_em_disco(docs, docs->next_to_disc);
 
-        char* buffer = get_message_buffer(data);
-        
-        send_to_Cache(buffer, docs, docs->next_to_disc + docs->max_docs);
-        *pos_onde_foi_add = docs->next_to_disc+docs->max_docs;
-        docs->next_to_disc++;
+            char* buffer = get_message_buffer(data);
+            
+            send_to_Cache(buffer, docs, docs->next_to_disc + docs->max_docs);
+            *pos_onde_foi_add = docs->next_to_disc+docs->max_docs;
+            docs->next_to_disc++;
+        } else {
+            int pos = pop(docs->stack);
+            char* buffer = get_message_buffer(data);
+            send_to_Cache(buffer, docs, pos);
+            *pos_onde_foi_add = pos;
+        }
         
     }
 
@@ -293,6 +309,7 @@ int remove_documento(Documentos *docs, int pos) {
         //free_metaDados(&(docs->docs[pos]));
         docs->ocupados[pos] = LIVRE;
         docs->n_docs--;
+        push(docs->stack, pos);
         return 1;
     } else {
         return -2;
@@ -348,7 +365,7 @@ int get_max_docs(Documentos *docs) {
     return docs->max_docs;
 }
 
-char* transform(char *data) {//transforma a string em cache para uma compativel com a funcao send_to_Cache
+char* desserializa_metaDados(char *data) { //transforma a string em cache para uma compativel com a funcao send_to_Cache
 
     char *titulo = strsep(&data, "|");
     char *autores = strsep(&data, "|");
@@ -388,10 +405,10 @@ void disco_to_cache(Documentos *docs, int pos) {
         read(fd, data, 512);
         close(fd);
 
-        char *buffer = transform(data);
+        char *buffer = desserializa_metaDados(data);
 
-        int aux = pos%docs->max_docs;//posicao onde queremos meter na cache
-        int aux2 = docs->next_to_disc%docs->max_docs;//proxima posicao a meter em disco
+        int aux = pos%docs->max_docs; //posicao onde queremos meter na cache
+        int aux2 = docs->next_to_disc%docs->max_docs; //proxima posicao a meter em disco
 
         if (docs->ocupados[aux] == LIVRE) {
             send_to_Cache(buffer, docs, pos);
@@ -412,12 +429,6 @@ void disco_to_cache(Documentos *docs, int pos) {
                 send_to_Cache(buffer, docs, pos);
             }
         }
-    } else if (docs->ocupados[pos] == EM_CACHE) {
-        //printf("Já está em cache...\n");
-        return;
-    } else {
-        //printf("Não existe documento...\n");
-        return;
     }
 }
 
