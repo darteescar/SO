@@ -20,6 +20,8 @@
 
 Cache *exec_comando (Message *msg, Cache *docs, int *server_down, char* folder);
 
+int paralels_function (Message *msg, int (*func)(Message *msg));
+
 Cache *Server_opcao_A(Message *msg, Cache *docs);
 
 void Server_opcao_C(Message *msg, Cache *docs);

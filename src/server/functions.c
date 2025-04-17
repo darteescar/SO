@@ -34,6 +34,38 @@ Cache *exec_comando (Message *msg, Cache *docs, int *server_down, char *folder) 
     return docs;
 }
 
+int paralels_function (Message *msg, int (*func)(Message *msg)) {
+    int fd[2];
+    pid_t pid;
+    int valor;
+
+    // Cria o pipe
+    if (pipe(fd) == -1) {
+        perror("pipe");
+        exit(EXIT_FAILURE);
+    }
+    
+    pid = fork();
+    if (pid < 0) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    }
+
+    if (pid == 0) { // Processo filho
+        close(fd[0]);
+        valor = func(msg);
+        write(fd[1], &valor, sizeof(int));
+        close(fd[1]);
+        exit(0);
+    } else { // Processo pai
+        close(fd[1]);
+        wait(NULL);
+        read(fd[0], &valor, sizeof(int));
+        close(fd[0]);
+    }
+    return valor;
+}
+
 Cache *Server_opcao_A(Message *msg, Cache *docs){
     
     int *pos_onde_foi_add = malloc(sizeof(int));

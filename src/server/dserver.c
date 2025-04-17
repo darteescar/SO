@@ -35,35 +35,7 @@ int main(int argc, char* argv[]) {
         close(fd);
 
         if (bytes > 0) {
-            int fd[2];
-            pid_t pid;
-            int valor;
-
-            // Cria o pipe
-            if (pipe(fd) == -1) {
-                perror("pipe");
-                exit(EXIT_FAILURE);
-            }
-            
-            pid = fork();
-            if (pid < 0) {
-                perror("fork");
-                exit(EXIT_FAILURE);
-            }
-
-            if (pid == 0) { // Processo filho
-                close(fd[0]);
-                valor = verifica_comando(msg);
-                write(fd[1], &valor, sizeof(int));
-                close(fd[1]);
-                exit(0);
-            } else {
-                close(fd[1]);
-                read(fd[0], &valor, sizeof(int));
-                close(fd[0]);
-
-                waitpid(pid, NULL, 0);
-            }
+            int valor = paralels_function(msg,verifica_comando);
 
             if (valor == 1) {
                 docs = exec_comando(msg, docs, server_down, folder);
