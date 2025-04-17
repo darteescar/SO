@@ -23,18 +23,17 @@ Message *init_message() {
          perror("Message is NULL");
          exit(EXIT_FAILURE);
      }
- 
-     msg->argc = argc - 2;
+     msg->argc = argc - 1;
      msg->pid = pid;
      msg->buffer[0] = '\0'; // limpa buffer
  
      for (int i = 1; i < argc; i++) {
-         strcat(msg->buffer, argv[i]);
-         if (i < argc - 1) {
-             strcat(msg->buffer, FIELD_SEP); // separador seguro
-         }
-     }
- }
+          strcat(msg->buffer, argv[i]);
+          if (i < argc - 1) {  // só se não for o último
+              strcat(msg->buffer, FIELD_SEP);
+          }
+      }
+}
  
 size_t get_message_size(Message *msg) {
      if (msg == NULL) {
@@ -84,7 +83,7 @@ void print_message(Message *msg) {
           perror("Message is NULL");
           exit(EXIT_FAILURE);
      }
-     return msg->buffer;
+     return strdup(msg->buffer);
  }
  
  int get_message_pid(Message *msg) {
@@ -133,13 +132,31 @@ char *get_keyword_msg_s(Message *msg) {
 
 int get_nProcessos_msg_s(Message *msg) {
      if (msg == NULL) {
-          perror("Message is NULL");
-          exit(EXIT_FAILURE);
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
      }
+ 
      char *buffer = get_message_buffer(msg);
-     buffer+=3;
-     
-     char *token = strsep(&buffer, FIELD_SEP);
-     token = strsep(&buffer, FIELD_SEP);
-     return atoi(token);
-}
+     if (buffer == NULL) {
+         perror("strdup");
+         exit(EXIT_FAILURE);
+     }
+ 
+     char *ptr = buffer;
+     char *token;
+ 
+     token = strsep(&ptr, FIELD_SEP); // comando
+     token = strsep(&ptr, FIELD_SEP); // keyword
+     token = strsep(&ptr, FIELD_SEP); // n_procs
+
+     if (token == NULL) {
+          free(buffer);
+     return 1; // ou valor por omissão
+     }
+
+     int res = atoi(token);
+ 
+     free(buffer);
+     return res;
+ }
+ 

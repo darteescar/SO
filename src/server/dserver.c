@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
 
         if (bytes > 0) {
             int valor = paralels_function(msg,verifica_comando);
-
+            //print_message(msg);
             if (valor == 1) {
                 docs = exec_comando(msg, docs, server_down, folder);
                 if (*server_down == 1) {

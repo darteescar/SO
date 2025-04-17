@@ -125,7 +125,6 @@ Cache *Server_opcao_D(Message *msg, Cache *docs){
     return docs;
 }
 
-// Esta função procura a keyword no documento ( se o documento nao estiver em cache, ele escreve-o na cache )
 void Server_opcao_L(Message *msg, Cache *docs, char* folder) {
     int key = get_key_msg(msg);
     int flag = documento_existe(docs, key);
@@ -205,84 +204,91 @@ void Server_opcao_S(Message *msg, Cache *docs, char* folder) {
         perror("get_keyword_msg_s Server_opcao_S");
         return;
     }
-
-    char *resposta = malloc(sizeof(char) * 100);
-    if (resposta == NULL) {
-        perror("Malloc Server_opcao_S");
-        return;
-    }
-    int size = 0;
-    int max_size = 100;
-
+    int n_filhos = get_nProcessos_msg_s(msg);
     int n_total = get_nTotal(docs);
+    int fd[n_filhos][2];
+    pid_t pids[n_filhos];
 
-    for (int i = 0; i < n_total; i++) {
-        if (documento_existe(docs, i) == 1) {
-            MetaDados *doc = get_anywhere_documento(docs, i);
-            char filepath[100];
-            sprintf(filepath, "%s%s", folder, get_MD_path(doc));
-            int pid = fork();
-            if (pid == -1) {
-                perror("Fork Server_opcao_S");
-                free(resposta);
-                return;
-            }
+    for (int i = 0; i < n_filhos; i++) {
+        if (pipe(fd[i]) == -1) {
+            perror("pipe");
+            return;
+        }
 
-            if (pid == 0) {
-                execlp("grep", "grep", "-q", keyword, filepath, NULL);
-                _exit(1);
-            } else {
-                int status;
-                waitpid(pid, &status, 0);
+        pids[i] = fork();
+        if (pids[i] == -1) {
+            perror("fork");
+            return;
+        }
 
-                if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
-                    char num[20];
-                    snprintf(num, sizeof(num), "%d", i);
-                    int num_len = strlen(num);
+        if (pids[i] == 0) {
 
-                    // Expandir resposta se necessário
-                    if (size + num_len + 3 > max_size) {
-                        max_size *= 2;
-                        resposta = realloc(resposta, sizeof(char) * max_size);
-                        if (resposta == NULL) {
-                            perror("Realloc Server_opcao_S");
-                            return;
-                        }
+            close(fd[i][0]);
+
+            for (int j = i; j < n_total; j += n_filhos) { // round-robin
+                if (documento_existe(docs, j)) {
+                    MetaDados *doc = get_anywhere_documento(docs, j);
+                    char filepath[50];
+                    sprintf(filepath, "%s%s", folder, get_MD_path(doc));
+
+                    pid_t pid_grep = fork();
+                    if (pid_grep == 0) {
+                        execlp("grep", "grep", "-q", keyword, filepath, NULL);
+                        _exit(1);
                     }
 
-                    // Adicionar separador ou abrir lista
-                    if (size == 0) {
-                        strcpy(resposta, "[");
-                        size = 1;
-                    } else {
-                        strcat(resposta, ", ");
-                        size += 2;
+                    int status;
+                    waitpid(pid_grep, &status, 0);
+                    if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+                        write(fd[i][1], &j, sizeof(int));
                     }
-
-                    strcat(resposta, num);
-                    size += num_len;
                 }
             }
+
+            close(fd[i][1]);
+            _exit(0);
+        } else {
+            close(fd[i][1]);
         }
     }
 
-    // Fechar a lista ou devolver lista vazia
-    if (size > 0) {
-        if (size + 2 > max_size) {
-            resposta = realloc(resposta, sizeof(char) * (max_size + 2));
-            if (resposta == NULL) {
-                perror("realloc");
-                return;
+    char *resposta = malloc(128);
+    int size = 0, max_size = 128;
+    strcpy(resposta, "[");
+    size = 1;
+
+    for (int i = 0; i < n_filhos; i++) {
+        int doc_idx;
+        while (read(fd[i][0], &doc_idx, sizeof(int)) > 0) {
+            char num[12];
+            snprintf(num, sizeof(num), "%d", doc_idx);
+
+            if (size > 1) {
+                strcat(resposta, ", ");
+                size += 2;
+            }
+
+            strcat(resposta, num);
+            size += strlen(num);
+
+            if (size + 12 > max_size) {
+                max_size *= 2;
+                resposta = realloc(resposta, max_size);
             }
         }
-        strcat(resposta, "]");
-    } else {
-        strcpy(resposta, "[]");
+        close(fd[i][0]);
+    }
+
+    strcat(resposta, "]\n");
+
+    for (int i = 0; i < n_filhos; i++) {
+        waitpid(pids[i], NULL, 0);
     }
 
     
-    strcat(resposta, "\n");
+
     envia_resposta_cliente(resposta, msg);
+    free(resposta);
 }
 
 void Server_opcao_F(Message *msg, Cache *docs){
@@ -305,32 +311,32 @@ int verifica_comando (Message *msg) {
 
     switch (a) {
         case 'a':
-            if (get_message_argc(msg) != 4) {
+            if (get_message_argc(msg) != 5) {
                 return 0;
             }
             return 1;
         case 'c':
-            if (get_message_argc(msg) != 1) {
-                return 0;
-            }
-            return 1;
-        case 'd':
-            if (get_message_argc(msg) != 1) {
-                return 0;
-            }
-            return 1;
-        case 'l':
             if (get_message_argc(msg) != 2) {
                 return 0;
             }
             return 1;
+        case 'd':
+            if (get_message_argc(msg) != 3) {
+                return 0;
+            }
+            return 1;
+        case 'l':
+            if (get_message_argc(msg) != 3) {
+                return 0;
+            }
+            return 1;
         case 's':
-            if (get_message_argc(msg) == 1 || get_message_argc(msg) == 2) {
+            if (get_message_argc(msg) == 2 || get_message_argc(msg) == 3) {
                 return 1;
             }
             return 0;
         case 'f':
-            if (get_message_argc(msg) != 0) {
+            if (get_message_argc(msg) != 1) {
                 return 0;
             }
             return 1;
@@ -338,9 +344,7 @@ int verifica_comando (Message *msg) {
             // Comando inválido
             return 0;
     }
-     
-     
- }
+}
  
 void error_message(Message *msg) {
     const char *resposta;
