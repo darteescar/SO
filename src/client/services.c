@@ -64,4 +64,5 @@ void reply(Message *msg){
 
     free(resposta);
     close(fifo);
+    unlink(fifo_path);
 }

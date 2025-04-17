@@ -80,6 +80,10 @@ int main(int argc, char* argv[]) {
 
     print_Cache(docs);
 
+    free_Cache(docs);
+    free(server_down);
+    unlink(SERVER_FIFO);
+
     write(1, "[SERVER ENDED]\n", 16);
 
     return 0;

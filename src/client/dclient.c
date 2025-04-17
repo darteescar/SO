@@ -26,8 +26,6 @@ int main(int argc, char* argv[]){
     } else {
         free_message(msg);
     }
-    
-    // Espera pela resposta do servidor (FIFO)
 
     // Ler a resposta do servidor
     reply(msg);

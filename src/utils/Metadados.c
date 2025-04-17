@@ -117,7 +117,7 @@ void free_metaDados(MetaDados *data) {
         }
         free(data->autores);
         free(data->path);
-        //free(data);
+        free(data);
     }
 }
 

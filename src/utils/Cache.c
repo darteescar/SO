@@ -124,12 +124,27 @@ void print_Cache (Cache *docs) {
         write(1, "Cache is NULL\n", 15);
         return;
     }
-    write(1, "[Cache]\n", 9);
+    write(1, "[Cache]\n\n", 10);
     for (int i = 0; i < docs->max_docs; i++) {
-        if (docs->ocupados[i] == EM_CACHE || docs->ocupados[i] == EM_DISCO || docs->ocupados[i] == EM_DISCO_E_CACHE) {
+        if (docs->docs[i] != NULL) {
             print_metaDados(docs->docs[i]);
+            write(1, "\n", 1);
         }
     }
+}
+
+void free_Cache(Cache *docs) {
+    if (docs == NULL) {
+        return;
+    }
+    for (int i = 0; i < docs->max_docs; i++) {
+        if (docs->docs[i] != NULL) {
+            free_metaDados(docs->docs[i]);
+        }
+    }
+    free(docs->docs);
+    free(docs->ocupados);
+    free(docs);
 }
 
 void escreve_em_disco(Cache *docs, int pos) {
@@ -202,6 +217,9 @@ int remove_documento(Cache *docs, int pos) {
     }
     if (docs->ocupados[pos] == EM_CACHE || docs->ocupados[pos] == EM_DISCO || docs->ocupados[pos] == EM_DISCO_E_CACHE) {
         //free_metaDados(&(docs->docs[pos]));
+        if (docs->ocupados[pos] == EM_CACHE || docs->ocupados[pos] == EM_DISCO_E_CACHE) {
+            free_metaDados(docs->docs[pos % docs->max_docs]);
+        }
         docs->ocupados[pos] = LIVRE;
         docs->n_docs--;
         push(docs->stack, pos);
@@ -221,7 +239,7 @@ int documento_existe(Cache *docs, int pos) {
         return 1;
     }
     return 0;
- }
+}
  
 char* desserializa_metaDados(char *data) {
     char *titulo = strsep(&data, "|");

@@ -64,4 +64,6 @@ void print_ocupados(Cache *docs);
 
 MetaDados *get_anywhere_documento(Cache *docs, int pos);
 
+void free_Cache(Cache *docs);
+
 #endif
