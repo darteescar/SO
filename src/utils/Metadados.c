@@ -6,6 +6,7 @@ struct metaDados{
      int n_autores;
      int ano;
      char* path;
+     int pos_in_disk;
 };
 
 MetaDados *criar_metaDados(char *buffer) {
@@ -18,7 +19,6 @@ MetaDados *criar_metaDados(char *buffer) {
     char *total = buffer + 3;  // Ignorar os 3 primeiros caracteres
     char *token;
     int field = 0;
-
     while ((token = strsep(&total, FIELD_SEP)) != NULL) {
         switch (field) {
             case 0:
@@ -55,11 +55,15 @@ MetaDados *criar_metaDados(char *buffer) {
             case 3:
                 data->path = strdup(token);
                 break;
+            case 4:
+                data->pos_in_disk = atoi(token);
+                break;
             default:
                 break;
         }
         field++;
     }
+
 
     return data;
 }
@@ -68,8 +72,16 @@ char* get_MD_path(MetaDados *data) {
     return strdup(data->path);
 }
 
+int get_MD_pos_in_disk(MetaDados *data) {
+    return data->pos_in_disk;
+}
+
+void set_disk_position(MetaDados *data, int pos) {
+    data->pos_in_disk = pos;
+}
+
 char *MD_toString(MetaDados* data, int key) {
-   char *str = malloc(1000);
+   char *str = malloc(520);
    if (str == NULL) {
        perror("malloc");
        exit(EXIT_FAILURE);
@@ -91,7 +103,7 @@ char *to_disk_format(MetaDados *data) {
     if (data == NULL) {
         return NULL;
     }
-    char *str = malloc(512);
+    char *str = malloc(520);
     if (str == NULL) {
         perror("malloc");
         exit(EXIT_FAILURE);
@@ -104,7 +116,7 @@ char *to_disk_format(MetaDados *data) {
         }
     }
     char buffer[256];
-    sprintf(buffer, "|%d|%s",  data->ano, data->path);
+    sprintf(buffer, "|%d|%s|%d",  data->ano, data->path, data->pos_in_disk);
     strcat(str, buffer);
     return str;
 }
@@ -143,4 +155,28 @@ void print_metaDados(MetaDados *data) {
    write(1, "\nPath: ", 7);
    write(1, data->path, strlen(data->path));
    write(1, "\n", 1);
+}
+
+char* from_disk_format(char *data) {
+    char *copy = strdup(data);
+    char *aux = copy;
+
+    char *titulo = strsep(&aux, "|");
+    char *autores = strsep(&aux, "|");
+    char *ano = strsep(&aux, "|");
+    char *path = strsep(&aux, "|");
+    char *pos_in_disk = strsep(&aux, "|");
+
+    char *buffer = malloc(520);
+    if (buffer == NULL) {
+        perror("malloc");
+        free(copy);
+        return NULL;
+    }
+
+    sprintf(buffer, "###%s%s%s%s%s%s%s", titulo, FIELD_SEP, autores, FIELD_SEP, ano, FIELD_SEP, path);
+    strcat(buffer, FIELD_SEP);
+    strcat(buffer, pos_in_disk);
+    free(copy);
+    return buffer;
 }

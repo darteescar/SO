@@ -20,7 +20,7 @@ int send_message (Message *msg){
 
 void reply(Message *msg){
     int pid = getpid();
-    char fifo_path[512];
+    char fifo_path[520];
     sprintf(fifo_path, "tmp/%d", pid);
 
     int fifo = open(fifo_path, O_RDONLY);
@@ -29,7 +29,7 @@ void reply(Message *msg){
         return;
     }
 
-    size_t buffer_size = 512;
+    size_t buffer_size = 520;
     size_t total_read = 0;
     char *resposta = malloc(buffer_size);
     if (!resposta) {

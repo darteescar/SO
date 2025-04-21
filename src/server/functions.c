@@ -88,13 +88,9 @@ void Server_opcao_C(Message *msg, Cache *docs){
 
     int keyC = get_key_msg(msg);
     int doc_existe = documento_existe(docs, keyC);
-    char respostaC[512];
+    char respostaC[520];
     if (doc_existe == 1) {
-        if (get_docs_estado(docs, keyC) == EM_DISCO) {
-            disco_to_cache(docs, keyC);
-        }
-        MetaDados* reply = get_documento(docs,keyC);
-        char *str = MD_toString(reply, keyC);
+        char *str = consult_file(docs,keyC);
         sprintf(respostaC, "%s\n", str);
         free(str);        
     } else if (doc_existe == -2) {
@@ -110,18 +106,20 @@ void Server_opcao_C(Message *msg, Cache *docs){
 Cache *Server_opcao_D(Message *msg, Cache *docs){
 
     int keyD = get_key_msg(msg);
-    int flagD = remove_documento(docs, keyD);
+    int doc_existe = documento_existe(docs, keyD);
 
     char respostaD[50];
-    if (flagD == 1) {
-        sprintf(respostaD, "O documento com a chave %d foi apagado\n", keyD);
-    } else if (flagD == -1) {
-        sprintf(respostaD, "Posição Inválida\n");
-    } else if (flagD == -2){
+    if (doc_existe == 1) {
+        docs = remove_file(docs, keyD);
+        sprintf(respostaD, "Documento %d removido\n", keyD);
+    } else if (doc_existe == -2) {
         sprintf(respostaD, "Não existe nenhum documento com a chave %d\n", keyD);
+    } else if (doc_existe == -1) {
+        sprintf(respostaD, "Posição Inválida\n");
     }
 
     envia_resposta_cliente(respostaD, msg);
+
     return docs;
 }
 
@@ -149,13 +147,9 @@ void Server_opcao_L(Message *msg, Cache *docs, char* folder) {
         return;
     }
 
-    if(get_docs_estado(docs, key) == EM_DISCO) {//Meter o MetaDados de indice key em cache
-        disco_to_cache(docs, key);
-    }
-
     // Obtem o path do documento
     char filepath[100];
-    sprintf(filepath, "%s%s", folder, get_MD_path(get_documento(docs, key)));
+    sprintf(filepath, "%s%s", folder, get_MD_path(get_anywhere_documento(docs, key)));
 
     int pipefd[2];
     if (pipe(pipefd) == -1) {
@@ -205,7 +199,7 @@ void Server_opcao_S(Message *msg, Cache *docs, char* folder) {
         return;
     }
     int n_filhos = get_nProcessos_msg_s(msg);
-    int n_total = get_nTotal(docs);
+    int n_total = get_Max_docs(docs);
     int fd[n_filhos][2];
     pid_t pids[n_filhos];
 
@@ -292,12 +286,9 @@ void Server_opcao_S(Message *msg, Cache *docs, char* folder) {
 }
 
 void Server_opcao_F(Message *msg, Cache *docs){
-    for(int i=0; i<get_max_docs(docs); i++){
-        if (documento_existe(docs, (get_next_to_disc(docs)%get_max_docs(docs))) == 1) {
-            escreve_em_disco(docs, get_next_to_disc(docs));
-            inc_next_to_disc(docs);
-        }  
-    }
+    
+    all_Cache_to_Disc(docs);
+
     char *resposta= "Servidor a terminar...\n";
     envia_resposta_cliente(resposta, msg);
 }
@@ -321,7 +312,7 @@ int verifica_comando (Message *msg) {
             }
             return 1;
         case 'd':
-            if (get_message_argc(msg) != 3) {
+            if (get_message_argc(msg) != 2) {
                 return 0;
             }
             return 1;
@@ -348,7 +339,7 @@ int verifica_comando (Message *msg) {
  
 void error_message(Message *msg) {
     const char *resposta;
-    char option = get_message_command(msg);  // Supondo que você tenha um método para pegar o comando da mensagem
+    char option = get_message_command(msg);
     switch(option){
         case 'a':
             resposta = "[TRY] -a <title> <authors> <year> <path>\n";

@@ -18,52 +18,41 @@
 #define EM_CACHE 'c'
 #define EM_DISCO 'd'
 #define LIVRE 'l'
-#define EM_DISCO_E_CACHE 'b'
 
 typedef struct cache Cache;
 
 Cache *create_Cache(int max_docs);
 
-Cache *add_documento(Cache *docs, Message *data, int *pos_onde_foi_add);
+Cache *add_documento(Cache *cache, Message *data, int *pos_onde_foi_add);
 
-void print_Cache (Cache *docs);
+void add_to_Cache(Cache *cache, MetaDados *data, int pos);
 
-int get_num_docs(Cache *docs);
+void add_to_Disk(Cache *cache, MetaDados *data);
 
-int get_nTotal(Cache *docs);
+void add_to_Disk(Cache *cache, MetaDados *data);
 
-int get_next_to_disc(Cache *docs);
+Cache *remove_file (Cache *cache, int pos);
 
-void inc_next_to_disc(Cache *docs);
+char *consult_file (Cache *cache, int pos);
 
-int get_max_docs(Cache *docs);
+void free_Cache(Cache *docs);
 
-void escreve_em_disco(Cache *docs, int pos);
- 
 void redimensiona_ocupados(Cache *docs);
-
+ 
 void redimensionar_auxiliares(Cache *docs);
-
-int remove_documento(Cache *docs, int pos);
 
 int documento_existe(Cache *docs, int pos);
 
-MetaDados *get_documento(Cache *docs, int pos);
-
-char* desserializa_metaDados(char *data);
-
-void disco_to_cache(Cache *docs, int pos);
- 
 char get_docs_estado(Cache *docs, int pos);
-
-void send_to_Cache(char *buffer, Cache *doc, int i);
-
-void escreve_em_disco_from_Stack(Cache *docs,Message* msg, int pos);
-
-void print_ocupados(Cache *docs);
 
 MetaDados *get_anywhere_documento(Cache *docs, int pos);
 
-void free_Cache(Cache *docs);
+void print_Cache (Cache *docs);
+
+int get_Max_docs (Cache *docs);
+
+void all_Cache_to_Disc (Cache *docs);
+
+MetaDados* desserializa_MetaDados(int pos);
 
 #endif

@@ -25,6 +25,10 @@ MetaDados *criar_metaDados(char *buffer);
 
 char* get_MD_path(MetaDados *data);
 
+int get_MD_pos_in_disk(MetaDados *data);
+
+void set_disk_position(MetaDados *data, int pos);
+
 char *MD_toString(MetaDados* data, int key);
 
 char *to_disk_format(MetaDados *data);
@@ -32,5 +36,7 @@ char *to_disk_format(MetaDados *data);
 void free_metaDados(MetaDados *data);
 
 void print_metaDados(MetaDados *data);
+
+char* from_disk_format(char *data);
 
 #endif
