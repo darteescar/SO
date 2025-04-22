@@ -99,7 +99,6 @@ void add_to_Cache(Cache *cache, MetaDados *data, int pos) {
 }
 
 void add_to_Disk(Cache *cache, MetaDados *data) {
-    printf("entrou...\n");
     int pos = get_MD_pos_in_disk(data);
     printf("Adicionado ao disco na posição %d\n", pos);
 
@@ -161,6 +160,7 @@ char *consult_file (Cache *cache, int pos) {
         } else {
             add_to_Disk(cache, cache->docs[pos%cache->capacity]);
             add_to_Cache(cache, desserializa_MetaDados(pos), pos);
+            cache->size--; // Decrementa o tamanho da cache, pois apenas é feita uma troca de documentos que já existem, logo o tamanho não muda
         }
     }
     return MD_toString(cache->docs[pos%cache->capacity], pos);
@@ -306,5 +306,5 @@ void all_Cache_to_Disc (Cache *docs) {
             docs->ocupados[i] = EM_CACHE; // apesar de já estar na disco, o estado é cache
         }
     }
-    printf("Todos os documentos foram adicionados à disco.\n");
+    printf("Todos os documentos foram adicionados ao disco.\n");
 }
