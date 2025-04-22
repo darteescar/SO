@@ -28,6 +28,10 @@ Cache *exec_comando (Message *msg, Cache *docs, int *server_down, char *folder) 
             Server_opcao_F(msg, docs);
             *server_down = 1;
             break;
+        case 'b':
+            // Backup
+            Server_opcao_B(msg, docs);
+            break;
         default:
             // Comando inválido
     }
@@ -149,7 +153,13 @@ void Server_opcao_L(Message *msg, Cache *docs, char* folder) {
 
     // Obtem o path do documento
     char filepath[100];
-    sprintf(filepath, "%s%s", folder, get_MD_path(get_anywhere_documento(docs, key)));
+    if (get_cache_flag(docs) == 0) {
+        // Se a cache for estática
+        sprintf(filepath, "%s%s", folder, get_MD_path(get_documento_cache(docs, key)));
+    } else {
+        // Se a cache for dinâmica
+        sprintf(filepath, "%s%s", folder, get_MD_path(get_anywhere_documento(docs, key)));
+    }
 
     int pipefd[2];
     if (pipe(pipefd) == -1) {
@@ -221,7 +231,13 @@ void Server_opcao_S(Message *msg, Cache *docs, char* folder) {
 
             for (int j = i; j < n_total; j += n_filhos) { // round-robin
                 if (documento_existe(docs, j)) {
-                    MetaDados *doc = get_anywhere_documento(docs, j);
+                    MetaDados *doc = NULL;
+                    if (get_cache_flag(docs) == 0){
+                        doc = get_anywhere_documento(docs, j);
+                    } else {
+                        doc = get_documento_cache(docs, j);
+                    }
+
                     char filepath[50];
                     sprintf(filepath, "%s%s", folder, get_MD_path(doc));
 
@@ -283,6 +299,14 @@ void Server_opcao_S(Message *msg, Cache *docs, char* folder) {
     free(resposta);
 }
 
+void Server_opcao_B(Message *msg, Cache *docs){
+    recupera_backup(docs);
+
+    char *resposta= "Backup recuperado.\n";
+    envia_resposta_cliente(resposta, msg);
+
+}
+
 void Server_opcao_F(Message *msg, Cache *docs){
     
     all_Cache_to_Disc(docs);
@@ -329,6 +353,11 @@ int verifica_comando (Message *msg) {
                 return 0;
             }
             return 1;
+        case 'b':
+            if (get_message_argc(msg) != 1) {
+                return 0;
+            }
+            return 1;
         default:
             // Comando inválido
             return 0;
@@ -356,6 +385,9 @@ void error_message(Message *msg) {
             break;
         case 'f':
             resposta = "[TRY] -f\n";
+            break;
+        case 'b':
+            resposta = "[TRY] -b\n";
             break;
         default:
             resposta = "[TRY] <command>\n";

@@ -32,6 +32,8 @@ void Server_opcao_L (Message *msg, Cache *docs, char *folder);
 
 void Server_opcao_S(Message *msg, Cache *docs, char *folder);
 
+void Server_opcao_B(Message *msg, Cache *docs);
+
 void Server_opcao_F(Message *msg, Cache *docs);
 
 int verifica_comando (Message *msg);

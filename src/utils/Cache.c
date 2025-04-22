@@ -1,6 +1,7 @@
 #include "utils/Cache.h"
 
 struct cache {
+    int dinamica; // 0 se for estatico, 1 se for dinamico
     MetaDados **docs;
     Stack *stack_to_disc;
     Stack *stack_to_cache;
@@ -17,7 +18,7 @@ struct cache {
 ----------------------------------------------------------------------------------------------------------------------
 */
 
-Cache *create_Cache(int max_docs) {
+Cache *create_Cache(int max_docs, int flag) {
     Cache *docs = malloc(sizeof(Cache));
     if (docs == NULL) {
         perror("Malloc create_Cache da Cache");
@@ -32,6 +33,7 @@ Cache *create_Cache(int max_docs) {
     }
 
     docs->size = 0;
+    docs->dinamica = flag;
     docs->capacity = max_docs;
     docs->next_to_disc = max_docs;
     docs->redimensionamentos = 1;
@@ -52,13 +54,21 @@ Cache *create_Cache(int max_docs) {
 }
  
 Cache *add_documento(Cache *cache, Message *data, int *pos_onde_foi_add) {
+    if (cache->dinamica == 0) {
+        return add_documento_Estaticamente(cache, data, pos_onde_foi_add);
+    } else {
+        return add_documento_Dinamicamente(cache, data, pos_onde_foi_add);
+    }
+}
+
+Cache *add_documento_Estaticamente(Cache *cache, Message *data, int *pos_onde_foi_add){
     char *buffer = get_message_buffer(data);
     MetaDados *mt = criar_metaDados(buffer);
     free(buffer);
 
     if (cache->size < cache->capacity) {
-        add_to_Cache(cache, mt, cache->size);
         *pos_onde_foi_add = cache->size;
+        add_to_Cache(cache, mt, cache->size);
     }
     else {
         if (cache->size >= cache->redimensionamentos*cache->capacity ) redimensionar_auxiliares(cache);
@@ -87,25 +97,77 @@ Cache *add_documento(Cache *cache, Message *data, int *pos_onde_foi_add) {
     return cache;  // Retorna o novo ponteiro de Cache
 }
 
+Cache *add_documento_Dinamicamente(Cache *cache, Message *data, int *pos_onde_foi_add){
+    char *buffer = get_message_buffer(data);
+    MetaDados *mt = criar_metaDados(buffer);
+    free(buffer);
+
+    if (cache->size < cache->capacity) {
+        int i = 0;
+        while (cache->ocupados[i] != LIVRE) i++;
+        add_to_Cache(cache, mt, i);
+        *pos_onde_foi_add = i;
+
+    } else {
+        // Se não houver espaço, aumentar o tamanho do array
+        int new_max_docs = cache->capacity * 2;
+        MetaDados **new_docs = realloc(cache->docs, new_max_docs * sizeof(MetaDados *));
+        if (new_docs == NULL) {
+            perror("realloc");
+            exit(EXIT_FAILURE);
+        }
+        char *new_ocupados = realloc(cache->ocupados, new_max_docs * sizeof(char));
+        if (new_ocupados == NULL) {
+            perror("realloc");
+            exit(EXIT_FAILURE);
+        }
+        cache->ocupados = new_ocupados;
+        for (int i = cache->capacity; i < new_max_docs; i++) {
+            cache->ocupados[i] = LIVRE;
+        }
+
+        cache->docs = new_docs;
+        cache->capacity = new_max_docs;
+
+        if (cache->ocupados == NULL) {
+            perror("realloc");
+            exit(EXIT_FAILURE);
+        }
+
+        // Encontrar índice livre
+        int i = 0;
+        while (cache->ocupados[i] != LIVRE) i++;
+        char* buffer = get_message_buffer(data);
+
+        add_to_Cache(cache, criar_metaDados(buffer), i);
+        free(buffer);
+        *pos_onde_foi_add = i;
+
+    }
+
+    return cache;
+
+}
+
 void add_to_Cache(Cache *cache, MetaDados *data, int pos) {
     if (get_MD_pos_in_disk(data) == -1) {
-        printf("Adicionado à cache na posição %d\n", pos);
+        //printf("Adicionado à cache na posição %d\n", pos);
         set_disk_position(data, pos);
     }
     cache->docs[pos%cache->capacity] = data;
     cache->ocupados[pos] = EM_CACHE;
     cache->size++;
-    printf("Tamanho da cache: %d\n", cache->size);
+    //printf("Tamanho da cache: %d\n", cache->size);
 }
 
 void add_to_Disk(Cache *cache, MetaDados *data) {
-    printf("entrou...\n");
+    //printf("entrou...\n");
     int pos = get_MD_pos_in_disk(data);
-    printf("Adicionado ao disco na posição %d\n", pos);
+    //printf("Adicionado ao disco na posição %d\n", pos);
 
     cache->ocupados[pos] = EM_DISCO;
 
-    printf("Adicionando ao disco...\n");
+    //printf("Adicionando ao disco...\n");
 
     int fd = open(SERVER_STORAGE, O_WRONLY | O_CREAT, 0644);
     if (fd == -1) {
@@ -125,7 +187,7 @@ void add_to_Disk(Cache *cache, MetaDados *data) {
         perror("write");
     }
 
-    printf("Escreveu %s no disco\n", buffer);
+    //printf("Escreveu %s no disco\n", buffer);
 
     close(fd);
     free(buffer);
@@ -133,30 +195,25 @@ void add_to_Disk(Cache *cache, MetaDados *data) {
 
 Cache *remove_file (Cache *cache, int pos) {
     if (cache->ocupados[pos] == EM_CACHE ) {
-        printf("Removido da cache na posição %d\n", pos);
         free_metaDados(cache->docs[pos%cache->capacity]);
-        //cache->docs[pos] = NULL; // nao se é necessário
         cache->ocupados[pos] = LIVRE;
         push(cache->stack_to_cache, pos);
     } else if (cache->ocupados[pos] == EM_DISCO) {
-        printf("Removido do disco na posição %d\n", pos);
         cache->ocupados[pos] = LIVRE;
         push(cache->stack_to_disc, pos);
         // nao ha necessidade de fazer nada com o disco 
         // porque o array ocupados é o que dita se posso escrever ou nao
-    } else {
-        printf("Posição %d já está livre.\n", pos);
     }
     return cache;
 }
 
 char *consult_file (Cache *cache, int pos) {
     if (cache->ocupados[pos] == EM_CACHE) {
-        printf("Consultado da cache na posição %d", pos);
+        //printf("Consultado da cache na posição %d", pos);
     } else if (cache->ocupados[pos] == EM_DISCO) {
-        printf("Consultado do disco\n");
+        //printf("Consultado do disco\n");
         if (cache->ocupados[pos%cache->capacity] == LIVRE) {
-            printf("Estava livre, então vou adicionar à cache\n");
+            //printf("Estava livre, então vou adicionar à cache\n");
             add_to_Cache(cache, desserializa_MetaDados(pos), pos);
         } else {
             add_to_Disk(cache, cache->docs[pos%cache->capacity]);
@@ -188,7 +245,7 @@ void redimensiona_ocupados(Cache *docs) {
     docs->redimensionamentos *= 2;
 
     int new_size = docs->capacity * docs->redimensionamentos;
-    printf("Old size: %d, New size: %d\n", old_size, new_size);
+    //printf("Old size: %d, New size: %d\n", old_size, new_size);
 
     char *new_ocupados = realloc(docs->ocupados, new_size * sizeof(char));
     if (new_ocupados == NULL) {
@@ -246,6 +303,17 @@ char get_docs_estado(Cache *docs, int pos) {
     return docs->ocupados[pos];
 }
 
+MetaDados *get_documento_cache(Cache *docs, int pos) {
+    if (docs == NULL || pos < 0 || pos >= docs->size) {
+        return NULL;
+    }
+    if (docs->ocupados[pos] == EM_CACHE) {
+        return docs->docs[pos % docs->capacity];
+    } else {
+        return NULL;
+    }
+}
+
 MetaDados *get_anywhere_documento(Cache *docs, int pos) {
     if (docs == NULL || pos < 0 || pos >= docs->size) {
         return NULL;
@@ -297,14 +365,22 @@ int get_Max_docs (Cache *docs) {
 }
 
 void all_Cache_to_Disc (Cache *docs) {
-    printf("Adicionando todos os documentos à disco...\n");
+    //printf("Adicionando todos os documentos à disco...\n");
     for (int i = 0; i < docs->redimensionamentos * docs->capacity ; i++) {
-        printf("Ocupados[%d]: %c\n", i, docs->ocupados[i]);
+        //printf("Ocupados[%d]: %c\n", i, docs->ocupados[i]);
         if (docs->ocupados[i] == EM_CACHE) {
-            printf("Adicionando documento %d à disco...\n", i);
+            //printf("Adicionando documento %d à disco...\n", i);
             add_to_Disk(docs, docs->docs[i%docs->capacity]);
             docs->ocupados[i] = EM_CACHE; // apesar de já estar na disco, o estado é cache
         }
     }
-    printf("Todos os documentos foram adicionados à disco.\n");
+    //printf("Todos os documentos foram adicionados à disco.\n");
+}
+
+int get_cache_flag(Cache *docs) {
+    return docs->dinamica;
+}
+
+void recupera_backup(Cache *docs){
+    
 }
