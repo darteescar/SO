@@ -19,6 +19,9 @@ MetaDados *criar_metaDados(char *buffer) {
     char *total = buffer + 3;  // Ignorar os 3 primeiros caracteres
     char *token;
     int field = 0;
+
+    data->pos_in_disk = -1; // assim, caso não seja definido, fica com valor inválido
+
     while ((token = strsep(&total, FIELD_SEP)) != NULL) {
         switch (field) {
             case 0:
@@ -64,7 +67,6 @@ MetaDados *criar_metaDados(char *buffer) {
         field++;
     }
 
-
     return data;
 }
 
@@ -81,7 +83,7 @@ void set_disk_position(MetaDados *data, int pos) {
 }
 
 char *MD_toString(MetaDados* data, int key) {
-   char *str = malloc(520);
+   char *str = malloc(1000);
    if (str == NULL) {
        perror("malloc");
        exit(EXIT_FAILURE);
@@ -134,27 +136,30 @@ void free_metaDados(MetaDados *data) {
 }
 
 void print_metaDados(MetaDados *data) {
-   if (data == NULL) {
-       write(1, "MetaDados is NULL\n", 18);
-       return;
-   }
-   write(1, "[MetaDados]\n", 12);
-   write(1, "Titulo: ", 8);
-   write(1, data->titulo, strlen(data->titulo));
-   write(1, "\nAutores: ", 9);
-   for (int i = 0; i < data->n_autores; i++) {
-       write(1, data->autores[i], strlen(data->autores[i]));
-       if (i < data->n_autores - 1) {
-           write(1, ", ", 2);
-       }
-   }
-   write(1, "\nAno: ", 6);
-   char buffer[10];
-   sprintf(buffer, "%d", data->ano);
-   write(1, buffer, strlen(buffer));
-   write(1, "\nPath: ", 7);
-   write(1, data->path, strlen(data->path));
-   write(1, "\n", 1);
+    if (data == NULL) {
+        write(1, "MetaDados is NULL\n", 18);
+        return;
+    }
+    write(1, "[MetaDados]\n", 12);
+    write(1, "Titulo: ", 8);
+    write(1, data->titulo, strlen(data->titulo));
+    write(1, "\nAutores: ", 9);
+    for (int i = 0; i < data->n_autores; i++) {
+        write(1, data->autores[i], strlen(data->autores[i]));
+        if (i < data->n_autores - 1) {
+            write(1, ", ", 2);
+        }
+    }
+    write(1, "\nAno: ", 6);
+    char buffer[10];
+    sprintf(buffer, "%d", data->ano);
+    write(1, buffer, strlen(buffer));
+    write(1, "\nPath: ", 7);
+    write(1, data->path, strlen(data->path));
+    write(1, "\nPos in Disk: ", 14);
+    sprintf(buffer, "%d", data->pos_in_disk);
+    write(1, buffer, strlen(buffer));
+    write(1, "\n", 1);
 }
 
 char* from_disk_format(char *data) {

@@ -49,7 +49,6 @@ int main(int argc, char* argv[]) {
             free_message(msg); // talvez deve ser um filho a fazer isto ?
         }
     }
-
     print_Cache(docs);
 
     free_Cache(docs);

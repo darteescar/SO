@@ -279,8 +279,6 @@ void Server_opcao_S(Message *msg, Cache *docs, char* folder) {
         waitpid(pids[i], NULL, 0);
     }
 
-    
-
     envia_resposta_cliente(resposta, msg);
     free(resposta);
 }
