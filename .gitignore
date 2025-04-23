@@ -10,3 +10,6 @@ DatasetTest/
 
 # Pipes
 server_fifo
+
+#Backup
+server_storage

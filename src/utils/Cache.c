@@ -374,11 +374,77 @@ void all_Cache_to_Disc (Cache *docs) {
             docs->ocupados[i] = EM_CACHE; // apesar de já estar na disco, o estado é cache
         }
     }
+}
 
 int get_cache_flag(Cache *docs) {
     return docs->dinamica;
 }
 
-void recupera_backup(Cache *docs){
+void recupera_backup(Cache *cache){
+    int fd = open(SERVER_STORAGE, O_RDONLY);
+    if (fd == -1) {
+        perror("open");
+        return;
+    }
+    char *data = malloc(520);
+    if (data == NULL) {
+        perror("Malloc disco_to_cache");
+        return;
+    }
+
+    size_t n;
+    while((n = read(fd, data, 520)) > 0){
+        if (cache->dinamica == 0){//Cache estatica 
+            if (cache->size >= cache->redimensionamentos*cache->capacity ) redimensionar_auxiliares(cache);
+
+            add_to_Cache(cache, criar_metaDados(from_disk_format(data)), cache->size);
+            cache->next_to_disc++;
+
+        } else { //Cache dinamica
+            if (cache->size < cache->capacity) {
+                int i = cache->size;
+                add_to_Cache(cache, criar_metaDados(from_disk_format(data)), i);
+                cache->next_to_disc++;
+        
+            } else {
+                // Se não houver espaço, aumentar o tamanho do array
+                int new_max_docs = cache->capacity * 2;
+                MetaDados **new_docs = realloc(cache->docs, new_max_docs * sizeof(MetaDados *));
+                if (new_docs == NULL) {
+                    perror("realloc");
+                    exit(EXIT_FAILURE);
+                }
+                char *new_ocupados = realloc(cache->ocupados, new_max_docs * sizeof(char));
+                if (new_ocupados == NULL) {
+                    perror("realloc");
+                    exit(EXIT_FAILURE);
+                }
+                cache->ocupados = new_ocupados;
+                for (int i = cache->capacity; i < new_max_docs; i++) {
+                    cache->ocupados[i] = LIVRE;
+                }
+        
+                cache->docs = new_docs;
+                cache->capacity = new_max_docs;
+        
+                if (cache->ocupados == NULL) {
+                    perror("realloc");
+                    exit(EXIT_FAILURE);
+                }
+        
+                // Encontrar índice livre
+                int i = 0;
+                while (cache->ocupados[i] != LIVRE) i++;
+                char* buffer = from_disk_format(data);
+        
+                add_to_Cache(cache, criar_metaDados(buffer), i);
+                free(buffer);
+                cache->next_to_disc++;
+        
+            }
+        }
+    }
+    close(fd);
+    free(data);
     
 }
