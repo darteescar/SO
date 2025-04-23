@@ -17,9 +17,19 @@ int main(int argc, char* argv[]) {
     }
 
     char* folder = argv[1];
-    int cache_size = atoi(argv[2]); // definir que se o segundo argumento for nulo, o array é dinâmico
 
-    Cache *docs = create_Cache(cache_size);
+    int flag;
+    int cache_size;
+    if(argv[2] == NULL) {
+        flag = 1;
+        cache_size = 10; // valor padrão
+    } 
+    else {
+        flag = 0;
+        cache_size = atoi(argv[2]);
+    }
+
+    Cache *docs = create_Cache(cache_size, flag);
     int *server_down = malloc(sizeof(int));
     *server_down = 0;
 
