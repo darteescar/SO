@@ -404,7 +404,7 @@ void recupera_backup(Cache *cache){
             if (cache->size < cache->capacity) {
                 int i = cache->size;
                 add_to_Cache(cache, criar_metaDados(from_disk_format(data)), i);
-                cache->next_to_disc++;
+                //cache->next_to_disc++;
         
             } else {
                 // Se não houver espaço, aumentar o tamanho do array
@@ -439,11 +439,12 @@ void recupera_backup(Cache *cache){
         
                 add_to_Cache(cache, criar_metaDados(buffer), i);
                 free(buffer);
-                cache->next_to_disc++;
+                //cache->next_to_disc++;
         
             }
         }
     }
+    if(cache->dinamica==0) cache->next_to_disc-=cache->capacity;//deixar o next to disc com valor correto
     close(fd);
     free(data);
     
