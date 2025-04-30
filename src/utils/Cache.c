@@ -53,7 +53,7 @@ Cache *create_Cache(int max_docs, int flag) {
     return docs;
 }
  
-Cache *add_documento(Cache *cache, Message *data, int *pos_onde_foi_add) {
+Cache *add_documento(Cache *cache, MetaDados *data, int *pos_onde_foi_add) {
     if (cache->dinamica == 0) {
         return add_documento_Estaticamente(cache, data, pos_onde_foi_add);
     } else {
@@ -61,10 +61,7 @@ Cache *add_documento(Cache *cache, Message *data, int *pos_onde_foi_add) {
     }
 }
 
-Cache *add_documento_Estaticamente(Cache *cache, Message *data, int *pos_onde_foi_add){
-    char *buffer = get_message_buffer(data);
-    MetaDados *mt = criar_metaDados(buffer);
-    free(buffer);
+Cache *add_documento_Estaticamente(Cache *cache, MetaDados *mt, int *pos_onde_foi_add){
 
     if (cache->size < cache->capacity) {
         *pos_onde_foi_add = cache->size;
@@ -97,11 +94,7 @@ Cache *add_documento_Estaticamente(Cache *cache, Message *data, int *pos_onde_fo
     return cache;  // Retorna o novo ponteiro de Cache
 }
 
-Cache *add_documento_Dinamicamente(Cache *cache, Message *data, int *pos_onde_foi_add){
-    char *buffer = get_message_buffer(data);
-    MetaDados *mt = criar_metaDados(buffer);
-    free(buffer);
-
+Cache *add_documento_Dinamicamente(Cache *cache, MetaDados *mt, int *pos_onde_foi_add){
     if (cache->size < cache->capacity) {
         int i = 0;
         while (cache->ocupados[i] != LIVRE) i++;
@@ -137,16 +130,11 @@ Cache *add_documento_Dinamicamente(Cache *cache, Message *data, int *pos_onde_fo
         // Encontrar índice livre
         int i = 0;
         while (cache->ocupados[i] != LIVRE) i++;
-        char* buffer = get_message_buffer(data);
 
-        add_to_Cache(cache, criar_metaDados(buffer), i);
-        free(buffer);
+        add_to_Cache(cache, mt, i);
         *pos_onde_foi_add = i;
-
     }
-
     return cache;
-
 }
 
 void add_to_Cache(Cache *cache, MetaDados *data, int pos) {
@@ -181,7 +169,7 @@ void add_to_Disk(Cache *cache, MetaDados *data) {
         return;
     }
 
-    char *buffer = to_disk_format(data);
+    char *buffer = to_disk_format_MD(data);
     if (write(fd, buffer, strlen(buffer)) == -1) {
         perror("write");
     }
@@ -292,7 +280,7 @@ MetaDados* desserializa_MetaDados(int pos) {
     lseek(fd, offset, SEEK_SET);
     read(fd, data, 520);
     close(fd);
-    MetaDados *new = criar_metaDados(from_disk_format(data));
+    MetaDados *new = criar_metaDados(from_disk_format_MD(data));
     return new;
 }
 
@@ -336,7 +324,7 @@ MetaDados *get_anywhere_documento(Cache *docs, int pos) {
         lseek(fd, offset, SEEK_SET);
         read(fd, data, 520);
         close(fd);
-        MetaDados *new = criar_metaDados(from_disk_format(data));
+        MetaDados *new = criar_metaDados(from_disk_format_MD(data));
         if (new == NULL) {
             return NULL;
         }
@@ -397,14 +385,14 @@ void recupera_backup(Cache *cache){
         if (cache->dinamica == 0){//Cache estatica 
             if (cache->size >= cache->redimensionamentos*cache->capacity ) redimensionar_auxiliares(cache);
 
-            add_to_Cache(cache, criar_metaDados(from_disk_format(data)), cache->size);
+            add_to_Cache(cache, criar_metaDados(from_disk_format_MD(data)), cache->size);
             cache->ocupados[cache->size-1] = EM_DISCO;
             cache->next_to_disc++;
 
         } else { //Cache dinamica
             if (cache->size < cache->capacity) {
                 int i = cache->size;
-                add_to_Cache(cache, criar_metaDados(from_disk_format(data)), i);
+                add_to_Cache(cache, criar_metaDados(from_disk_format_MD(data)), i);
         
             } else {
                 // Se não houver espaço, aumentar o tamanho do array
@@ -435,7 +423,7 @@ void recupera_backup(Cache *cache){
                 // Encontrar índice livre
                 int i = 0;
                 while (cache->ocupados[i] != LIVRE) i++;
-                char* buffer = from_disk_format(data);
+                char* buffer = from_disk_format_MD(data);
         
                 add_to_Cache(cache, criar_metaDados(buffer), i);
                 free(buffer);

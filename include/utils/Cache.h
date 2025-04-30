@@ -23,11 +23,11 @@ typedef struct cache Cache;
 
 Cache *create_Cache(int max_docs, int flag);
 
-Cache *add_documento(Cache *cache, Message *data, int *pos_onde_foi_add);
+Cache *add_documento(Cache *cache, MetaDados *data, int *pos_onde_foi_add);
 
-Cache *add_documento_Estaticamente(Cache *docs, Message *data, int *pos_onde_foi_add);
+Cache *add_documento_Estaticamente(Cache *docs, MetaDados *data, int *pos_onde_foi_add);
 
-Cache *add_documento_Dinamicamente(Cache *docs, Message *data, int *pos_onde_foi_add);
+Cache *add_documento_Dinamicamente(Cache *docs, MetaDados *data, int *pos_onde_foi_add);
 
 void add_to_Cache(Cache *cache, MetaDados *data, int pos);
 

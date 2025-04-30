@@ -45,4 +45,8 @@ char *get_keyword_msg_s(Message *msg);
 
 int get_nProcessos_msg_s(Message *msg);
 
+char *to_disk_format_message(struct message *msg);
+
+Message *from_disk_format_message(char *str);
+
 #endif

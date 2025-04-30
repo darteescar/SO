@@ -1,7 +1,7 @@
 #include "client/services.h"
 #include "utils/Message.h"
 
-#define SERVER_FIFO "server_fifo"
+#define SERVER_FIFO "tmp/server_fifo"
 
 int main(int argc, char* argv[]){
 

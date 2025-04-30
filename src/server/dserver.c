@@ -8,33 +8,39 @@ int main(int argc, char* argv[]) {
         write(1, "[TRY]: ./dclient <folder> <cache_size>\n", 40);
         return -1;
     }
-    
+
     write(1, "[SERVER STARTED]\n\n", 19);
 
-    // Criar FIFO do servidor (se não existir)
     if (mkfifo(SERVER_FIFO, 0666) == -1) {
-        perror("MKFIFO server_fifo"); 
+        perror("MKFIFO server_fifo");
     }
 
     char* folder = argv[1];
-
     int flag;
     int cache_size;
-    if(argv[2] == NULL) {
+
+    if (argv[2] == NULL) {
         flag = 1;
-        cache_size = 10; // valor padrão
-    } 
-    else {
+        cache_size = 10;
+    } else {
         flag = 0;
         cache_size = atoi(argv[2]);
     }
 
-    Cache *docs = create_Cache(cache_size, flag);
-    int *server_down = malloc(sizeof(int));
-    *server_down = 0;
+    pid_t pid = fork();
+    if (pid == 0) {
+        // Processo filho trata da cache
+        cache_holder(cache_size, flag, folder);
+        _exit(0);
+    }
+
+
+    // Impede processos zombie
+    signal(SIGCHLD, SIG_IGN);
 
     while (1) {
         Message *msg = init_message();
+
         int fd = open(SERVER_FIFO, O_RDONLY);
         if (fd == -1) {
             perror("Open server_fifo");
@@ -46,26 +52,29 @@ int main(int argc, char* argv[]) {
 
         if (bytes > 0) {
             int valor = paralels_function(msg,verifica_comando);
-            //print_message(msg);
             if (valor == 1) {
-                docs = exec_comando(msg, docs, server_down, folder);
-                if (*server_down == 1) {
-                    break;
+                pid_t pid = fork();
+
+                if (pid < 0) {
+                    perror("fork no server");
+                    free_message(msg);
+                    return -1;
+                }
+
+                if (pid == 0) {
+                    // FILHO
+                    sent_to_cache(msg);
+                    _exit(0);
                 }
             } else {
-                error_message(msg); 
+                error_message(msg);
             }
-
-            free_message(msg); // talvez deve ser um filho a fazer isto ?
+        } else {
+            free_message(msg);
         }
     }
-    print_Cache(docs);
 
-    free_Cache(docs);
-    free(server_down);
     unlink(SERVER_FIFO);
-
     write(1, "[SERVER ENDED]\n", 16);
-
     return 0;
 }

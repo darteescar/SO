@@ -1,42 +1,7 @@
 #include "server/functions.h"
-#define SERVER_FIFO "server_fifo"
 
-Cache *exec_comando (Message *msg, Cache *docs, int *server_down, char *folder) {
-    switch (get_message_command(msg)) {
-        case 'a':
-            // Adicionar
-            return Server_opcao_A(msg, docs);
-
-        case 'c':
-            // Consultar
-            Server_opcao_C(msg, docs);
-            break;
-
-        case 'd':
-            // Apagar
-            return Server_opcao_D(msg, docs);
-
-        case 'l':
-            // Listar
-            Server_opcao_L(msg, docs, folder);
-            break;
-        case 's':
-            // Pesquisa
-            Server_opcao_S(msg, docs, folder);
-            break;
-        case 'f':
-            Server_opcao_F(msg, docs);
-            *server_down = 1;
-            break;
-        case 'b':
-            // Backup
-            Server_opcao_B(msg, docs);
-            break;
-        default:
-            // Comando inválido
-    }
-    return docs;
-}
+#define SERVER_FIFO "tmp/server_fifo"
+#define CACHE_FIFO "tmp/cache_fifo"
 
 int paralels_function (Message *msg, int (*func)(Message *msg)) {
     int fd[2];
@@ -55,268 +20,23 @@ int paralels_function (Message *msg, int (*func)(Message *msg)) {
         exit(EXIT_FAILURE);
     }
 
-    if (pid == 0) { // Processo filho
+    if (pid == 0) {
         close(fd[0]);
         valor = func(msg);
         write(fd[1], &valor, sizeof(int));
         close(fd[1]);
         exit(0);
-    } else { // Processo pai
+    } else {
         close(fd[1]);
-        wait(NULL);
+        waitpid(pid, NULL, 0);
         read(fd[0], &valor, sizeof(int));
         close(fd[0]);
-    }
+    }    
     return valor;
 }
 
-Cache *Server_opcao_A(Message *msg, Cache *docs){
-    
-    int *pos_onde_foi_add = malloc(sizeof(int));
-    if (pos_onde_foi_add == NULL) {
-        perror("malloc");
-        return NULL;
-    }
-
-    docs = add_documento(docs, msg, pos_onde_foi_add);
-    char respostaA[51];
-
-    sprintf(respostaA, "Documento %d adicionado\n", *pos_onde_foi_add);
-    envia_resposta_cliente(respostaA, msg);
-
-    free(pos_onde_foi_add);
-    return docs;
-}
-
-void Server_opcao_C(Message *msg, Cache *docs){
-
-    int keyC = get_key_msg(msg);
-    int doc_existe = documento_existe(docs, keyC);
-    char respostaC[520];
-    if (doc_existe == 1) {
-        char *str = consult_file(docs,keyC);
-        sprintf(respostaC, "%s\n", str);
-        free(str);        
-    } else if (doc_existe == -2) {
-        sprintf(respostaC, "Não existe nenhum documento com a chave %d\n", keyC);
-    
-    } else if (doc_existe == -1) {
-        sprintf(respostaC, "Posição Inválida\n");
-    }
-
-    envia_resposta_cliente(respostaC, msg);
-}
-
-Cache *Server_opcao_D(Message *msg, Cache *docs){
-
-    int keyD = get_key_msg(msg);
-    int doc_existe = documento_existe(docs, keyD);
-
-    char respostaD[50];
-    if (doc_existe == 1) {
-        docs = remove_file(docs, keyD);
-        sprintf(respostaD, "Documento %d removido\n", keyD);
-    } else if (doc_existe == -2) {
-        sprintf(respostaD, "Não existe nenhum documento com a chave %d\n", keyD);
-    } else if (doc_existe == -1) {
-        sprintf(respostaD, "Posição Inválida\n");
-    }
-
-    envia_resposta_cliente(respostaD, msg);
-
-    return docs;
-}
-
-void Server_opcao_L(Message *msg, Cache *docs, char* folder) {
-    int key = get_key_msg(msg);
-    int flag = documento_existe(docs, key);
-    char *keyword = get_keyword_msg(msg);
-    if (keyword == NULL) {
-        perror("get_keyword_msg");
-        printf("Keyword is NULL\n");
-        return;
-    }
-
-    if (flag == -2){
-        char resposta[200] = {0};
-        sprintf(resposta, "Não existe nenhum documento com a chave %d\n", key);
-
-        envia_resposta_cliente(resposta, msg);
-        return;
-    } else if (flag == -1) {
-        char resposta[200] = {0};
-        sprintf(resposta, "Posição Inválida\n");
-
-        envia_resposta_cliente(resposta, msg);
-        return;
-    }
-
-    // Obtem o path do documento
-    char filepath[100];
-    if (get_cache_flag(docs) == 0) {
-        // Se a cache for estática
-        sprintf(filepath, "%s%s", folder, get_MD_path(get_documento_cache(docs, key)));
-    } else {
-        // Se a cache for dinâmica
-        sprintf(filepath, "%s%s", folder, get_MD_path(get_anywhere_documento(docs, key)));
-    }
-
-    int pipefd[2];
-    if (pipe(pipefd) == -1) {
-        perror("pipe");
-        return;
-    }
-
-    int pid = fork();
-    if (pid == -1) {
-        perror("fork");
-        return;
-    } else if (pid == 0) {
-        // Processo filho
-        close(pipefd[0]);
-        dup2(pipefd[1], 1);
-        close(pipefd[1]);
-
-        execlp("grep", "grep", "-c", keyword, filepath, NULL);
-        perror("execlp");
-        _exit(1);
-    } else {
-        // Processo pai
-        close(pipefd[1]);
-        char buffer[100] = {0};
-
-        // Espera que o filho termine
-        wait(NULL);
-
-        // Lê o resultado do pipe
-        ssize_t n = read(pipefd[0], buffer, sizeof(buffer));
-        if (n == -1) {
-            perror("read");
-            close(pipefd[0]);
-            return;
-        }
-        close(pipefd[0]);
-        buffer[n] = '\0'; // Adiciona o terminador nulo
-
-        envia_resposta_cliente(buffer, msg);
-    }
-}
-
-void Server_opcao_S(Message *msg, Cache *docs, char* folder) {
-    char *keyword = get_keyword_msg_s(msg);
-    if (keyword == NULL) {
-        perror("get_keyword_msg_s Server_opcao_S");
-        return;
-    }
-    int n_filhos = get_nProcessos_msg_s(msg);
-    int n_total = get_Max_docs(docs);
-    int fd[n_filhos][2];
-    pid_t pids[n_filhos];
-
-    for (int i = 0; i < n_filhos; i++) {
-        if (pipe(fd[i]) == -1) {
-            perror("pipe");
-            return;
-        }
-
-        pids[i] = fork();
-        if (pids[i] == -1) {
-            perror("fork");
-            return;
-        }
-
-        if (pids[i] == 0) {
-
-            close(fd[i][0]);
-
-            for (int j = i; j < n_total; j += n_filhos) { // round-robin
-                if (documento_existe(docs, j)) {
-                    MetaDados *doc = NULL;
-                    if (get_cache_flag(docs) == 0){
-                        doc = get_anywhere_documento(docs, j);
-                    } else {
-                        doc = get_documento_cache(docs, j);
-                    }
-
-                    char filepath[50];
-                    sprintf(filepath, "%s%s", folder, get_MD_path(doc));
-
-                    pid_t pid_grep = fork();
-                    if (pid_grep == 0) {
-                        execlp("grep", "grep", "-q", keyword, filepath, NULL);
-                        _exit(1);
-                    }
-
-                    int status;
-                    waitpid(pid_grep, &status, 0);
-                    if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
-                        write(fd[i][1], &j, sizeof(int));
-                    }
-                }
-            }
-
-            close(fd[i][1]);
-            _exit(0);
-        } else {
-            close(fd[i][1]);
-        }
-    }
-
-    char *resposta = malloc(128);
-    int size = 0, max_size = 128;
-    strcpy(resposta, "[");
-    size = 1;
-
-    for (int i = 0; i < n_filhos; i++) {
-        int doc_idx;
-        while (read(fd[i][0], &doc_idx, sizeof(int)) > 0) {
-            char num[12];
-            snprintf(num, sizeof(num), "%d", doc_idx);
-
-            if (size > 1) {
-                strcat(resposta, ", ");
-                size += 2;
-            }
-
-            strcat(resposta, num);
-            size += strlen(num);
-
-            if (size + 12 > max_size) {
-                max_size *= 2;
-                resposta = realloc(resposta, max_size);
-            }
-        }
-        close(fd[i][0]);
-    }
-
-    strcat(resposta, "]\n");
-
-    for (int i = 0; i < n_filhos; i++) {
-        waitpid(pids[i], NULL, 0);
-    }
-
-    envia_resposta_cliente(resposta, msg);
-    free(resposta);
-}
-
-void Server_opcao_B(Message *msg, Cache *docs){
-    recupera_backup(docs);
-
-    char *resposta= "Backup recuperado.\n";
-    envia_resposta_cliente(resposta, msg);
-
-}
-
-void Server_opcao_F(Message *msg, Cache *docs){
-    
-    all_Cache_to_Disc(docs);
-
-    char *resposta= "Servidor a terminar...\n";
-    envia_resposta_cliente(resposta, msg);
-}
-
 int verifica_comando (Message *msg) {
-
+    printf("[SERVER] verificando comando\n");
     if (msg == NULL) {
         return 0;
     }
@@ -324,9 +44,11 @@ int verifica_comando (Message *msg) {
 
     switch (a) {
         case 'a':
+        printf("[SERVER] verificando comando a\n"); 
             if (get_message_argc(msg) != 5) {
                 return 0;
             }
+            printf("[SERVER] a retornar 1\n");
             return 1;
         case 'c':
             if (get_message_argc(msg) != 2) {
@@ -393,17 +115,31 @@ void error_message(Message *msg) {
             resposta = "[TRY] <command>\n";
             break;
     }
-    envia_resposta_cliente(resposta, msg);
-}
 
-void envia_resposta_cliente(const char *msg, Message *msg_cliente) {
     char fifo[50];
-    sprintf(fifo, "tmp/%d", get_message_pid(msg_cliente));
+    sprintf(fifo, "tmp/%d", get_message_pid(msg));
     int fd = open(fifo, O_WRONLY);
     if (fd == -1) {
         perror("Open envia_resposta_cliente");
         return;
     }
-    write(fd, msg, strlen(msg));
+    write(fd, resposta, strlen(resposta));
+    close(fd);
+    
+}
+
+void sent_to_cache (Message *msg) {
+    MetaMessage *metaMessage = createMetaMessage(msg);
+
+    int fd = open(CACHE_FIFO, O_WRONLY);
+    if (fd == -1) {
+        perror("Open send_to_cache_holder");
+        return;
+    }
+    printf("Enviando para cache_fifo send_to_cache_holder\n");
+    print_MT(metaMessage);
+    char *str = to_disk_format_MT(metaMessage);
+    write(fd, str, sizeof(str));
+    printf("Enviou para cache_fifo send_to_cache_holder\n");
     close(fd);
 }

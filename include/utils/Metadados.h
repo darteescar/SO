@@ -21,6 +21,8 @@
 
 typedef struct metaDados MetaDados;
 
+int get_MD_size(MetaDados *data);
+
 MetaDados *criar_metaDados(char *buffer);
 
 char* get_MD_path(MetaDados *data);
@@ -31,12 +33,12 @@ void set_disk_position(MetaDados *data, int pos);
 
 char *MD_toString(MetaDados* data, int key);
 
-char *to_disk_format(MetaDados *data);
+char *to_disk_format_MD(MetaDados *data);
 
 void free_metaDados(MetaDados *data);
 
 void print_metaDados(MetaDados *data);
 
-char* from_disk_format(char *data);
+char* from_disk_format_MD(char *data);
 
 #endif

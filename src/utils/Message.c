@@ -32,7 +32,7 @@ Message *init_message() {
           if (i < argc - 1) {  // só se não for o último
               strcat(msg->buffer, FIELD_SEP);
           }
-      }
+     }
 }
  
 size_t get_message_size(Message *msg) {
@@ -61,14 +61,16 @@ void print_message(Message *msg) {
      printf("PID: %d\n", msg->pid);
  }
  
- char get_message_command(Message *msg) {
+char get_message_command(Message *msg) {
      if (msg == NULL) {
           perror("Message is NULL");
           exit(EXIT_FAILURE);
      }
- 
+     printf("Command: %c\n", msg->buffer[0]);
+     printf("Command1: %c\n", msg->buffer[1]);
+     printf("Command2: %c\n", msg->buffer[2]);
      return msg->buffer[1];
- }
+}
  
  int get_message_argc(Message *msg) {
      if (msg == NULL) {
@@ -86,7 +88,7 @@ void print_message(Message *msg) {
      return strdup(msg->buffer);
  }
  
- int get_message_pid(Message *msg) {
+int get_message_pid(Message *msg) {
      if (msg == NULL) {
           perror("Message is NULL");
           exit(EXIT_FAILURE);
@@ -159,4 +161,42 @@ int get_nProcessos_msg_s(Message *msg) {
      free(buffer);
      return res;
  }
+
+char *to_disk_format_message(struct message *msg) {
+     if (msg == NULL) {
+         return NULL;
+     }
  
+     // Aloca espaço para a string que conterá os dados serializados
+     char *str = malloc(520);
+     if (str == NULL) {
+         perror("malloc");
+         exit(EXIT_FAILURE);
+     }
+ 
+     // Serializa o buffer, argc e pid
+     snprintf(str, 520, "%s|%d|%d", msg->buffer, msg->argc, msg->pid);
+ 
+     return str;
+ }
+
+Message *from_disk_format_message(char *str) {
+     if (str == NULL) {
+         return NULL;
+     }
+ 
+     // Cria um novo Message
+     Message *msg = init_message();
+ 
+     // Separa os campos da string
+     char *buffer = strsep(&str, "|");
+     char *argc_str = strsep(&str, "|");
+     char *pid_str = strsep(&str, "|");
+ 
+     // Copia os dados para o Message
+     strcpy(msg->buffer, buffer);
+     msg->argc = atoi(argc_str);
+     msg->pid = atoi(pid_str);
+ 
+     return msg;
+ }

@@ -1,13 +1,32 @@
 #include "utils/Metadados.h"
 
-struct metaDados{
-     char* titulo;
-     char** autores;
-     int n_autores;
-     int ano;
-     char* path;
-     int pos_in_disk;
-};
+    struct metaDados{
+        char* titulo;
+        char** autores;
+        int n_autores;
+        int ano;
+        char* path;
+        int pos_in_disk;
+    };
+
+int get_MD_size(MetaDados *data) {
+    if (data == NULL) return -1;
+
+    int total = 0;
+
+    // Tamanho das strings (incluindo terminador)
+    if (data->titulo) total += strlen(data->titulo) + 1;
+    if (data->path) total += strlen(data->path) + 1;
+
+    // Tamanho dos autores
+    for (int i = 0; i < data->n_autores; i++) {
+        if (data->autores[i]) total += strlen(data->autores[i]) + 1;
+    }
+
+    total += sizeof(int) * 3; // n_autores, ano, pos_in_disk
+
+    return total;
+} 
 
 MetaDados *criar_metaDados(char *buffer) {
     MetaDados *data = malloc(sizeof(MetaDados));
@@ -101,7 +120,7 @@ char *MD_toString(MetaDados* data, int key) {
    return str;
 }
 
-char *to_disk_format(MetaDados *data) {
+char *to_disk_format_MD(MetaDados *data) {
     if (data == NULL) {
         return NULL;
     }
@@ -162,7 +181,7 @@ void print_metaDados(MetaDados *data) {
     write(1, "\n", 1);
 }
 
-char* from_disk_format(char *data) {
+char* from_disk_format_MD(char *data) {
     char *copy = strdup(data);
     char *aux = copy;
 

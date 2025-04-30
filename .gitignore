@@ -7,6 +7,7 @@ dclient
 
 # Folders
 DatasetTest/
+Dataset/
 
 # Pipes
 server_fifo

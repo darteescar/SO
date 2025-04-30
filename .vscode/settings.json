@@ -69,6 +69,8 @@
     "message.h": "c",
     "metadados.h": "c",
     "stdio.h": "c",
-    "cache.h": "c"
+    "cache.h": "c",
+    "metamessage.h": "c",
+    "cache_holder.h": "c"
   }
 }
