@@ -138,7 +138,6 @@ void sent_to_cache (Message *msg) {
         perror("Open send_to_cache_holder");
         return;
     }
-    print_MT(metaMessage);
 
     write_MT(fd, metaMessage);
 
