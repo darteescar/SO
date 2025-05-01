@@ -5,34 +5,31 @@ struct metaMessage {
      Message *msg;
 };
 
-MetaMessage *init_metamessage() {
+MetaMessage *init_MT() {
      MetaMessage *metaMessage = (MetaMessage *)malloc(sizeof(MetaMessage));
      if (metaMessage == NULL) {
           perror("Failed to allocate memory for MetaMessage");
           return NULL;
      }
-     metaMessage->meta_dados = NULL;
-     metaMessage->msg = NULL;
+     metaMessage->meta_dados = init_MD();
+     metaMessage->msg = init_message();
      return metaMessage;
 }
 
-MetaMessage *createMetaMessage(Message *msg) {
-     MetaMessage *metaMessage = (MetaMessage *)malloc(sizeof(MetaMessage));
+void set_MT_message (MetaMessage *metaMessage, Message *msg) {
      if (metaMessage == NULL) {
-          perror("Failed to allocate memory for MetaMessage");
-          return NULL;
+          perror("MetaMessage é NULL em set_MT_message");
+          return;
      }
-
-     if (get_message_command(msg) == 'a') {
-          printf("[SERVER] Criando metadados\n");
-          metaMessage->meta_dados = criar_metaDados(get_message_buffer(msg));
-     } else {
-          metaMessage->meta_dados = NULL;
-     }
-     
      metaMessage->msg = msg;
+}
 
-     return metaMessage;
+void set_MT_meta_dados (MetaMessage *metaMessage, MetaDados *meta_dados) {
+     if (metaMessage == NULL) {
+          perror("MetaMessage é NULL em set_MT_meta_dados");
+          return;
+     }
+     metaMessage->meta_dados = meta_dados;
 }
 
 int get_meta_message_size (MetaMessage *metaMessage) {
@@ -43,9 +40,9 @@ int get_meta_message_size (MetaMessage *metaMessage) {
      return get_message_size(metaMessage->msg) + get_MD_size(metaMessage->meta_dados); // por definir
 }
 
-MetaDados *get_meta_message_meta_dados (MetaMessage *metaMessage) {
+MetaDados *get_MT_meta_dados (MetaMessage *metaMessage) {
      if (metaMessage == NULL) {
-          perror("MetaMessage é NULL em get_meta_message_meta_dados");
+          perror("MetaMessage é NULL em get_MT_meta_dados");
           return NULL;
      }
      return metaMessage->meta_dados;
@@ -105,7 +102,7 @@ void print_MT (MetaMessage *metaMessage) {
           return;
      }
      print_message(metaMessage->msg);
-     print_metaDados(metaMessage->meta_dados);
+     print_MD(metaMessage->meta_dados);
 }
 
 
@@ -171,4 +168,23 @@ MetaMessage* from_disk_format_MT (const char* str) {
  
      return metaMessage;
  }
- 
+
+void write_MT (int fd, MetaMessage *metaMessage) {
+     if (metaMessage == NULL) {
+          perror("MetaMessage é NULL em write_MT");
+          return;
+     }
+     write_MD(metaMessage->meta_dados, fd );
+     write_message( metaMessage->msg, fd);
+}
+
+MetaMessage *read_MT (int fd) {
+     MetaMessage *metaMessage = init_MT();
+     if (metaMessage == NULL) {
+          perror("MetaMessage é NULL em read_MT");
+          return NULL;
+     }
+     metaMessage->meta_dados = read_MD (fd);
+     metaMessage->msg = read_message(fd);
+     return metaMessage;
+}

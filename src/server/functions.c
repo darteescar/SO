@@ -36,7 +36,6 @@ int paralels_function (Message *msg, int (*func)(Message *msg)) {
 }
 
 int verifica_comando (Message *msg) {
-    printf("[SERVER] verificando comando\n");
     if (msg == NULL) {
         return 0;
     }
@@ -44,11 +43,9 @@ int verifica_comando (Message *msg) {
 
     switch (a) {
         case 'a':
-        printf("[SERVER] verificando comando a\n"); 
             if (get_message_argc(msg) != 5) {
                 return 0;
             }
-            printf("[SERVER] a retornar 1\n");
             return 1;
         case 'c':
             if (get_message_argc(msg) != 2) {
@@ -129,17 +126,26 @@ void error_message(Message *msg) {
 }
 
 void sent_to_cache (Message *msg) {
-    MetaMessage *metaMessage = createMetaMessage(msg);
+    MetaMessage *metaMessage = init_MT();
+    set_MT_message(metaMessage, msg);
+
+    if (get_message_command(msg) == 'a') {
+        set_MT_meta_dados(metaMessage, criar_metaDados(get_message_buffer(msg)));
+    }
 
     int fd = open(CACHE_FIFO, O_WRONLY);
     if (fd == -1) {
         perror("Open send_to_cache_holder");
         return;
     }
+    printf("\n");
     printf("Enviando para cache_fifo send_to_cache_holder\n");
+    printf("\n");
+
     print_MT(metaMessage);
-    char *str = to_disk_format_MT(metaMessage);
-    write(fd, str, sizeof(str));
+
+    write_MT(fd, metaMessage);
+
     printf("Enviou para cache_fifo send_to_cache_holder\n");
     close(fd);
 }

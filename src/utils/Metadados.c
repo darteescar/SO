@@ -1,184 +1,151 @@
 #include "utils/Metadados.h"
 
-    struct metaDados{
-        char* titulo;
-        char** autores;
-        int n_autores;
-        int ano;
-        char* path;
-        int pos_in_disk;
-    };
+#define MAX_TITULO 512
+#define MAX_AUTORES 512
+#define MAX_PATH 10
 
-int get_MD_size(MetaDados *data) {
-    if (data == NULL) return -1;
+struct metaDados{
+    char titulo[MAX_TITULO];
+    char autores[MAX_AUTORES];
+    int n_autores;
+    int ano;
+    char path[MAX_PATH];
+    int pos_in_disk;
+};
 
-    int total = 0;
-
-    // Tamanho das strings (incluindo terminador)
-    if (data->titulo) total += strlen(data->titulo) + 1;
-    if (data->path) total += strlen(data->path) + 1;
-
-    // Tamanho dos autores
-    for (int i = 0; i < data->n_autores; i++) {
-        if (data->autores[i]) total += strlen(data->autores[i]) + 1;
+MetaDados *init_MD() {
+    MetaDados *data = malloc(sizeof(MetaDados));
+    if (data == NULL) {
+        perror("malloc na init_MD");
+        exit(EXIT_FAILURE);
     }
-
-    total += sizeof(int) * 3; // n_autores, ano, pos_in_disk
-
-    return total;
-} 
+    data->titulo[0] = '\0';
+    data->autores[0] = '\0';
+    data->n_autores = 0;
+    data->ano = 0;
+    data->path[0] = '\0';
+    data->pos_in_disk = -1;
+    return data;
+}
 
 MetaDados *criar_metaDados(char *buffer) {
     MetaDados *data = malloc(sizeof(MetaDados));
     if (data == NULL) {
-        perror("malloc");
+        perror("malloc na criar_metaDados");
         exit(EXIT_FAILURE);
     }
 
-    char *total = buffer + 3;  // Ignorar os 3 primeiros caracteres
+    char *total = buffer + 3;  // Ignora os 3 primeiros caracteres
     char *token;
     int field = 0;
 
-    data->pos_in_disk = -1; // assim, caso não seja definido, fica com valor inválido
+    data->pos_in_disk = -1;
 
     while ((token = strsep(&total, FIELD_SEP)) != NULL) {
         switch (field) {
             case 0:
-                data->titulo = strdup(token);
+                strncpy(data->titulo, token, MAX_TITULO - 1);
+                data->titulo[MAX_TITULO - 1] = '\0';
                 break;
-            case 1: {
-                char *token2;
-                int size = 10;
-                int j = 0;
-                data->autores = malloc(size * sizeof(char *));
-                if (data->autores == NULL) {
-                    perror("malloc");
-                    exit(EXIT_FAILURE);
-                }
 
-                while ((token2 = strsep(&token, ";")) != NULL) {
-                    if (j >= size) {
-                        size *= 2;
-                        data->autores = realloc(data->autores, size * sizeof(char *));
-                        if (data->autores == NULL) {
-                            perror("realloc");
-                            exit(EXIT_FAILURE);
-                        }
+            case 1:
+                strncpy(data->autores, token, MAX_AUTORES - 1);
+                data->autores[MAX_AUTORES - 1] = '\0';
+
+                // Contar nº de autores (ocorrências de ';' + 1)
+                data->n_autores = 1;
+                for (int i = 0; data->autores[i] != '\0'; i++) {
+                    if (data->autores[i] == ';') {
+                        data->n_autores++;
                     }
-                    data->autores[j++] = strdup(token2);
                 }
-
-                data->n_autores = j;
                 break;
-            }
+
             case 2:
                 data->ano = atoi(token);
                 break;
+
             case 3:
-                data->path = strdup(token);
+                strncpy(data->path, token, MAX_PATH - 1);
+                data->path[MAX_PATH - 1] = '\0';
                 break;
+
             case 4:
                 data->pos_in_disk = atoi(token);
                 break;
+
             default:
                 break;
         }
         field++;
     }
 
+    print_MD(data);
+
     return data;
 }
 
 char* get_MD_path(MetaDados *data) {
-    return strdup(data->path);
+    if (data == NULL) {
+        return NULL;
+    }
+    char *path = malloc(strlen(data->path) + 1);
+    if (path == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(path, data->path);
+    return path;
+
 }
 
 int get_MD_pos_in_disk(MetaDados *data) {
     return data->pos_in_disk;
 }
 
-void set_disk_position(MetaDados *data, int pos) {
+void set_MD_disk_position(MetaDados *data, int pos) {
     data->pos_in_disk = pos;
 }
 
 char *MD_toString(MetaDados* data, int key) {
-   char *str = malloc(1000);
-   if (str == NULL) {
-       perror("malloc");
-       exit(EXIT_FAILURE);
-   }
-   sprintf(str, "Meta Informação do documento %d:\n\nTitulo: %s\nAutores: ",key, data->titulo);
-   for (int i = 0; i < data->n_autores; i++) {
-       strcat(str, data->autores[i]);
-       if (i < data->n_autores - 1) {
-           strcat(str, "; ");
-       }
-   }
-   char buffer[256];
-   sprintf(buffer, "\nAno: %d\nPath: %s", data->ano, data->path);
-   strcat(str, buffer);
-   return str;
-}
-
-char *to_disk_format_MD(MetaDados *data) {
-    if (data == NULL) {
-        return NULL;
-    }
-    char *str = malloc(520);
+    char *str = malloc(1108);
     if (str == NULL) {
         perror("malloc");
         exit(EXIT_FAILURE);
     }
-    sprintf(str, "%s|", data->titulo);
-    for (int i = 0; i < data->n_autores; i++) {
-        strcat(str, data->autores[i]);
-        if (i < data->n_autores - 1) {
-            strcat(str, ";");
-        }
-    }
-    char buffer[256];
-    sprintf(buffer, "|%d|%s|%d",  data->ano, data->path, data->pos_in_disk);
-    strcat(str, buffer);
+    sprintf(str, "Meta Informação do documento %d:\n\nTitulo: %s\nAutores: %s\nAno: %d\nPath: %s\n",
+            key, data->titulo, data->autores, data->ano, data->path);
     return str;
 }
 
-void free_metaDados(MetaDados *data) {
-    if (data != NULL) {
-        free(data->titulo);
-        for (int i = 0; i<data->n_autores; i++) {
-            free(data->autores[i]);
-        }
-        free(data->autores);
-        free(data->path);
-        free(data);
+char *to_disk_format_MD(MetaDados *data) {
+    if (data == NULL) return NULL;
+
+    char *str = malloc(6000);
+    if (str == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
     }
+
+    snprintf(str, 1108, "%s|%s|%d|%s|%d",
+             data->titulo,
+             data->autores,
+             data->ano,
+             data->path,
+             data->pos_in_disk);
+
+    return str;
 }
 
-void print_metaDados(MetaDados *data) {
+void print_MD(MetaDados *data) {
     if (data == NULL) {
         write(1, "MetaDados is NULL\n", 18);
         return;
     }
-    write(1, "[MetaDados]\n", 12);
-    write(1, "Titulo: ", 8);
-    write(1, data->titulo, strlen(data->titulo));
-    write(1, "\nAutores: ", 9);
-    for (int i = 0; i < data->n_autores; i++) {
-        write(1, data->autores[i], strlen(data->autores[i]));
-        if (i < data->n_autores - 1) {
-            write(1, ", ", 2);
-        }
-    }
-    write(1, "\nAno: ", 6);
-    char buffer[10];
-    sprintf(buffer, "%d", data->ano);
-    write(1, buffer, strlen(buffer));
-    write(1, "\nPath: ", 7);
-    write(1, data->path, strlen(data->path));
-    write(1, "\nPos in Disk: ", 14);
-    sprintf(buffer, "%d", data->pos_in_disk);
-    write(1, buffer, strlen(buffer));
-    write(1, "\n", 1);
+
+    dprintf(1,
+        "[MetaDados]\nTitulo: %s\nAutores: %s\nAno: %d\nPath: %s\nPos in Disk: %d\n",
+        data->titulo, data->autores, data->ano, data->path, data->pos_in_disk);
 }
 
 char* from_disk_format_MD(char *data) {
@@ -191,7 +158,7 @@ char* from_disk_format_MD(char *data) {
     char *path = strsep(&aux, "|");
     char *pos_in_disk = strsep(&aux, "|");
 
-    char *buffer = malloc(520);
+    char *buffer = malloc(1108);
     if (buffer == NULL) {
         perror("malloc");
         free(copy);
@@ -203,4 +170,30 @@ char* from_disk_format_MD(char *data) {
     strcat(buffer, pos_in_disk);
     free(copy);
     return buffer;
+}
+
+int get_MD_size (MetaDados *data) {
+    if (data == NULL) {
+        return -1;
+    }
+    int x = sizeof(data->titulo) + sizeof(data->autores) + sizeof(data->ano) + sizeof(data->path); 
+    printf("Tamanho do metadados: %d\n", x);
+    return x;
+}
+
+void write_MD (MetaDados *data, int fd) {
+    if (data == NULL) {
+        return;
+    }
+    write(fd, data, sizeof(MetaDados));
+}
+
+MetaDados *read_MD (int fd) {
+    MetaDados *data = malloc(sizeof(MetaDados));
+    if (data == NULL) {
+        perror("malloc");
+        return NULL;
+    }
+    read(fd, data, sizeof(MetaDados));
+    return data;
 }

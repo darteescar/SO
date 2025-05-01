@@ -56,6 +56,7 @@ void print_message(Message *msg) {
           perror("Message is NULL");
           exit(EXIT_FAILURE);
      }
+     printf("[Message]\n");
      printf("Buffer: %s\n", msg->buffer);
      printf("Argc: %d\n", msg->argc);
      printf("PID: %d\n", msg->pid);
@@ -66,9 +67,6 @@ char get_message_command(Message *msg) {
           perror("Message is NULL");
           exit(EXIT_FAILURE);
      }
-     printf("Command: %c\n", msg->buffer[0]);
-     printf("Command1: %c\n", msg->buffer[1]);
-     printf("Command2: %c\n", msg->buffer[2]);
      return msg->buffer[1];
 }
  
@@ -198,5 +196,23 @@ Message *from_disk_format_message(char *str) {
      msg->argc = atoi(argc_str);
      msg->pid = atoi(pid_str);
  
+     return msg;
+ }
+
+void write_message(Message *msg, int fd) {
+     if (msg == NULL) {
+          perror("Message is NULL");
+          exit(EXIT_FAILURE);
+     }
+     write (fd , msg , sizeof(Message));
+}
+
+Message *read_message(int fd) {
+     Message *msg = init_message();
+     if (msg == NULL) {
+          perror("malloc");
+          exit(EXIT_FAILURE);
+     }
+     read(fd, msg, sizeof(Message));
      return msg;
  }

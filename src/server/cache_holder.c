@@ -15,22 +15,22 @@ void cache_holder(int cache_size, int flag, char *folder) {
      *server_down = 0;
 
      while (1) {
-          char *linha = malloc(1024 * sizeof(char));
 
           int fd = open(CACHE_FIFO, O_RDONLY);
           if (fd == -1) {
                perror("Open cache_fifo na cache_holder");
                return;
           }
+
+          MetaMessage *msg = read_MT(fd);
+
           printf("[CACHE HOLDER] Aguardando mensagem do cliente...\n");
-          ssize_t bytes = read(fd, linha, sizeof(linha));
           close(fd);
-          if (bytes > 0) {
-               MetaMessage *metaMessage = from_disk_format_MT(linha);
-               print_MT (metaMessage);
-               printf("[CACHE HOLDER] Recebeu mensagem do cliente %d\n", get_MT_msg_pid(metaMessage));
-               cache = exec_comando(metaMessage, cache, server_down, folder);
-               printf("[CACHE HOLDER] Executou comando do cliente %d\n", get_MT_msg_pid(metaMessage));
+          if (msg != NULL) {
+               print_MT (msg);
+               printf("[CACHE HOLDER] Recebeu mensagem do cliente %d\n", get_MT_msg_pid(msg));
+               cache = exec_comando(msg, cache, server_down, folder);
+               printf("[CACHE HOLDER] Executou comando do cliente %d\n", get_MT_msg_pid(msg));
           } else {
                perror("Read cache_fifo na cache_holder");
           }
@@ -83,7 +83,7 @@ Cache *Server_opcao_A(MetaMessage *msg, Cache *docs) {
           return NULL;
      }
 
-     docs = add_documento(docs, get_meta_message_meta_dados(msg), pos_onde_foi_add);
+     docs = add_documento(docs, get_MT_meta_dados(msg), pos_onde_foi_add);
      char respostaA[51];
 
      sprintf(respostaA, "Documento %d adicionado\n", *pos_onde_foi_add);

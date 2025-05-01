@@ -80,7 +80,7 @@ Cache *add_documento_Estaticamente(Cache *cache, MetaDados *mt, int *pos_onde_fo
 
             } else {
                 int pos = pop(cache->stack_to_disc);
-                set_disk_position(mt, pos);
+                set_MD_disk_position(mt, pos);
                 add_to_Disk(cache, mt);
                 *pos_onde_foi_add = pos;
             }
@@ -140,7 +140,7 @@ Cache *add_documento_Dinamicamente(Cache *cache, MetaDados *mt, int *pos_onde_fo
 void add_to_Cache(Cache *cache, MetaDados *data, int pos) {
     if (get_MD_pos_in_disk(data) == -1) {
         //printf("Adicionado à cache na posição %d\n", pos);
-        set_disk_position(data, pos);
+        set_MD_disk_position(data, pos);
     }
     cache->docs[pos%cache->capacity] = data;
     cache->ocupados[pos] = EM_CACHE;
@@ -182,7 +182,6 @@ void add_to_Disk(Cache *cache, MetaDados *data) {
 
 Cache *remove_file (Cache *cache, int pos) {
     if (cache->ocupados[pos] == EM_CACHE ) {
-        free_metaDados(cache->docs[pos%cache->capacity]);
         cache->ocupados[pos] = LIVRE;
         push(cache->stack_to_cache, pos);
     } else if (cache->ocupados[pos] == EM_DISCO) {
@@ -214,11 +213,6 @@ char *consult_file (Cache *cache, int pos) {
 void free_Cache(Cache *docs) {
     if (docs == NULL) {
         return;
-    }
-    for (int i = 0; i < docs->capacity; i++) {
-        if (docs->docs[i] != NULL) {
-            free_metaDados(docs->docs[i]);
-        }
     }
     free(docs->docs);
     free(docs->ocupados);
@@ -341,7 +335,7 @@ void print_Cache (Cache *docs) {
     write(1, "[Cache]\n\n", 10);
     for (int i = 0; i < docs->redimensionamentos * docs->capacity ; i++) {
         if (docs->ocupados[i] == EM_CACHE) {
-            print_metaDados(docs->docs[i%docs->capacity]);
+            print_MD(docs->docs[i%docs->capacity]);
             write(1, "\n", 1);
         }
     }

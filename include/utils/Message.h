@@ -49,4 +49,8 @@ char *to_disk_format_message(struct message *msg);
 
 Message *from_disk_format_message(char *str);
 
+void write_message(Message *msg, int fd);
+
+Message *read_message(int fd);
+
 #endif
