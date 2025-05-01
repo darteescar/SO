@@ -24,13 +24,10 @@ void cache_holder(int cache_size, int flag, char *folder) {
 
           MetaMessage *msg = read_MT(fd);
 
-          printf("[CACHE HOLDER] Aguardando mensagem do cliente...\n");
           close(fd);
           if (msg != NULL) {
                print_MT (msg);
-               printf("[CACHE HOLDER] Recebeu mensagem do cliente %d\n", get_MT_msg_pid(msg));
                cache = exec_comando(msg, cache, server_down, folder);
-               printf("[CACHE HOLDER] Executou comando do cliente %d\n", get_MT_msg_pid(msg));
           } else {
                perror("Read cache_fifo na cache_holder");
           }
@@ -42,7 +39,6 @@ Cache *exec_comando (MetaMessage *msg, Cache *docs, int *server_down, char *fold
      switch (get_MT_comando(msg)) {
           case 'a':
                // Adicionar
-               printf("[CACHE HOLDER] Adicionando documento\n");
                return Server_opcao_A(msg, docs);
 
           case 'c':
@@ -89,7 +85,6 @@ Cache *Server_opcao_A(MetaMessage *msg, Cache *docs) {
      sprintf(respostaA, "Documento %d adicionado\n", *pos_onde_foi_add);
      envia_resposta_cliente(respostaA, msg);
 
-     printf("[CACHE HOLDER] Adicionou o documento %d\n", *pos_onde_foi_add);
      free(pos_onde_foi_add);
      return docs;
 }
@@ -331,6 +326,5 @@ void envia_resposta_cliente(const char *msg, MetaMessage *msg_cliente) {
      }
      write(fd, msg, strlen(msg));
      close(fd);
-     printf("[CACHE HOLDER] Enviou resposta para o cliente %d: %s\n", get_MT_msg_pid(msg_cliente), msg);
  }
  

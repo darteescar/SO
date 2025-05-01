@@ -138,14 +138,9 @@ void sent_to_cache (Message *msg) {
         perror("Open send_to_cache_holder");
         return;
     }
-    printf("\n");
-    printf("Enviando para cache_fifo send_to_cache_holder\n");
-    printf("\n");
-
     print_MT(metaMessage);
 
     write_MT(fd, metaMessage);
 
-    printf("Enviou para cache_fifo send_to_cache_holder\n");
     close(fd);
 }
