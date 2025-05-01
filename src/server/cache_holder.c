@@ -26,7 +26,6 @@ void cache_holder(int cache_size, int flag, char *folder) {
 
           close(fd);
           if (msg != NULL) {
-               print_MT (msg);
                cache = exec_comando(msg, cache, server_down, folder);
           } else {
                perror("Read cache_fifo na cache_holder");
