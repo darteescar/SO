@@ -80,8 +80,6 @@ MetaDados *criar_metaDados(char *buffer) {
         field++;
     }
 
-    print_MD(data);
-
     return data;
 }
 
