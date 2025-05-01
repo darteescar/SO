@@ -34,7 +34,6 @@ int main(int argc, char* argv[]) {
         _exit(0);
     }
 
-
     // Impede processos zombie
     signal(SIGCHLD, SIG_IGN);
 
@@ -66,6 +65,7 @@ int main(int argc, char* argv[]) {
                     sent_to_cache(msg);
                     _exit(0);
                 }
+                
             } else {
                 error_message(msg);
             }

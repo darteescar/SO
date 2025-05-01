@@ -9,7 +9,7 @@ void cache_holder(int cache_size, int flag, char *folder) {
           perror("MKFIFO cache_fifo na cache_holder"); 
      }
 
-     Cache *cache = create_Cache(cache_size, flag );
+     Cache *cache = create_Cache(cache_size, flag);
 
      int *server_down = malloc(sizeof(int));
      *server_down = 0;
