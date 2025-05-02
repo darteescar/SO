@@ -11,6 +11,8 @@ struct metaDados{
     int ano;
     char path[MAX_PATH];
     int pos_in_disk;
+    char buffer[512];
+    int pid;
 };
 
 MetaDados *init_MD() {
@@ -25,7 +27,16 @@ MetaDados *init_MD() {
     data->ano = 0;
     data->path[0] = '\0';
     data->pos_in_disk = -1;
+    data->buffer[0] = '\0';
+    data->pid = -1;
     return data;
+}
+
+MetaDados *create_MD_1 (int pid , char *buffer) {
+    MetaDados *data = malloc(sizeof(MetaDados));
+    data->pid = pid;
+    strcpy(data->buffer, buffer);
+    return data;        
 }
 
 MetaDados *criar_metaDados(char *buffer) {
@@ -124,7 +135,7 @@ char *to_disk_format_MD(MetaDados *data) {
         perror("malloc");
         exit(EXIT_FAILURE);
     }
-
+    
     snprintf(str, 1108, "%s|%s|%d|%s|%d",
              data->titulo,
              data->autores,
@@ -141,9 +152,19 @@ void print_MD(MetaDados *data) {
         return;
     }
 
-    dprintf(1,
-        "[MetaDados]\nTitulo: %s\nAutores: %s\nAno: %d\nPath: %s\nPos in Disk: %d\n",
-        data->titulo, data->autores, data->ano, data->path, data->pos_in_disk);
+    printf("MetaDados:\n");
+    printf("Titulo: %s\n", data->titulo);
+    printf("Autores: %s\n", data->autores);
+    printf("Ano: %d\n", data->ano);
+    printf("Path: %s\n", data->path);
+    printf("Posição no disco: %d\n", data->pos_in_disk);
+    printf("Buffer: %s\n", data->buffer);
+    printf("PID: %d\n", data->pid);
+    printf("Número de autores: %d\n", data->n_autores);
+    printf("====================================\n");
+    printf("\n");
+
+    
 }
 
 char* from_disk_format_MD(char *data) {
@@ -171,27 +192,114 @@ char* from_disk_format_MD(char *data) {
 }
 
 int get_MD_size (MetaDados *data) {
-    if (data == NULL) {
-        return -1;
-    }
-    int x = sizeof(data->titulo) + sizeof(data->autores) + sizeof(data->ano) + sizeof(data->path); 
-    printf("Tamanho do metadados: %d\n", x);
-    return x;
+    return sizeof(MetaDados);
 }
 
-void write_MD (MetaDados *data, int fd) {
-    if (data == NULL) {
-        return;
+//////////////////
+
+char get_MT_command(MetaDados *msg) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
     }
-    write(fd, data, sizeof(MetaDados));
+    return msg->buffer[1];
 }
 
-MetaDados *read_MD (int fd) {
-    MetaDados *data = malloc(sizeof(MetaDados));
-    if (data == NULL) {
-        perror("malloc");
-        return NULL;
+char *get_MT_buffer(MetaDados *msg) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
     }
-    read(fd, data, sizeof(MetaDados));
-    return data;
+    return strdup(msg->buffer);
+}
+
+int get_MT_pid(MetaDados *msg) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    return msg->pid;
+}
+
+int get_MT_key(MetaDados *msg) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    char *buffer = get_MT_buffer(msg);
+    buffer+=3; // Skip prefixo
+    
+    return atoi(buffer);
+} 
+
+char *get_MT_keyword(MetaDados *msg) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    char *buffer = get_MT_buffer(msg);
+    buffer+=3;
+    
+    char *token = strsep(&buffer, FIELD_SEP);
+    token = strsep(&buffer, FIELD_SEP);
+    return token;
+}
+
+char *get_MT_keyword_s(MetaDados *msg) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    char *buffer = get_MT_buffer(msg);
+    buffer+=3;
+
+    char *token = strsep(&buffer, FIELD_SEP);
+    return token;
+}
+
+int get_MT_nProcessos_s(MetaDados *msg) {
+    if (msg == NULL) {
+        perror("Message is NULL");
+        exit(EXIT_FAILURE);
+    }
+
+    char *buffer = get_MT_buffer(msg);
+    if (buffer == NULL) {
+        perror("strdup");
+        exit(EXIT_FAILURE);
+    }
+
+    char *ptr = buffer;
+    char *token;
+
+    token = strsep(&ptr, FIELD_SEP); // comando
+    token = strsep(&ptr, FIELD_SEP); // keyword
+    token = strsep(&ptr, FIELD_SEP); // n_procs
+
+    if (token == NULL) {
+         free(buffer);
+    return 1; // ou valor por omissão
+    }
+
+    int res = atoi(token);
+
+    free(buffer);
+    return res;
+}
+
+void set_MD_pid(MetaDados *msg, int pid) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    msg->pid = pid;
+}
+
+void set_MD_buffer(MetaDados *msg, char *buffer) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    strncpy(msg->buffer, buffer, sizeof(msg->buffer) - 1);
+    msg->buffer[sizeof(msg->buffer) - 1] = '\0';
 }

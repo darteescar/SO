@@ -1,6 +1,7 @@
 #include "server/functions.h"
 
 #define SERVER_FIFO "tmp/server_fifo"
+#define CACHE_FIFO "tmp/cache_fifo"
 
 int main(int argc, char* argv[]) {
 
@@ -37,6 +38,17 @@ int main(int argc, char* argv[]) {
     // Impede processos zombie
     signal(SIGCHLD, SIG_IGN);
 
+    // Criar FIFO da cache (se não existir)
+    if (mkfifo(CACHE_FIFO, 0666) == -1) {
+        perror("MKFIFO cache_fifo na cache_holder"); 
+   }
+
+    int fd1 = open(CACHE_FIFO, O_WRONLY);
+    if (fd1 == -1) {
+        perror("Open cache_fifo");
+        return -1;
+    }
+
     while (1) {
         Message *msg = init_message();
 
@@ -62,7 +74,7 @@ int main(int argc, char* argv[]) {
 
                 if (pid == 0) {
                     // FILHO
-                    sent_to_cache(msg);
+                    sent_to_cache(msg, fd1);
                     _exit(0);
                 }
                 

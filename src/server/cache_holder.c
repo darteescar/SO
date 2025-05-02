@@ -11,31 +11,34 @@ void cache_holder(int cache_size, int flag, char *folder) {
 
      Cache *cache = create_Cache(cache_size, flag);
 
+     int fd = open(CACHE_FIFO, O_RDONLY);
+     if (fd == -1) {
+          perror("Open cache_fifo na cache_holder");
+          return;
+     }
+
      int *server_down = malloc(sizeof(int));
+     if (server_down == NULL) {
+          perror("malloc server_down");
+          return;
+     }
      *server_down = 0;
 
-     while (1) {
+     MetaDados *msg = init_MD();
+     int bytes_read;
 
-          int fd = open(CACHE_FIFO, O_RDONLY);
-          if (fd == -1) {
-               perror("Open cache_fifo na cache_holder");
-               return;
-          }
+     while ( (bytes_read = read(fd,msg,get_MD_size(msg))) > 0 ) {
+          printf("leu\n");
+          cache = exec_comando(msg, cache, server_down, folder);
 
-          MetaMessage *msg = read_MT(fd);
-
-          close(fd);
-          if (msg != NULL) {
-               cache = exec_comando(msg, cache, server_down, folder);
-          } else {
-               perror("Read cache_fifo na cache_holder");
+          if (*server_down == 1) {
+               break;
           }
      }
-     free(server_down);
 }
 
-Cache *exec_comando (MetaMessage *msg, Cache *docs, int *server_down, char *folder) {
-     switch (get_MT_comando(msg)) {
+Cache *exec_comando (MetaDados *msg, Cache *docs, int *server_down, char *folder) {
+     switch (get_MT_command(msg)) {
           case 'a':
                // Adicionar
                return Server_opcao_A(msg, docs);
@@ -70,7 +73,7 @@ Cache *exec_comando (MetaMessage *msg, Cache *docs, int *server_down, char *fold
      return docs;
 }
 
-Cache *Server_opcao_A(MetaMessage *msg, Cache *docs) {
+Cache *Server_opcao_A(MetaDados *msg, Cache *docs) {
 
      int *pos_onde_foi_add = malloc(sizeof(int));
      if (pos_onde_foi_add == NULL) {
@@ -78,19 +81,20 @@ Cache *Server_opcao_A(MetaMessage *msg, Cache *docs) {
           return NULL;
      }
 
-     docs = add_documento(docs, get_MT_meta_dados(msg), pos_onde_foi_add);
+     docs = add_documento(docs, msg, pos_onde_foi_add);
      char respostaA[51];
 
      sprintf(respostaA, "Documento %d adicionado\n", *pos_onde_foi_add);
      envia_resposta_cliente(respostaA, msg);
 
+     printf("Adicionado %d\n", *pos_onde_foi_add);
      free(pos_onde_foi_add);
      return docs;
 }
 
-void Server_opcao_C(MetaMessage *msg, Cache *docs) {
+void Server_opcao_C(MetaDados *msg, Cache *docs) {
 
-     int keyC = get_MT_key_msg(msg);
+     int keyC = get_MT_key(msg);
      int doc_existe = documento_existe(docs, keyC);
      char respostaC[520];
      if (doc_existe == 1) {
@@ -107,9 +111,9 @@ void Server_opcao_C(MetaMessage *msg, Cache *docs) {
      envia_resposta_cliente(respostaC, msg);
 }
 
-Cache *Server_opcao_D(MetaMessage *msg, Cache *docs) {
+Cache *Server_opcao_D(MetaDados *msg, Cache *docs) {
 
-     int keyD = get_MT_key_msg(msg);
+     int keyD = get_MT_key(msg);
      int doc_existe = documento_existe(docs, keyD);
 
      char respostaD[50];
@@ -127,10 +131,10 @@ Cache *Server_opcao_D(MetaMessage *msg, Cache *docs) {
      return docs;
 }
 
-void Server_opcao_L(MetaMessage *msg, Cache *docs, char* folder) {
-     int key = get_MT_key_msg(msg);
+void Server_opcao_L(MetaDados *msg, Cache *docs, char* folder) {
+     int key = get_MT_key(msg);
      int flag = documento_existe(docs, key);
-     char *keyword = get_MT_keyword_msg(msg);
+     char *keyword = get_MT_keyword(msg);
      if (keyword == NULL) {
           perror("get_keyword_msg");
           printf("Keyword is NULL\n");
@@ -202,13 +206,13 @@ void Server_opcao_L(MetaMessage *msg, Cache *docs, char* folder) {
      }
 }
 
-void Server_opcao_S(MetaMessage *msg, Cache *docs, char* folder) {
-     char *keyword = get_MT_keyword_msg_s(msg);
+void Server_opcao_S(MetaDados *msg, Cache *docs, char* folder) {
+     char *keyword = get_MT_keyword_s(msg);
      if (keyword == NULL) {
           perror("get_keyword_msg_s Server_opcao_S");
           return;
      }
-     int n_filhos = get_MT_nProcessos_msg_s(msg);
+     int n_filhos = get_MT_nProcessos_s(msg);
      int n_total = get_Max_docs(docs);
      int fd[n_filhos][2];
      pid_t pids[n_filhos];
@@ -299,7 +303,7 @@ void Server_opcao_S(MetaMessage *msg, Cache *docs, char* folder) {
      free(resposta);
 }
 
-void Server_opcao_B(MetaMessage *msg, Cache *docs) {
+void Server_opcao_B(MetaDados *msg, Cache *docs) {
      recupera_backup(docs);
 
      char *resposta= "Backup recuperado.\n";
@@ -307,7 +311,7 @@ void Server_opcao_B(MetaMessage *msg, Cache *docs) {
 
 }
 
-void Server_opcao_F(MetaMessage *msg, Cache *docs) {
+void Server_opcao_F(MetaDados *msg, Cache *docs) {
 
      all_Cache_to_Disc(docs);
 
@@ -315,9 +319,9 @@ void Server_opcao_F(MetaMessage *msg, Cache *docs) {
      envia_resposta_cliente(resposta, msg);
 }
 
-void envia_resposta_cliente(const char *msg, MetaMessage *msg_cliente) {
+void envia_resposta_cliente(const char *msg, MetaDados *msg_cliente) {
      char fifo[50];
-     sprintf(fifo, "tmp/%d", get_MT_msg_pid(msg_cliente));
+     sprintf(fifo, "tmp/%d", get_MT_pid(msg_cliente));
      int fd = open(fifo, O_WRONLY);
      if (fd == -1) {
           perror("Open envia_resposta_cliente");

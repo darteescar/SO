@@ -91,6 +91,7 @@ Cache *add_documento_Estaticamente(Cache *cache, MetaDados *mt, int *pos_onde_fo
         } 
     }
     
+    printf("saiu\n");
     return cache;  // Retorna o novo ponteiro de Cache
 }
 

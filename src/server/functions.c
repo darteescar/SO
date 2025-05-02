@@ -125,21 +125,22 @@ void error_message(Message *msg) {
     
 }
 
-void sent_to_cache (Message *msg) {
-    MetaMessage *metaMessage = init_MT();
-    set_MT_message(metaMessage, msg);
+void sent_to_cache (Message *msg, int fd1) {
+
+    MetaDados *MetaDados;
 
     if (get_message_command(msg) == 'a') {
-        set_MT_meta_dados(metaMessage, criar_metaDados(get_message_buffer(msg)));
+        MetaDados = criar_metaDados(get_message_buffer(msg));
+        set_MD_buffer(MetaDados, get_message_buffer(msg));
+        set_MD_pid(MetaDados, get_message_pid(msg));
+    } else {
+        MetaDados = init_MD();
+        set_MD_buffer(MetaDados, get_message_buffer(msg));
+        set_MD_pid(MetaDados, get_message_pid(msg));
     }
 
-    int fd = open(CACHE_FIFO, O_WRONLY);
-    if (fd == -1) {
-        perror("Open send_to_cache_holder");
-        return;
-    }
+    print_MD(MetaDados);
 
-    write_MT(fd, metaMessage);
+    write(fd1, MetaDados, get_MD_size(MetaDados));
 
-    close(fd);
 }

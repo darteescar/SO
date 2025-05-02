@@ -23,6 +23,8 @@ typedef struct metaDados MetaDados;
 
 MetaDados *init_MD();
 
+MetaDados *create_MD_1 (int pid , char *buffer);
+
 MetaDados *criar_metaDados(char *buffer);
 
 char* get_MD_path(MetaDados *data);
@@ -41,8 +43,22 @@ char* from_disk_format_MD(char *data);
 
 int get_MD_size (MetaDados *data);
 
-void write_MD (MetaDados *data, int fd);
+char get_MT_command(MetaDados *msg);
 
-MetaDados *read_MD (int fd);
+char *get_MT_buffer(MetaDados *msg);
+
+int get_MT_pid(MetaDados *msg);
+
+int get_MT_key(MetaDados *msg);
+
+char *get_MT_keyword(MetaDados *msg);
+
+char *get_MT_keyword_s(MetaDados *msg);
+
+int get_MT_nProcessos_s(MetaDados *msg);
+
+void set_MD_pid(MetaDados *msg, int pid);
+
+void set_MD_buffer(MetaDados *msg, char *buffer);
 
 #endif

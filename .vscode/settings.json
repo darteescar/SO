@@ -70,7 +70,7 @@
     "metadados.h": "c",
     "stdio.h": "c",
     "cache.h": "c",
-    "metamessage.h": "c",
+    "MetaDados.h": "c",
     "cache_holder.h": "c"
   }
 }
