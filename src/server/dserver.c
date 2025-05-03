@@ -58,7 +58,7 @@ int main(int argc, char* argv[]) {
         close(fd);
 
         if (bytes > 0) {
-            int valor = paralels_function(msg,verifica_comando);
+            int valor = verifica_comando(msg);
             if (valor == 1) {
                 pid_t pid = fork();
 
