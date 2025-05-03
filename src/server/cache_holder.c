@@ -23,8 +23,6 @@ void cache_holder(int cache_size, int flag, char *folder) {
          return;
      }
 
-     int i = 0;
-
      while (1) {
  
          MetaDados *msg = init_MD(); // Aloca estrutura
@@ -32,8 +30,6 @@ void cache_holder(int cache_size, int flag, char *folder) {
          ssize_t bytes_read = read(fd_rd, msg, get_MD_size(msg));
  
          if (bytes_read > 0) {
-               printf("Cache Holder: %d\n", i);
-               i++;
              cache = exec_comando(msg, cache, server_down, folder);
              if (*server_down == 1) {
                  break;
