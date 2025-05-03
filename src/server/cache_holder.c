@@ -5,50 +5,51 @@
 void cache_holder(int cache_size, int flag, char *folder) {
      Cache *cache = create_Cache(cache_size, flag);
  
-     // Criar FIFO da cache (se não existir)
      if (mkfifo(CACHE_FIFO, 0666) == -1 && errno != EEXIST) {
          perror("MKFIFO cache_fifo na cache_holder"); 
-         return;
-     }
- 
-     // Abrir FIFO para leitura e manter aberto com WR também (evita EOF quando nenhum cliente escreve)
-     int fd_rd = open(CACHE_FIFO, O_RDONLY);
-     if (fd_rd == -1) {
-         perror("Open cache_fifo (leitura)");
          return;
      }
  
      int *server_down = malloc(sizeof(int));
      if (!server_down) {
          perror("malloc server_down");
-         close(fd_rd);
          return;
      }
      *server_down = 0;
  
-     int bytes_read;
- 
-     printf("Cache Holder pronto para receber comandos...\n");
- 
-     while (1) {
-          MetaDados *msg = init_MD();
-          bytes_read = read(fd_rd, msg, get_MD_size(msg));
-          if (bytes_read > 0) {
-     
-               cache = exec_comando(msg, cache, server_down, folder);
-     
-               if (*server_down == 1) {
-                    break;
-               }
-          }
+     int fd_rd = open(CACHE_FIFO, O_RDONLY);
+     if (fd_rd == -1) {
+         perror("Open cache_fifo (leitura)");
+         return;
      }
+
+     int i = 0;
+
+     while (1) {
  
-     printf("Cache Holder a terminar...\n");
+         MetaDados *msg = init_MD(); // Aloca estrutura
  
+         ssize_t bytes_read = read(fd_rd, msg, get_MD_size(msg));
+ 
+         if (bytes_read > 0) {
+               printf("Cache Holder: %d\n", i);
+               i++;
+             cache = exec_comando(msg, cache, server_down, folder);
+             if (*server_down == 1) {
+                 break;
+             }
+         } else if (bytes_read == 0) {
+             // writer fechou FIFO — reabrir bloqueando até novo writer
+             close(fd_rd);
+             fd_rd = open(CACHE_FIFO, O_RDONLY);
+         }
+ 
+     }
+
      free(server_down);
      close(fd_rd);
      unlink(CACHE_FIFO);
- }
+} 
 
 Cache *exec_comando (MetaDados *msg, Cache *docs, int *server_down, char *folder) {
      switch (get_MT_command(msg)) {
@@ -249,9 +250,9 @@ void Server_opcao_S(MetaDados *msg, Cache *docs, char* folder) {
                     if (documento_existe(docs, j)) {
                          MetaDados *doc = NULL;
                          if (get_cache_flag(docs) == 0){
-                         doc = get_anywhere_documento(docs, j);
+                              doc = get_anywhere_documento(docs, j);
                          } else {
-                         doc = get_documento_cache(docs, j);
+                              doc = get_documento_cache(docs, j);
                          }
 
                          char filepath[50];
@@ -259,15 +260,16 @@ void Server_opcao_S(MetaDados *msg, Cache *docs, char* folder) {
 
                          pid_t pid_grep = fork();
                          if (pid_grep == 0) {
-                         execlp("grep", "grep", "-q", keyword, filepath, NULL);
-                         _exit(1);
+                              execlp("grep", "grep", "-q", keyword, filepath, NULL);
+                              _exit(1);
                          }
-
                          int status;
                          waitpid(pid_grep, &status, 0);
                          if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
-                         write(fd[i][1], &j, sizeof(int));
+                              write(fd[i][1], &j, sizeof(int));
                          }
+
+                         free_MD(doc);
                     }
                }
 

@@ -3,8 +3,8 @@
 #define DISK_WRITER_FIFO "tmp/disk_writer_fifo"
 
 void write_to_disk() {
-     printf("Entrou no write_to_disk\n");
-     if (mkfifo(DISK_WRITER_FIFO, 0666) == -1 && errno != EEXIST) {
+
+     if (mkfifo(DISK_WRITER_FIFO, 0666) == -1) {
           perror("MKFIFO cache_fifo na cache_holder"); 
           return;
      }

@@ -31,7 +31,6 @@ int main(int argc, char* argv[]) {
     pid_t pid = fork();
     if (pid == 0) {
         // Processo filho trata da cache
-        printf("[CACHE]\n");
         cache_holder(cache_size, flag, folder);
         _exit(0);
     }
@@ -39,7 +38,6 @@ int main(int argc, char* argv[]) {
     pid_t pid2 = fork();
     if (pid2 == 0) {
         // Processo filho trata do disco
-        printf("[DISK WRITER]\n");
         write_to_disk();
         _exit(0);
     }

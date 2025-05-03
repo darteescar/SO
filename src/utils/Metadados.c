@@ -192,7 +192,7 @@ char* from_disk_format_MD(char *data) {
 }
 
 int get_MD_size (MetaDados *data) {
-    return 1040; // 512 + 512 + 4 inteiros
+    return sizeof(MetaDados);
 }
 
 //////////////////
@@ -274,8 +274,13 @@ int get_MT_nProcessos_s(MetaDados *msg) {
     char *token;
 
     token = strsep(&ptr, FIELD_SEP); // comando
+    printf("Comando: %s\n", token);
     token = strsep(&ptr, FIELD_SEP); // keyword
+    printf("Keyword: %s\n", token);
     token = strsep(&ptr, FIELD_SEP); // n_procs
+    printf("N_procs: %s\n", token);
+
+    printf("Buffer: %s\n", buffer);
 
     if (token == NULL) {
          free(buffer);
