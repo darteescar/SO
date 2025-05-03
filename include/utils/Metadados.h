@@ -17,7 +17,7 @@
 #define FIELD_SEP "\x1E"
 #define AUTHOR_SEP "\x1F"
 
-#define SERVER_STORAGE "tmp/server_storage"
+#define SERVER_STORAGE "server_storage"
 
 typedef struct metaDados MetaDados;
 

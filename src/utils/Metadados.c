@@ -254,7 +254,6 @@ char *get_MT_keyword_s(MetaDados *msg) {
     buffer+=3;
 
     char *token = strsep(&buffer, FIELD_SEP);
-    free(buffer);
     return token;
 }
 
@@ -274,17 +273,12 @@ int get_MT_nProcessos_s(MetaDados *msg) {
     char *token;
 
     token = strsep(&ptr, FIELD_SEP); // comando
-    printf("Comando: %s\n", token);
     token = strsep(&ptr, FIELD_SEP); // keyword
-    printf("Keyword: %s\n", token);
     token = strsep(&ptr, FIELD_SEP); // n_procs
-    printf("N_procs: %s\n", token);
-
-    printf("Buffer: %s\n", buffer);
 
     if (token == NULL) {
-         free(buffer);
-    return 1; // ou valor por omissão
+        free(buffer);
+        return 1; // ou valor por omissão
     }
 
     int res = atoi(token);

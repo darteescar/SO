@@ -5,7 +5,7 @@
 void write_to_disk() {
 
      if (mkfifo(DISK_WRITER_FIFO, 0666) == -1) {
-          perror("MKFIFO cache_fifo na cache_holder"); 
+          perror("MKFIFO disk_writer_fifo no write to disk"); 
           return;
      }
 
