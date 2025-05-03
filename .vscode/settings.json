@@ -71,6 +71,7 @@
     "stdio.h": "c",
     "cache.h": "c",
     "MetaDados.h": "c",
-    "cache_holder.h": "c"
+    "cache_holder.h": "c",
+    "disk_writer.h": "c"
   }
 }

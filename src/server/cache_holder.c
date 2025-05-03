@@ -3,39 +3,52 @@
 #define CACHE_FIFO "tmp/cache_fifo"
 
 void cache_holder(int cache_size, int flag, char *folder) {
-
-     // Criar FIFO da cache (se não existir)
-     if (mkfifo(CACHE_FIFO, 0666) == -1) {
-          perror("MKFIFO cache_fifo na cache_holder"); 
-     }
-
      Cache *cache = create_Cache(cache_size, flag);
-
-     int fd = open(CACHE_FIFO, O_RDONLY);
-     if (fd == -1) {
-          perror("Open cache_fifo na cache_holder");
-          return;
+ 
+     // Criar FIFO da cache (se não existir)
+     if (mkfifo(CACHE_FIFO, 0666) == -1 && errno != EEXIST) {
+         perror("MKFIFO cache_fifo na cache_holder"); 
+         return;
      }
-
+ 
+     // Abrir FIFO para leitura e manter aberto com WR também (evita EOF quando nenhum cliente escreve)
+     int fd_rd = open(CACHE_FIFO, O_RDONLY);
+     if (fd_rd == -1) {
+         perror("Open cache_fifo (leitura)");
+         return;
+     }
+ 
      int *server_down = malloc(sizeof(int));
-     if (server_down == NULL) {
-          perror("malloc server_down");
-          return;
+     if (!server_down) {
+         perror("malloc server_down");
+         close(fd_rd);
+         return;
      }
      *server_down = 0;
-
-     MetaDados *msg = init_MD();
+ 
      int bytes_read;
-
-     while ( (bytes_read = read(fd,msg,get_MD_size(msg))) > 0 ) {
-          printf("leu\n");
-          cache = exec_comando(msg, cache, server_down, folder);
-
-          if (*server_down == 1) {
-               break;
+ 
+     printf("Cache Holder pronto para receber comandos...\n");
+ 
+     while (1) {
+          MetaDados *msg = init_MD();
+          bytes_read = read(fd_rd, msg, get_MD_size(msg));
+          if (bytes_read > 0) {
+     
+               cache = exec_comando(msg, cache, server_down, folder);
+     
+               if (*server_down == 1) {
+                    break;
+               }
           }
      }
-}
+ 
+     printf("Cache Holder a terminar...\n");
+ 
+     free(server_down);
+     close(fd_rd);
+     unlink(CACHE_FIFO);
+ }
 
 Cache *exec_comando (MetaDados *msg, Cache *docs, int *server_down, char *folder) {
      switch (get_MT_command(msg)) {
@@ -87,7 +100,6 @@ Cache *Server_opcao_A(MetaDados *msg, Cache *docs) {
      sprintf(respostaA, "Documento %d adicionado\n", *pos_onde_foi_add);
      envia_resposta_cliente(respostaA, msg);
 
-     printf("Adicionado %d\n", *pos_onde_foi_add);
      free(pos_onde_foi_add);
      return docs;
 }

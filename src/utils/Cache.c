@@ -1,5 +1,7 @@
 #include "utils/Cache.h"
 
+#define DISK_WRITER_FIFO "tmp/disk_writer_fifo"
+
 struct cache {
     int dinamica; // 0 se for estatico, 1 se for dinamico
     MetaDados **docs;
@@ -74,6 +76,7 @@ Cache *add_documento_Estaticamente(Cache *cache, MetaDados *mt, int *pos_onde_fo
             if (is_empty(cache->stack_to_disc)) {
 
                 add_to_Disk(cache, cache->docs[cache->next_to_disc%cache->capacity]);
+                free_MD(cache->docs[cache->next_to_disc%cache->capacity]);
                 add_to_Cache(cache, mt, cache->next_to_disc);
                 *pos_onde_foi_add = cache->next_to_disc;
                 cache->next_to_disc++;
@@ -91,7 +94,6 @@ Cache *add_documento_Estaticamente(Cache *cache, MetaDados *mt, int *pos_onde_fo
         } 
     }
     
-    printf("saiu\n");
     return cache;  // Retorna o novo ponteiro de Cache
 }
 
@@ -151,39 +153,25 @@ void add_to_Cache(Cache *cache, MetaDados *data, int pos) {
 
 void add_to_Disk(Cache *cache, MetaDados *data) {
     int pos = get_MD_pos_in_disk(data);
-    //printf("Adicionado ao disco na posição %d\n", pos);
-
     cache->ocupados[pos] = EM_DISCO;
 
-    //printf("Adicionando ao disco...\n");
-
-    int fd = open(SERVER_STORAGE, O_WRONLY | O_CREAT, 0644);
+    int fd = open(DISK_WRITER_FIFO, O_WRONLY);
     if (fd == -1) {
-        perror("open");
+        perror("Open add_to_Disk");
         return;
     }
-
-    int offset = pos * 520;
-    if (lseek(fd, offset, SEEK_SET) == -1) {
-        perror("lseek");
+    if (write(fd, data, get_MD_size(data)) == -1) {
+        perror("Write add_to_Disk");
         close(fd);
         return;
     }
-
-    char *buffer = to_disk_format_MD(data);
-    if (write(fd, buffer, strlen(buffer)) == -1) {
-        perror("write");
-    }
-
-    //printf("Escreveu %s no disco\n", buffer);
-
     close(fd);
-    free(buffer);
 }
 
 Cache *remove_file (Cache *cache, int pos) {
     if (cache->ocupados[pos] == EM_CACHE ) {
         cache->ocupados[pos] = LIVRE;
+        free_MD(cache->docs[pos%cache->capacity]);
         push(cache->stack_to_cache, pos);
     } else if (cache->ocupados[pos] == EM_DISCO) {
         cache->ocupados[pos] = LIVRE;
@@ -275,7 +263,9 @@ MetaDados* desserializa_MetaDados(int pos) {
     lseek(fd, offset, SEEK_SET);
     read(fd, data, 520);
     close(fd);
-    MetaDados *new = criar_metaDados(from_disk_format_MD(data));
+    char *buffer = from_disk_format_MD(data);
+    MetaDados *new = criar_metaDados(buffer);
+    free(buffer);
     return new;
 }
 

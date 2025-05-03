@@ -61,4 +61,6 @@ void set_MD_pid(MetaDados *msg, int pid);
 
 void set_MD_buffer(MetaDados *msg, char *buffer);
 
+void free_MD(MetaDados *data);
+
 #endif

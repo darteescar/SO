@@ -125,22 +125,32 @@ void error_message(Message *msg) {
     
 }
 
-void sent_to_cache (Message *msg, int fd1) {
+void sent_to_cache (Message *msg) {
 
     MetaDados *MetaDados;
 
+    char *buffer = get_message_buffer(msg);
+
     if (get_message_command(msg) == 'a') {
-        MetaDados = criar_metaDados(get_message_buffer(msg));
-        set_MD_buffer(MetaDados, get_message_buffer(msg));
+        char *buffer = get_message_buffer(msg);
+        MetaDados = criar_metaDados(buffer);
+        set_MD_buffer(MetaDados, buffer);
         set_MD_pid(MetaDados, get_message_pid(msg));
     } else {
         MetaDados = init_MD();
-        set_MD_buffer(MetaDados, get_message_buffer(msg));
+        set_MD_buffer(MetaDados, buffer);
         set_MD_pid(MetaDados, get_message_pid(msg));
     }
+    free(buffer);
 
-    print_MD(MetaDados);
+    int fd1 = open (CACHE_FIFO, O_WRONLY);
+    if (fd1 == -1) {
+        perror("Open cache_fifo");
+        return;
+    }
 
     write(fd1, MetaDados, get_MD_size(MetaDados));
 
+    free_MD(MetaDados);
+    close(fd1);       
 }

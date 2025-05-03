@@ -117,7 +117,7 @@ void set_MD_disk_position(MetaDados *data, int pos) {
 }
 
 char *MD_toString(MetaDados* data, int key) {
-    char *str = malloc(1108);
+    char *str = malloc(512+80);
     if (str == NULL) {
         perror("malloc");
         exit(EXIT_FAILURE);
@@ -130,13 +130,13 @@ char *MD_toString(MetaDados* data, int key) {
 char *to_disk_format_MD(MetaDados *data) {
     if (data == NULL) return NULL;
 
-    char *str = malloc(6000);
+    char *str = malloc(516);
     if (str == NULL) {
         perror("malloc");
         exit(EXIT_FAILURE);
     }
     
-    snprintf(str, 1108, "%s|%s|%d|%s|%d",
+    snprintf(str, 516, "%s|%s|%d|%s|%d",
              data->titulo,
              data->autores,
              data->ano,
@@ -177,7 +177,7 @@ char* from_disk_format_MD(char *data) {
     char *path = strsep(&aux, "|");
     char *pos_in_disk = strsep(&aux, "|");
 
-    char *buffer = malloc(1108);
+    char *buffer = malloc(strlen(titulo) + strlen(autores) + strlen(ano) + strlen(path) + strlen(pos_in_disk) + 10);
     if (buffer == NULL) {
         perror("malloc");
         free(copy);
@@ -192,7 +192,7 @@ char* from_disk_format_MD(char *data) {
 }
 
 int get_MD_size (MetaDados *data) {
-    return sizeof(MetaDados);
+    return 1040; // 512 + 512 + 4 inteiros
 }
 
 //////////////////
@@ -222,15 +222,15 @@ int get_MT_pid(MetaDados *msg) {
 }
 
 int get_MT_key(MetaDados *msg) {
-    if (msg == NULL) {
-         perror("Message is NULL");
-         exit(EXIT_FAILURE);
+    if (!msg) {
+        perror("Message is NULL");
+        exit(EXIT_FAILURE);
     }
     char *buffer = get_MT_buffer(msg);
-    buffer+=3; // Skip prefixo
-    
-    return atoi(buffer);
-} 
+    int x = atoi(buffer + 3);
+    free(buffer);
+    return x;
+}
 
 char *get_MT_keyword(MetaDados *msg) {
     if (msg == NULL) {
@@ -254,6 +254,7 @@ char *get_MT_keyword_s(MetaDados *msg) {
     buffer+=3;
 
     char *token = strsep(&buffer, FIELD_SEP);
+    free(buffer);
     return token;
 }
 
@@ -302,4 +303,10 @@ void set_MD_buffer(MetaDados *msg, char *buffer) {
     }
     strncpy(msg->buffer, buffer, sizeof(msg->buffer) - 1);
     msg->buffer[sizeof(msg->buffer) - 1] = '\0';
+}
+
+void free_MD(MetaDados *data) {
+    if (data != NULL) {
+        free(data);
+    }   
 }

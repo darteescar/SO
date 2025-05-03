@@ -31,23 +31,21 @@ int main(int argc, char* argv[]) {
     pid_t pid = fork();
     if (pid == 0) {
         // Processo filho trata da cache
+        printf("[CACHE]\n");
         cache_holder(cache_size, flag, folder);
+        _exit(0);
+    }
+
+    pid_t pid2 = fork();
+    if (pid2 == 0) {
+        // Processo filho trata do disco
+        printf("[DISK WRITER]\n");
+        write_to_disk();
         _exit(0);
     }
 
     // Impede processos zombie
     signal(SIGCHLD, SIG_IGN);
-
-    // Criar FIFO da cache (se não existir)
-    if (mkfifo(CACHE_FIFO, 0666) == -1) {
-        perror("MKFIFO cache_fifo na cache_holder"); 
-   }
-
-    int fd1 = open(CACHE_FIFO, O_WRONLY);
-    if (fd1 == -1) {
-        perror("Open cache_fifo");
-        return -1;
-    }
 
     while (1) {
         Message *msg = init_message();
@@ -74,16 +72,15 @@ int main(int argc, char* argv[]) {
 
                 if (pid == 0) {
                     // FILHO
-                    sent_to_cache(msg, fd1);
+                    sent_to_cache(msg);
                     _exit(0);
                 }
                 
             } else {
                 error_message(msg);
             }
-        } else {
-            free_message(msg);
-        }
+        } 
+        free_message(msg);
     }
 
     unlink(SERVER_FIFO);

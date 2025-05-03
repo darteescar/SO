@@ -1,0 +1,50 @@
+#include "server/disk_writer.h"
+
+#define DISK_WRITER_FIFO "tmp/disk_writer_fifo"
+
+void write_to_disk() {
+     printf("Entrou no write_to_disk\n");
+     if (mkfifo(DISK_WRITER_FIFO, 0666) == -1 && errno != EEXIST) {
+          perror("MKFIFO cache_fifo na cache_holder"); 
+          return;
+     }
+
+     int disk_fifo = open(DISK_WRITER_FIFO, O_RDONLY);
+     if (disk_fifo == -1) {
+         perror("Open cache_fifo (leitura)");
+         return;
+     }
+
+     int server_storage = open(SERVER_STORAGE, O_WRONLY | O_CREAT, 0644);
+     if (server_storage == -1) {
+          perror("open");
+          return;
+     }
+
+     MetaDados *data = init_MD();
+
+     while (1) {
+          if (read(disk_fifo, data, get_MD_size(data)) > 0) {
+               int pos = get_MD_pos_in_disk(data);
+
+               int offset = pos * 520;
+               if (lseek(server_storage, offset, SEEK_SET) == -1) {
+                    perror("lseek");
+                    close(server_storage);
+                    return;
+               }
+
+               char *buffer = to_disk_format_MD(data);
+               if (write(server_storage, buffer, strlen(buffer)) == -1) {
+                    perror("write");
+               }
+
+               free(buffer);
+          }
+     }
+
+     close(server_storage);
+     close(disk_fifo);
+     unlink(DISK_WRITER_FIFO);
+
+}
