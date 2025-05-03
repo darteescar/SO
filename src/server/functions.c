@@ -71,7 +71,7 @@ int verifica_comando (Message *msg) {
             if (get_message_argc(msg) != 1) {
                 return 0;
             }
-            return 1;
+            return 2;
         case 'b':
             if (get_message_argc(msg) != 1) {
                 return 0;

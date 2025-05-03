@@ -10,8 +10,6 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    write(1, "[SERVER STARTED]\n\n", 19);
-
     if (mkfifo(SERVER_FIFO, 0666) == -1) {
         perror("MKFIFO server_fifo");
     }
@@ -73,7 +71,10 @@ int main(int argc, char* argv[]) {
                     sent_to_cache(msg);
                     _exit(0);
                 }
-                
+            } else if (valor == 2){//-f
+                sent_to_cache(msg);
+                free_message(msg);
+                break;  
             } else {
                 error_message(msg);
             }
@@ -81,7 +82,8 @@ int main(int argc, char* argv[]) {
         free_message(msg);
     }
 
+    waitpid(pid, NULL, 0);
+
     unlink(SERVER_FIFO);
-    write(1, "[SERVER ENDED]\n", 16);
     return 0;
 }
