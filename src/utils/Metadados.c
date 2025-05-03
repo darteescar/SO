@@ -130,13 +130,13 @@ char *MD_toString(MetaDados* data, int key) {
 char *to_disk_format_MD(MetaDados *data) {
     if (data == NULL) return NULL;
 
-    char *str = malloc(516);
+    char *str = malloc(520);
     if (str == NULL) {
         perror("malloc");
         exit(EXIT_FAILURE);
     }
     
-    snprintf(str, 516, "%s|%s|%d|%s|%d",
+    snprintf(str, 520, "%s|%s|%d|%s|%d",
              data->titulo,
              data->autores,
              data->ano,

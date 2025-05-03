@@ -276,17 +276,6 @@ char get_docs_estado(Cache *docs, int pos) {
     return docs->ocupados[pos];
 }
 
-MetaDados *get_documento_cache(Cache *docs, int pos) {
-    if (docs == NULL || pos < 0 || pos >= docs->size) {
-        return NULL;
-    }
-    if (docs->ocupados[pos] == EM_CACHE) {
-        return docs->docs[pos % docs->capacity];
-    } else {
-        return NULL;
-    }
-}
-
 MetaDados *get_anywhere_documento(Cache *docs, int pos) {
     if (docs == NULL || pos < 0 || pos >= docs->size) {
         return NULL;

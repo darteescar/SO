@@ -166,18 +166,12 @@ void Server_opcao_L(MetaDados *msg, Cache *docs, char* folder) {
 
      // Obtem o path do documento
      char filepath[100];
-          if (get_cache_flag(docs) == 0) {
-               // Se a cache for estática
-               sprintf(filepath, "%s%s", folder, get_MD_path(get_documento_cache(docs, key)));
-          } else {
-               // Se a cache for dinâmica
-               sprintf(filepath, "%s%s", folder, get_MD_path(get_anywhere_documento(docs, key)));
-          }
+     sprintf(filepath, "%s%s", folder, get_MD_path(get_anywhere_documento(docs, key)));
 
-          int pipefd[2];
-          if (pipe(pipefd) == -1) {
-               perror("pipe");
-               return;
+     int pipefd[2];
+     if (pipe(pipefd) == -1) {
+          perror("pipe");
+          return;
      }
 
      int pid = fork();
@@ -245,11 +239,7 @@ void Server_opcao_S(MetaDados *msg, Cache *docs, char* folder) {
                for (int j = i; j < n_total; j += n_filhos) { // round-robin
                     if (documento_existe(docs, j)) {
                          MetaDados *doc = NULL;
-                         if (get_cache_flag(docs) == 0){
-                              doc = get_anywhere_documento(docs, j);
-                         } else {
-                              doc = get_documento_cache(docs, j);
-                         }
+                         doc = get_anywhere_documento(docs, j);
 
                          char filepath[50];
                          sprintf(filepath, "%s%s", folder, get_MD_path(doc));

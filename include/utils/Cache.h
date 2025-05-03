@@ -61,8 +61,6 @@ MetaDados* desserializa_MetaDados(int pos);
 
 int get_cache_flag(Cache *docs);
 
-MetaDados *get_documento_cache(Cache *docs, int pos);
-
 void recupera_backup(Cache *docs);
 
 #endif
