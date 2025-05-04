@@ -218,9 +218,9 @@ void Server_opcao_S(MetaDados *msg, Cache *docs, char* folder) {
      }
      char *n_filhos_buffer = get_MD_something(msg, 2);
      int n_filhos = 0;
-     
+
      if (n_filhos_buffer == NULL) {
-          n_filhos = 1;
+          n_filhos = 1;//caso não tenha sido especificado
      } else {
           n_filhos = atoi(n_filhos_buffer);
      }
