@@ -1,3 +1,8 @@
+/**
+ * @file cache_holder.h
+ * @brief Header file for cache_holder.c
+ * @author Group 30 de SO
+ */
 #ifndef CACHE_HOLDER_H
 #define CACHE_HOLDER_H
 
@@ -19,24 +24,99 @@
 #include "utils/Message.h"
 #include "utils/Metadados.h"
 
+/**
+ * @brief Função que guarda a cache e executa os pedidos do cliente.
+ * 
+ * @param cache_size Tamanho da cache.
+ * @param flag 0 se a cache for estática, 1 se for dinâmica.
+ * @param folder Pasta onde estão os documentos.
+ */
 void cache_holder(int cache_size, int flag, char *folder);
 
+/**
+ * @brief Função que executa o comando recebido.
+ * 
+ * @param msg Mensagem recebida.
+ * @param docs Cache onde estão as meta-informações.
+ * @param server_down Flag que indica se o servidor vai terminar.
+ * @param folder Pasta onde estão os documentos.
+ * @return Cache atualizada.
+ */
 Cache *exec_comando (MetaDados *msg, Cache *docs, int *server_down, char *folder);
 
+/**
+ * @brief Função que executa o comando -a.
+ *        Função que adiciona as informações de um documento.
+ * 
+ * @param msg MetaDados.
+ * @param docs Cache onde estão as meta-informações.
+ * @return Cache atualizada.
+ */
 Cache *Server_opcao_A(MetaDados *msg, Cache *docs);
 
+/**
+ * @brief Função que executa o comando -c.
+ *        Função que consulta as informações de um documento.
+ * 
+ * @param msg MetaDados.
+ * @param docs Cache onde estão as meta-informações.
+ */
 void Server_opcao_C(MetaDados *msg, Cache *docs);
 
+/**
+ * @brief Função que executa o comando -d.
+ *        Função que apaga as informações de um documento.
+ * 
+ * @param msg MetaDados.
+ * @param docs Cache onde estão as meta-informações.
+ * @return Cache atualizada.
+ */
 Cache *Server_opcao_D(MetaDados *msg, Cache *docs);
 
+/**
+ * @brief Função que executa o comando -l.
+ *        Função que cita o número de vezes que uma palavra aparece em um certo documento.
+ * 
+ * @param msg MetaDados.
+ * @param docs Cache onde estão as meta-informações.
+ * @param folder Pasta onde estão os documentos.
+ */
 void Server_opcao_L(MetaDados *msg, Cache *docs, char* folder);
 
+/**
+ * @brief Função que executa o comando -s.
+ *        Função que cita as keys dos documentos onde aparece uma certa palavra.
+ * 
+ * @param msg MetaDados.
+ * @param docs Cache onde estão as meta-informações.
+ * @param folder Pasta onde estão os documentos.
+ */
 void Server_opcao_S(MetaDados *msg, Cache *docs, char* folder);
 
+/**
+ * @brief Função que executa o comando -b.
+ *        Função que recupera o backup.
+ * 
+ * @param msg MetaDados.
+ * @param docs Cache onde estão as meta-informações.
+ */
 void Server_opcao_B(MetaDados *msg, Cache *docs);
 
+/**
+ * @brief Função que executa o comando -f.
+ *        Função que termina o servidor.
+ * 
+ * @param msg MetaDados.
+ * @param docs Cache onde estão as meta-informações.
+ */
 void Server_opcao_F(MetaDados *msg, Cache *docs);
 
+/**
+ * @brief Função que envia a resposta ao cliente.
+ * 
+ * @param msg Mensagem a enviar.
+ * @param msg_cliente Mensagem do cliente.
+ */
 void envia_resposta_cliente(const char *msg, MetaDados *msg_cliente);
 
 #endif

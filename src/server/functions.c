@@ -50,7 +50,7 @@ int verifica_comando (Message *msg) {
             return 0;
     }
 }
- 
+
 void error_message(Message *msg) {
     const char *resposta;
     char option = get_message_command(msg);

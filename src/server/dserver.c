@@ -3,6 +3,12 @@
 #define SERVER_FIFO "tmp/server_fifo"
 #define CACHE_FIFO "tmp/cache_fifo"
 
+/**
+ * @brief Função principal do servidor.
+ * 
+ * @param argc Número de argumentos.
+ * @param argv Argumentos passados para o programa.
+ */
 int main(int argc, char* argv[]) {
 
     if (argc < 2) {

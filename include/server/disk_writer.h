@@ -1,3 +1,8 @@
+/**
+ * @file disk_writer.h
+ * @brief Header file for disk_writer.c
+ * @author Group 30 de SO
+ */
 #ifndef DISK_WRITER_H
 #define DISK_WRITER_H
 
@@ -17,6 +22,9 @@
 
 #include "utils/Metadados.h"
 
+/**
+ * @brief Função que guarda as meta-informações em disco lendo-as do fifo DISK_WRITER_FIFO.
+ */
 void write_to_disk();
 
 #endif
