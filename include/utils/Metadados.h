@@ -43,24 +43,20 @@ char* from_disk_format_MD(char *data);
 
 int get_MD_size (MetaDados *data);
 
-char get_MT_command(MetaDados *msg);
+char get_MD_command(MetaDados *msg);
 
-char *get_MT_buffer(MetaDados *msg);
+char *get_MD_buffer(MetaDados *msg);
 
-int get_MT_pid(MetaDados *msg);
+int get_MD_pid(MetaDados *msg);
 
-int get_MT_key(MetaDados *msg);
-
-char *get_MT_keyword(MetaDados *msg);
-
-char *get_MT_keyword_s(MetaDados *msg);
-
-int get_MT_nProcessos_s(MetaDados *msg);
+char *get_MD_keyword(MetaDados *msg);
 
 void set_MD_pid(MetaDados *msg, int pid);
 
 void set_MD_buffer(MetaDados *msg, char *buffer);
 
 void free_MD(MetaDados *data);
+
+char *get_MD_something (MetaDados *msg, int n);
 
 #endif

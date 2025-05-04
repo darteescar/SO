@@ -48,7 +48,7 @@ void cache_holder(int cache_size, int flag, char *folder) {
 } 
 
 Cache *exec_comando (MetaDados *msg, Cache *docs, int *server_down, char *folder) {
-     switch (get_MT_command(msg)) {
+     switch (get_MD_command(msg)) {
           case 'a':
                // Adicionar
                return Server_opcao_A(msg, docs);
@@ -103,8 +103,8 @@ Cache *Server_opcao_A(MetaDados *msg, Cache *docs) {
 }
 
 void Server_opcao_C(MetaDados *msg, Cache *docs) {
-
-     int keyC = get_MT_key(msg);
+     char *pedido = get_MD_something(msg, 1);
+     int keyC = atoi(pedido);
      int doc_existe = documento_existe(docs, keyC);
      char respostaC[520];
      if (doc_existe == 1) {
@@ -122,8 +122,9 @@ void Server_opcao_C(MetaDados *msg, Cache *docs) {
 }
 
 Cache *Server_opcao_D(MetaDados *msg, Cache *docs) {
-
-     int keyD = get_MT_key(msg);
+     char *pedido = get_MD_something(msg, 1);
+     printf("Pedido: %s\n", pedido);
+     int keyD = atoi(pedido);
      int doc_existe = documento_existe(docs, keyD);
 
      char respostaD[50];
@@ -142,9 +143,10 @@ Cache *Server_opcao_D(MetaDados *msg, Cache *docs) {
 }
 
 void Server_opcao_L(MetaDados *msg, Cache *docs, char* folder) {
-     int key = get_MT_key(msg);
+     char *key_b = get_MD_something(msg, 1);
+     int key = atoi(key_b);
      int flag = documento_existe(docs, key);
-     char *keyword = get_MT_keyword(msg);
+     char *keyword = get_MD_something(msg, 2);
      if (keyword == NULL) {
           perror("get_keyword_msg");
           printf("Keyword is NULL\n");
@@ -210,12 +212,14 @@ void Server_opcao_L(MetaDados *msg, Cache *docs, char* folder) {
 }
 
 void Server_opcao_S(MetaDados *msg, Cache *docs, char* folder) {
-     char *keyword = get_MT_keyword_s(msg);
+     char *keyword = get_MD_something(msg, 1);
      if (keyword == NULL) {
           perror("get_keyword_msg_s Server_opcao_S");
           return;
      }
-     int n_filhos = get_MT_nProcessos_s(msg);
+     char *n_filhos_buffer = get_MD_something(msg, 2);
+     int n_filhos = atoi(n_filhos_buffer);
+
      int n_total = get_Max_docs(docs);
      int fd[n_filhos][2];
      pid_t pids[n_filhos];
@@ -316,7 +320,7 @@ void Server_opcao_F(MetaDados *msg, Cache *docs) {
 
 void envia_resposta_cliente(const char *msg, MetaDados *msg_cliente) {
      char fifo[50];
-     sprintf(fifo, "tmp/%d", get_MT_pid(msg_cliente));
+     sprintf(fifo, "tmp/%d", get_MD_pid(msg_cliente));
      int fd = open(fifo, O_WRONLY);
      if (fd == -1) {
           perror("Open envia_resposta_cliente");

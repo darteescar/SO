@@ -197,7 +197,7 @@ int get_MD_size (MetaDados *data) {
 
 //////////////////
 
-char get_MT_command(MetaDados *msg) {
+char get_MD_command(MetaDados *msg) {
     if (msg == NULL) {
          perror("Message is NULL");
          exit(EXIT_FAILURE);
@@ -205,7 +205,7 @@ char get_MT_command(MetaDados *msg) {
     return msg->buffer[1];
 }
 
-char *get_MT_buffer(MetaDados *msg) {
+char *get_MD_buffer(MetaDados *msg) {
     if (msg == NULL) {
          perror("Message is NULL");
          exit(EXIT_FAILURE);
@@ -213,7 +213,7 @@ char *get_MT_buffer(MetaDados *msg) {
     return strdup(msg->buffer);
 }
 
-int get_MT_pid(MetaDados *msg) {
+int get_MD_pid(MetaDados *msg) {
     if (msg == NULL) {
          perror("Message is NULL");
          exit(EXIT_FAILURE);
@@ -221,23 +221,12 @@ int get_MT_pid(MetaDados *msg) {
     return msg->pid;
 }
 
-int get_MT_key(MetaDados *msg) {
-    if (!msg) {
-        perror("Message is NULL");
-        exit(EXIT_FAILURE);
-    }
-    char *buffer = get_MT_buffer(msg);
-    int x = atoi(buffer + 3);
-    free(buffer);
-    return x;
-}
-
-char *get_MT_keyword(MetaDados *msg) {
+char *get_MD_keyword(MetaDados *msg) {
     if (msg == NULL) {
          perror("Message is NULL");
          exit(EXIT_FAILURE);
     }
-    char *buffer = get_MT_buffer(msg);
+    char *buffer = get_MD_buffer(msg);
     buffer+=3;
     
     char *token = strsep(&buffer, FIELD_SEP);
@@ -245,46 +234,22 @@ char *get_MT_keyword(MetaDados *msg) {
     return token;
 }
 
-char *get_MT_keyword_s(MetaDados *msg) {
+char *get_MD_something (MetaDados *msg, int n) {
     if (msg == NULL) {
          perror("Message is NULL");
          exit(EXIT_FAILURE);
     }
-    char *buffer = get_MT_buffer(msg);
-    buffer+=3;
-
-    char *token = strsep(&buffer, FIELD_SEP);
-    return token;
-}
-
-int get_MT_nProcessos_s(MetaDados *msg) {
-    if (msg == NULL) {
-        perror("Message is NULL");
-        exit(EXIT_FAILURE);
-    }
-
-    char *buffer = get_MT_buffer(msg);
-    if (buffer == NULL) {
-        perror("strdup");
-        exit(EXIT_FAILURE);
-    }
-
-    char *ptr = buffer;
+    char *buffer = get_MD_buffer(msg);
+    buffer+=3; // skip comando
     char *token;
-
-    token = strsep(&ptr, FIELD_SEP); // comando
-    token = strsep(&ptr, FIELD_SEP); // keyword
-    token = strsep(&ptr, FIELD_SEP); // n_procs
-
-    if (token == NULL) {
-        free(buffer);
-        return 1; // ou valor por omissão
+    for (int i = 0; i < n; i++) {
+        token = strsep(&buffer, FIELD_SEP);
+        if (token == NULL) {
+            perror("strsep");
+            return NULL;
+        }
     }
-
-    int res = atoi(token);
-
-    free(buffer);
-    return res;
+    return token;
 }
 
 void set_MD_pid(MetaDados *msg, int pid) {
