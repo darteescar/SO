@@ -1,3 +1,8 @@
+/**
+ * @file services.h
+ * @brief Header file for services.c
+ * @author Group 37 de SO
+ */
 #ifndef CLIENT_SERVICES
 #define CLIENT_SERVICES
 
@@ -10,9 +15,18 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+/**
+ * @brief Envia uma mensagem para o servidor.
+ * 
+ * @param msg Mensagem a enviar.
+ * @return Tamanho da mensagem enviada ou -1 em caso de erro.
+ */
 int send_message(Message *msg);
 
-void reply(Message *msg);
+/**
+ * @brief Lê a resposta do servidor e imprime-a.
+ */
+void reply();
 
 
 #endif

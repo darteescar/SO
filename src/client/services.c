@@ -18,7 +18,7 @@ int send_message (Message *msg){
     return x;
 }
 
-void reply(Message *msg){
+void reply(){
     int pid = getpid();
     char fifo_path[520];
     sprintf(fifo_path, "tmp/%d", pid);

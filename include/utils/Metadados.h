@@ -1,3 +1,8 @@
+/**
+ * @file Metadados.h
+ * @brief Header file for Metadados.c
+ * @author Group 37 de SO
+ */
 #ifndef METADADOS_H
 #define METADADOS_H
 

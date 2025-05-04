@@ -3,6 +3,12 @@
 
 #define SERVER_FIFO "tmp/server_fifo"
 
+/**
+ * @brief Função principal do cliente.
+ * 
+ * @param argc Número de argumentos.
+ * @param argv Argumentos passados para o programa.
+ */
 int main(int argc, char* argv[]){
 
     if(argc < 2){
@@ -28,7 +34,7 @@ int main(int argc, char* argv[]){
     }
 
     // Ler a resposta do servidor
-    reply(msg);
+    reply();
 
     return 0;
 }

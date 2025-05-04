@@ -1,3 +1,8 @@
+/**
+ * @file Cache.h
+ * @brief Header file for Cache.c
+ * @author Group 37 de SO
+ */
 #ifndef DOCUMENTOS_H
 #define DOCUMENTOS_H
 
