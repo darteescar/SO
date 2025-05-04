@@ -1,7 +1,7 @@
 /**
  * @file functions.h
  * @brief Header file for functions.c
- * @author Group 30 de SO
+ * @author Group 37 de SO
  */
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H

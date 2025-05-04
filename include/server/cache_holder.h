@@ -1,7 +1,7 @@
 /**
  * @file cache_holder.h
  * @brief Header file for cache_holder.c
- * @author Group 30 de SO
+ * @author Group 37 de SO
  */
 #ifndef CACHE_HOLDER_H
 #define CACHE_HOLDER_H

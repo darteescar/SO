@@ -1,7 +1,7 @@
 /**
  * @file disk_writer.h
  * @brief Header file for disk_writer.c
- * @author Group 30 de SO
+ * @author Group 37 de SO
  */
 #ifndef DISK_WRITER_H
 #define DISK_WRITER_H
