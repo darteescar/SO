@@ -21,12 +21,10 @@
 #include "cache_holder.h"
 #include "disk_writer.h"
 
-int paralels_function (Message *msg, int (*func)(Message *msg));
-
 int verifica_comando (Message *msg);
 
 void error_message(Message *msg);
 
-void sent_to_cache (Message *msg);
+void send_MSG_to_cache (Message *msg);
 
 #endif

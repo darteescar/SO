@@ -42,9 +42,7 @@ void write_to_disk() {
                free(buffer);
           }
      }
-
      close(server_storage);
      close(disk_fifo);
      unlink(DISK_WRITER_FIFO);
-
 }

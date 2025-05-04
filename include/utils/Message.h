@@ -35,14 +35,4 @@ char* get_message_buffer(Message *msg);
 
 int get_message_pid(Message *msg);
 
-int get_key_msg(Message *msg);
-
-//char *get_message_argv(Message *msg, int x);
-
-char *get_keyword_msg(Message *msg);
-
-char *get_keyword_msg_s(Message *msg);
-
-int get_nProcessos_msg_s(Message *msg);
-
 #endif

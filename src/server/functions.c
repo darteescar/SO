@@ -3,77 +3,45 @@
 #define SERVER_FIFO "tmp/server_fifo"
 #define CACHE_FIFO "tmp/cache_fifo"
 
-int paralels_function (Message *msg, int (*func)(Message *msg)) {
-    int fd[2];
-    pid_t pid;
-    int valor;
-
-    // Cria o pipe
-    if (pipe(fd) == -1) {
-        perror("pipe");
-        exit(EXIT_FAILURE);
-    }
-    
-    pid = fork();
-    if (pid < 0) {
-        perror("fork");
-        exit(EXIT_FAILURE);
-    }
-
-    if (pid == 0) {
-        close(fd[0]);
-        valor = func(msg);
-        write(fd[1], &valor, sizeof(int));
-        close(fd[1]);
-        exit(0);
-    } else {
-        close(fd[1]);
-        waitpid(pid, NULL, 0);
-        read(fd[0], &valor, sizeof(int));
-        close(fd[0]);
-    }    
-    return valor;
-}
-
 int verifica_comando (Message *msg) {
     if (msg == NULL) {
         return 0;
     }
     char a = get_message_command(msg);
-
+    int argc = get_message_argc(msg);
     switch (a) {
         case 'a':
-            if (get_message_argc(msg) != 5) {
+            if (argc != 5) {
                 return 0;
             }
             return 1;
         case 'c':
-            if (get_message_argc(msg) != 2) {
+            if (argc != 2) {
                 return 0;
             }
             return 1;
         case 'd':
-            if (get_message_argc(msg) != 2) {
+            if (argc != 2) {
                 return 0;
             }
             return 1;
         case 'l':
-            if (get_message_argc(msg) != 3) {
+            if (argc != 3) {
                 return 0;
             }
             return 1;
         case 's':
-            if (get_message_argc(msg) == 2 || get_message_argc(msg) == 3) {
+            if (argc == 2 || argc == 3) {
                 return 1;
             }
             return 0;
         case 'f':
-            if (get_message_argc(msg) != 1) {
+            if (argc != 1) {
                 return 0;
             }
             return 2;
         case 'b':
-            if (get_message_argc(msg) != 1) {
+            if (argc != 1) {
                 return 0;
             }
             return 1;
@@ -125,7 +93,7 @@ void error_message(Message *msg) {
     
 }
 
-void sent_to_cache (Message *msg) {
+void send_MSG_to_cache (Message *msg) {
 
     MetaDados *MetaDados;
 

@@ -25,7 +25,7 @@ void cache_holder(int cache_size, int flag, char *folder) {
 
      while (1) {
  
-         MetaDados *msg = init_MD(); // Aloca estrutura
+         MetaDados *msg = init_MD();
  
          ssize_t bytes_read = read(fd_rd, msg, get_MD_size(msg));
  
@@ -71,6 +71,7 @@ Cache *exec_comando (MetaDados *msg, Cache *docs, int *server_down, char *folder
                Server_opcao_S(msg, docs, folder);
                break;
           case 'f':
+               // Fechar
                Server_opcao_F(msg, docs);
                *server_down = 1;
                break;
@@ -164,7 +165,6 @@ void Server_opcao_L(MetaDados *msg, Cache *docs, char* folder) {
           return;
 }
 
-     // Obtem o path do documento
      char filepath[100];
      sprintf(filepath, "%s%s", folder, get_MD_path(get_anywhere_documento(docs, key)));
 
@@ -266,11 +266,11 @@ void Server_opcao_S(MetaDados *msg, Cache *docs, char* folder) {
           }
      }
 
+     // Prepara a resposta
      char *resposta = malloc(128);
      int size = 0, max_size = 128;
      strcpy(resposta, "[");
      size = 1;
-
      for (int i = 0; i < n_filhos; i++) {
           int doc_idx;
           while (read(fd[i][0], &doc_idx, sizeof(int)) > 0) {
@@ -292,23 +292,18 @@ void Server_opcao_S(MetaDados *msg, Cache *docs, char* folder) {
           }
           close(fd[i][0]);
      }
-
      strcat(resposta, "]\n");
-
      for (int i = 0; i < n_filhos; i++) {
           waitpid(pids[i], NULL, 0);
      }
-
      envia_resposta_cliente(resposta, msg);
      free(resposta);
 }
 
 void Server_opcao_B(MetaDados *msg, Cache *docs) {
      recupera_backup(docs);
-
      char *resposta= "Backup recuperado.\n";
      envia_resposta_cliente(resposta, msg);
-
 }
 
 void Server_opcao_F(MetaDados *msg, Cache *docs) {
@@ -329,5 +324,4 @@ void envia_resposta_cliente(const char *msg, MetaDados *msg_cliente) {
      }
      write(fd, msg, strlen(msg));
      close(fd);
- }
- 
+}

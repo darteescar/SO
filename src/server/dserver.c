@@ -68,13 +68,13 @@ int main(int argc, char* argv[]) {
 
                 if (pid == 0) {
                     // FILHO
-                    sent_to_cache(msg);
+                    send_MSG_to_cache(msg);
                     _exit(0);
                 }
-            } else if (valor == 2){//-f
-                sent_to_cache(msg);
+            } else if (valor == 2){ //-f
+                send_MSG_to_cache(msg);
                 free_message(msg);
-                break;  
+                break;
             } else {
                 error_message(msg);
             }
