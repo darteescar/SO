@@ -25,7 +25,12 @@ void write_to_disk() {
 
      while (1) {
           if (read(disk_fifo, data, get_MD_size(data)) > 0) {
+
                int pos = get_MD_pos_in_disk(data);
+
+               if (pos == -2) {
+                    break; // Terminar o servidor
+               }
 
                int offset = pos * 520;
                if (lseek(server_storage, offset, SEEK_SET) == -1) {

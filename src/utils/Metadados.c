@@ -195,8 +195,6 @@ int get_MD_size (MetaDados *data) {
     return sizeof(MetaDados);
 }
 
-//////////////////
-
 char get_MD_command(MetaDados *msg) {
     if (msg == NULL) {
          perror("Message is NULL");

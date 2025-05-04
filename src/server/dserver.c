@@ -83,6 +83,7 @@ int main(int argc, char* argv[]) {
     }
 
     waitpid(pid, NULL, 0);
+    waitpid(pid2, NULL, 0);
 
     unlink(SERVER_FIFO);
     return 0;

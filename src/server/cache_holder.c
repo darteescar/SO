@@ -123,7 +123,6 @@ void Server_opcao_C(MetaDados *msg, Cache *docs) {
 
 Cache *Server_opcao_D(MetaDados *msg, Cache *docs) {
      char *pedido = get_MD_something(msg, 1);
-     printf("Pedido: %s\n", pedido);
      int keyD = atoi(pedido);
      int doc_existe = documento_existe(docs, keyD);
 
@@ -313,6 +312,11 @@ void Server_opcao_B(MetaDados *msg, Cache *docs) {
 void Server_opcao_F(MetaDados *msg, Cache *docs) {
 
      all_Cache_to_Disc(docs);
+
+     MetaDados *mt = init_MD();
+     set_MD_disk_position(mt, -2);
+     add_to_Disk(docs, mt);
+     free_MD(mt);
 
      char *resposta= "Servidor a terminar...\n";
      envia_resposta_cliente(resposta, msg);
