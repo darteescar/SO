@@ -25,8 +25,6 @@ void cache_holder(int cache_size, int flag, char *folder) {
 
      while (1) {
 
-          printf("[CACHE] Aguardando mensagens...\n");
-
           MetaDados *msg = init_MD();
      
           ssize_t bytes_read = read(fd_rd, msg, get_MD_size(msg));
