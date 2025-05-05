@@ -79,7 +79,6 @@ int main(int argc, char* argv[]) {
             } else if (valor == 2){ //-f
                 send_MSG_to_cache(msg);
                 free_message(msg);
-                printf("Comando -f recebido\n");
                 break;
             } else {
                 error_message(msg);
