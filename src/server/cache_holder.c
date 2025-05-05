@@ -82,7 +82,8 @@ Cache *exec_comando (MetaDados *msg, Cache *docs, int *server_down, char *folder
                     perror("fork");
                     return NULL;
                } else if (pid2 == 0) {
-               Server_opcao_S(msg, docs, folder);
+                    Server_opcao_S(msg, docs, folder);
+                    _exit(1);
                }
                break;
           case 'f':
@@ -92,8 +93,7 @@ Cache *exec_comando (MetaDados *msg, Cache *docs, int *server_down, char *folder
                break;
           case 'b':
                // Backup
-               Server_opcao_B(msg, docs);
-               break;
+               return Server_opcao_B(msg, docs);
           default:
      }
      return docs;
@@ -324,10 +324,12 @@ void Server_opcao_S(MetaDados *msg, Cache *docs, char* folder) {
      free(resposta);
 }
 
-void Server_opcao_B(MetaDados *msg, Cache *docs) {
-     recupera_backup(docs);
+Cache* Server_opcao_B(MetaDados *msg, Cache *docs) {
+     Cache* novo = recupera_backup(docs,msg);
      char *resposta= "Backup recuperado.\n";
      envia_resposta_cliente(resposta, msg);
+
+     return novo;
 }
 
 void Server_opcao_F(MetaDados *msg, Cache *docs) {

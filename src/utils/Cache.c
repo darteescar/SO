@@ -170,7 +170,7 @@ Cache *remove_file (Cache *cache, int pos) {
     if (cache->ocupados[pos] == EM_CACHE ) {
         cache->ocupados[pos] = LIVRE;
         free_MD(cache->docs[pos%cache->capacity]);
-        push(cache->stack_to_cache, pos);
+        if (cache->dinamica == 0) push(cache->stack_to_cache, pos);//se for cache dinamica não se usa stack
     } else if (cache->ocupados[pos] == EM_DISCO) {
         cache->ocupados[pos] = LIVRE;
         push(cache->stack_to_disc, pos);
@@ -307,17 +307,38 @@ int get_cache_flag(Cache *docs) {
     return docs->dinamica;
 }
 
-void recupera_backup(Cache *cache){
-    int fd = open(SERVER_STORAGE, O_RDONLY);
+Cache* reset_Cache(Cache *cache){
+    int flag = get_cache_flag(cache);
+    Cache* new = NULL;
+    if (flag == 0){
+        new = create_Cache(cache->capacity,0);
+    } else {
+        new = create_Cache(10,1);
+    }
+    free_Cache(cache);
+    return new;
+}
+
+Cache* recupera_backup(Cache *cache, MetaDados *msg){
+    char* file_path = get_MD_something(msg, 1);
+    if (file_path == NULL) {
+        perror("get_MD_something");
+        return NULL;
+    }
+
+    int fd = open(file_path, O_RDONLY);
     if (fd == -1) {
         perror("open");
-        return;
+        return NULL;
     }
+
     char *data = malloc(520);
     if (data == NULL) {
         perror("Malloc disco_to_cache");
-        return;
+        return NULL;
     }
+
+    cache = reset_Cache(cache);
 
     size_t n;
     while((n = read(fd, data, 520)) > 0){
@@ -378,5 +399,6 @@ void recupera_backup(Cache *cache){
     }
     close(fd);
     free(data);
-    
+
+    return cache; 
 }

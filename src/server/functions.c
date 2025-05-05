@@ -41,7 +41,7 @@ int verifica_comando (Message *msg) {
             }
             return 2;
         case 'b':
-            if (argc != 1) {
+            if (argc != 2) {
                 return 0;
             }
             return 1;
@@ -74,7 +74,7 @@ void error_message(Message *msg) {
             resposta = "[TRY] -f\n";
             break;
         case 'b':
-            resposta = "[TRY] -b\n";
+            resposta = "[TRY] -b <path>\n";
             break;
         default:
             resposta = "[TRY] <command>\n";

@@ -99,8 +99,9 @@ void Server_opcao_S(MetaDados *msg, Cache *docs, char* folder);
  * 
  * @param msg MetaDados.
  * @param docs Cache onde estão as meta-informações.
+ * @return Nova Cache após backup.
  */
-void Server_opcao_B(MetaDados *msg, Cache *docs);
+Cache* Server_opcao_B(MetaDados *msg, Cache *docs);
 
 /**
  * @brief Função que executa o comando -f.
