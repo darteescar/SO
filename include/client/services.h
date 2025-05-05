@@ -6,15 +6,15 @@
 #ifndef CLIENT_SERVICES
 #define CLIENT_SERVICES
 
-#include "utils/Message.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <fcntl.h>
-#include <sys/types.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+
+#include "utils/Message.h"
 
 /**
  * @brief Envia uma mensagem para o servidor.

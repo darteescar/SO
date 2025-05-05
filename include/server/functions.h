@@ -25,6 +25,7 @@
 #include "utils/Metadados.h"
 #include "cache_holder.h"
 #include "disk_writer.h"
+#include "utils/average_time_clients.h"
 
 /**
  * @brief Função que verifica se o comando recebido é válido.

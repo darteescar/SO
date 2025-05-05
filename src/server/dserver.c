@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
         if (fd == -1) {
             perror("Open server_fifo");
             return -1;
-        }
+    }
 
     // Impede processos zombie
     signal(SIGCHLD, SIG_IGN);
@@ -79,6 +79,7 @@ int main(int argc, char* argv[]) {
             } else if (valor == 2){ //-f
                 send_MSG_to_cache(msg);
                 free_message(msg);
+                printf("Comando -f recebido\n");
                 break;
             } else {
                 error_message(msg);
@@ -95,6 +96,8 @@ int main(int argc, char* argv[]) {
 
     waitpid(pid, NULL, 0);
     waitpid(pid2, NULL, 0);
+
+    average_time_clients();
 
     unlink(SERVER_FIFO);
     return 0;

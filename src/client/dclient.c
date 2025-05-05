@@ -47,5 +47,14 @@ int main(int argc, char* argv[]){
 
     printf("\nTempo decorrido: %.6f segundos\n", elapsed);
 
+    FILE *f = fopen("times.txt", "a");
+    if (f == NULL) {
+        perror("Erro ao abrir times.txt");
+        return -1;
+    }
+    fprintf(f, "%.6f\n", elapsed);
+    fclose(f);
+
+
     return 0;
 }
