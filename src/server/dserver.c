@@ -46,20 +46,19 @@ int main(int argc, char* argv[]) {
         _exit(0);
     }
 
-    // Impede processos zombie
-    signal(SIGCHLD, SIG_IGN);
-
-    while (1) {
-        Message *msg = init_message();
-        printf("[SERVER] Esperando mensagem...\n");
-        int fd = open(SERVER_FIFO, O_RDONLY);
+    int fd = open(SERVER_FIFO, O_RDONLY);
         if (fd == -1) {
             perror("Open server_fifo");
             return -1;
         }
 
+    // Impede processos zombie
+    signal(SIGCHLD, SIG_IGN);
+
+    while (1) {
+        Message *msg = init_message();
+
         ssize_t bytes = read(fd, msg, get_message_size(msg));
-        close(fd);
 
         if (bytes > 0) {
             int valor = verifica_comando(msg);
@@ -84,7 +83,13 @@ int main(int argc, char* argv[]) {
             } else {
                 error_message(msg);
             }
-        } 
+        } else if (bytes == 0) {
+            // writer fechou FIFO — reabrir bloqueando até novo writer
+            close(fd);
+            fd = open(SERVER_FIFO, O_RDONLY);
+        } else {
+            perror("read");
+        }
         free_message(msg);
     }
 
