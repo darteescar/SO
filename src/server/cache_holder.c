@@ -217,7 +217,13 @@ void Server_opcao_S(MetaDados *msg, Cache *docs, char* folder) {
           return;
      }
      char *n_filhos_buffer = get_MD_something(msg, 2);
-     int n_filhos = atoi(n_filhos_buffer);
+     int n_filhos = 0;
+
+     if (n_filhos_buffer == NULL) {
+          n_filhos = 1;//caso não tenha sido especificado
+     } else {
+          n_filhos = atoi(n_filhos_buffer);
+     }
 
      int n_total = get_Max_docs(docs);
      int fd[n_filhos][2];
