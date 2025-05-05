@@ -24,6 +24,9 @@ void cache_holder(int cache_size, int flag, char *folder) {
      }
 
      while (1) {
+
+          printf("[CACHE] Aguardando mensagens...\n");
+
           MetaDados *msg = init_MD();
      
           ssize_t bytes_read = read(fd_rd, msg, get_MD_size(msg));
@@ -63,11 +66,24 @@ Cache *exec_comando (MetaDados *msg, Cache *docs, int *server_down, char *folder
 
           case 'l':
                // Listar
-               Server_opcao_L(msg, docs, folder);
+               pid_t pid = fork();
+               if (pid == -1) {
+                    perror("fork");
+                    return NULL;
+               } else if (pid == 0) {
+                    Server_opcao_L(msg, docs, folder);
+                    _exit(1);
+               } 
                break;
           case 's':
                // Pesquisa
+               pid_t pid2 = fork();
+               if (pid2 == -1) {
+                    perror("fork");
+                    return NULL;
+               } else if (pid2 == 0) {
                Server_opcao_S(msg, docs, folder);
+               }
                break;
           case 'f':
                // Fechar
