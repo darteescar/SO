@@ -24,7 +24,11 @@ void write_to_disk() {
      MetaDados *data = init_MD();
 
      while (1) {
-          if (read(disk_fifo, data, get_MD_size(data)) > 0) {
+          printf("[DISK] Esperando mensagem...\n");
+
+          ssize_t bytes_read = read(disk_fifo, data, get_MD_size(data));
+
+          if (bytes_read > 0) {
 
                int pos = get_MD_pos_in_disk(data);
 
@@ -45,6 +49,12 @@ void write_to_disk() {
                }
 
                free(buffer);
+          } else if (bytes_read == 0) {
+               // writer fechou FIFO — reabrir bloqueando até novo writer
+               close(disk_fifo);
+               disk_fifo = open(DISK_WRITER_FIFO, O_RDONLY);
+          } else {
+               perror("read");
           }
      }
      close(server_storage);

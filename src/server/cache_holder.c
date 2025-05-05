@@ -24,21 +24,21 @@ void cache_holder(int cache_size, int flag, char *folder) {
      }
 
      while (1) {
- 
-         MetaDados *msg = init_MD();
- 
-         ssize_t bytes_read = read(fd_rd, msg, get_MD_size(msg));
- 
-         if (bytes_read > 0) {
-             cache = exec_comando(msg, cache, server_down, folder);
-             if (*server_down == 1) {
-                 break;
-             }
-         } else if (bytes_read == 0) {
-             // writer fechou FIFO — reabrir bloqueando até novo writer
-             close(fd_rd);
-             fd_rd = open(CACHE_FIFO, O_RDONLY);
-         }
+          printf("[Cache] Esperando mensagem...\n");
+          MetaDados *msg = init_MD();
+     
+          ssize_t bytes_read = read(fd_rd, msg, get_MD_size(msg));
+     
+          if (bytes_read > 0) {
+               cache = exec_comando(msg, cache, server_down, folder);
+               if (*server_down == 1) {
+                    break;
+               }
+          } else if (bytes_read == 0) {
+               // writer fechou FIFO — reabrir bloqueando até novo writer
+               close(fd_rd);
+               fd_rd = open(CACHE_FIFO, O_RDONLY);
+          }
  
      }
 

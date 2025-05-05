@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
 
     while (1) {
         Message *msg = init_message();
-
+        printf("[SERVER] Esperando mensagem...\n");
         int fd = open(SERVER_FIFO, O_RDONLY);
         if (fd == -1) {
             perror("Open server_fifo");
