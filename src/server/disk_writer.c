@@ -24,7 +24,6 @@ void write_to_disk() {
      MetaDados *data = init_MD();
 
      while (1) {
-          printf("[DISK] Esperando mensagem...\n");
 
           ssize_t bytes_read = read(disk_fifo, data, get_MD_size(data));
 
