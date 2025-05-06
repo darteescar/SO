@@ -6,13 +6,13 @@ int send_message (Message *msg){
     char path[512];
     sprintf(path, "tmp/%d", get_message_pid(msg));
 
-    MetaDados *MetaDados;
+    MetaDados *mt = NULL;
 
     char *buffer = get_message_buffer(msg);
 
-    set_MD_buffer(MetaDados, buffer);
-    set_MD_pid(MetaDados, get_message_pid(msg));
-    set_MD_argc(MetaDados, get_message_argc(msg));
+    set_MD_buffer(mt, buffer);
+    set_MD_pid(mt, get_message_pid(msg));
+    set_MD_argc(mt, get_message_argc(msg));
 
     free(buffer);
 
@@ -25,7 +25,7 @@ int send_message (Message *msg){
         return -1;
     }
 
-    ssize_t x = write(fd, MetaDados, get_MD_size(MetaDados));
+    ssize_t x = write(fd, mt, get_MD_size(mt));
     close(fd);
     return x;
 }
