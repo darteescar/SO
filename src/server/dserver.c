@@ -1,14 +1,12 @@
 #include "server/functions.h"
+#include <signal.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <stdio.h>
 
 #define SERVER_FIFO "tmp/server_fifo"
 #define CACHE_FIFO "tmp/cache_fifo"
 
-/**
- * @brief Função principal do servidor.
- * 
- * @param argc Número de argumentos.
- * @param argv Argumentos passados para o programa.
- */
 int main(int argc, char* argv[]) {
 
     if (argc < 2) {
@@ -34,28 +32,24 @@ int main(int argc, char* argv[]) {
 
     pid_t pid = fork();
     if (pid == 0) {
-        // Processo filho trata da cache
         cache_holder(cache_size, flag, folder);
         _exit(0);
     }
 
     pid_t pid2 = fork();
     if (pid2 == 0) {
-        // Processo filho trata do disco
         write_to_disk();
         _exit(0);
     }
 
     int fd = open(SERVER_FIFO, O_RDONLY);
-        if (fd == -1) {
-            perror("Open server_fifo");
-            return -1;
+    if (fd == -1) {
+        perror("Open server_fifo");
+        return -1;
     }
 
-    // Impede processos zombie
-    signal(SIGCHLD, SIG_IGN);
-
     while (1) {
+
         Message *msg = init_message();
 
         ssize_t bytes = read(fd, msg, get_message_size(msg));
@@ -63,16 +57,15 @@ int main(int argc, char* argv[]) {
         if (bytes > 0) {
             int valor = verifica_comando(msg);
             if (valor == 1) {
-                pid_t pid = fork();
+                pid_t child = fork();
 
-                if (pid < 0) {
+                if (child < 0) {
                     perror("fork no server");
                     free_message(msg);
                     return -1;
                 }
 
-                if (pid == 0) {
-                    // FILHO
+                if (child == 0) {
                     send_MSG_to_cache(msg);
                     _exit(0);
                 }
@@ -85,12 +78,14 @@ int main(int argc, char* argv[]) {
                 error_message(msg);
             }
         } else if (bytes == 0) {
-            // writer fechou FIFO — reabrir bloqueando até novo writer
             close(fd);
             fd = open(SERVER_FIFO, O_RDONLY);
         } else {
             perror("read");
         }
+
+        while (waitpid(-1, NULL, WNOHANG) > 0) {}
+
         free_message(msg);
     }
 
