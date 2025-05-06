@@ -102,10 +102,12 @@ void send_to_SERVER_again(MetaDados *mt){
         mt2 = criar_metaDados(buffer);
         set_MD_buffer(mt2, buffer);
         set_MD_pid(mt2, get_MD_pid(mt));
+        set_MD_argc(mt2, get_MD_argc(mt));
     } else {
         mt2 = init_MD();
         set_MD_buffer(mt2, buffer);
         set_MD_pid(mt2, get_MD_pid(mt));
+        set_MD_argc(mt2, get_MD_argc(mt));
     }
 
     set_MD_1vez(mt2, 0);
