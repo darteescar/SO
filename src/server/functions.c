@@ -108,6 +108,8 @@ void send_to_SERVER_again(MetaDados *mt){
         set_MD_pid(mt2, get_MD_pid(mt));
     }
 
+    set_MD_1vez(mt2, 0);
+
     free(buffer);
 
     int fd = open(SERVER_FIFO, O_WRONLY);

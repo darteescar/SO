@@ -11,6 +11,7 @@ struct metaDados{
     int ano;
     char path[MAX_PATH];
     int pos_in_disk;
+    int flag;
     char buffer[512];
     int argc;
     int pid;
@@ -28,6 +29,7 @@ MetaDados *init_MD() {
     data->ano = 0;
     data->path[0] = '\0';
     data->pos_in_disk = -1;
+    data->flag = 1;
     data->buffer[0] = '\0';
     data->pid = -1;
     return data;
@@ -52,6 +54,7 @@ MetaDados *criar_metaDados(char *buffer) {
     int field = 0;
 
     data->pos_in_disk = -1;
+    data->flag = 1;
 
     while ((token = strsep(&total, FIELD_SEP)) != NULL) {
         switch (field) {
@@ -288,4 +291,20 @@ void set_MD_argc(MetaDados *msg, int argc) {
          exit(EXIT_FAILURE);
     }
     msg->argc = argc;
+}
+
+int get_MD_1vez(MetaDados *msg) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    return msg->flag;
+}
+
+void set_MD_1vez(MetaDados *msg, int flag) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    msg->flag = flag;
 }

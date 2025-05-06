@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
                         break;
                     }
                 } else {
-                    if (1){///verificar se é a primeira ou segunda vez
+                    if (get_MD_1vez(mt)){///verificar se é a primeira ou segunda vez
                         pid_t child = fork();
 
                         if (child < 0) {
