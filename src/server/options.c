@@ -80,12 +80,16 @@ void Server_opcao_L(MetaDados *msg, Cache *docs, char* folder) {
 
           envia_resposta_cliente(resposta, msg);
           return;
-}
+     }   
+
+     MetaDados *doc = get_anywhere_documento(docs, key);
+     char *path = get_MD_path(doc);
 
      char filepath[100];
-     sprintf(filepath, "%s%s", folder, get_MD_path(get_anywhere_documento(docs, key)));
+     sprintf(filepath, "%s%s", folder, path);
 
-     printf("filepath: %s\n", filepath);
+     free_MD(doc);
+     free(path);
 
      int pipefd[2];
      if (pipe(pipefd) == -1) {
@@ -109,7 +113,7 @@ void Server_opcao_L(MetaDados *msg, Cache *docs, char* folder) {
      } else {
           // Processo pai
           close(pipefd[1]);
-          char buffer[100] = {0};
+          char buffer[15] = {0};
 
           // Espera que o filho termine
           wait(NULL);
@@ -138,7 +142,7 @@ void Server_opcao_S(MetaDados *msg, Cache *docs, char* folder) {
      int n_filhos = 0;
 
      if (n_filhos_buffer == NULL) {
-          n_filhos = 1;//caso não tenha sido especificado
+          n_filhos = 1; //caso não tenha sido especificado
      } else {
           n_filhos = atoi(n_filhos_buffer);
      }

@@ -14,3 +14,6 @@ server_fifo
 
 #Backup
 server_storage
+
+# TXT
+*.txt
