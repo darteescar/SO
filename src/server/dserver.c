@@ -69,6 +69,7 @@ int main(int argc, char* argv[]) {
             } else {
                 error_message(mt);
             }
+
         } else {
             perror("read");
         }

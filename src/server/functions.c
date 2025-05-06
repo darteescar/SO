@@ -3,6 +3,9 @@
 #define SERVER_FIFO "tmp/server_fifo"
 #define CACHE_FIFO "tmp/cache_fifo"
 
+#define DISK_INFO_CREATED 'a'
+#define DISK_INFO_NOT_CREATED 'b'
+
 int verifica_comando (MetaDados *msg) {
     if (msg == NULL) {
         return 0;
@@ -116,7 +119,7 @@ Cache *process_message(MetaDados *mt, Cache *cache, int *server_down, char *fold
     char comando = get_MD_command(mt);
     switch (comando) {
         case 'a':
-            if ( get_MD_1vez(mt) == 'b' ) {
+            if ( get_MD_1vez(mt) == DISK_INFO_NOT_CREATED ) {
                 pid_t child_1 = fork();
 
                 if (child_1 < 0) {

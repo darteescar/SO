@@ -282,12 +282,12 @@ MetaDados *get_anywhere_documento(Cache *docs, int pos) {
 
 void print_Cache (Cache *docs) {
     printf("[CACHE]\n");
-    for (int i = 0; i < docs->redimensionamentos * docs->capacity ; i++) {
-        if (docs->ocupados[i] == EM_CACHE) {
-            print_MD(docs->docs[i%docs->capacity]);
-            write(1, "\n", 1);
-        }
+    for (int i = 0; i < docs->capacity ; i++) {
+        print_MD(docs->docs[i]);
     }
+
+    printf("[FIM CACHE]\n");
+    printf("\n");
 }
 
 int get_Max_docs (Cache *docs) {
