@@ -93,32 +93,30 @@ void error_message(MetaDados *msg) {
     
 }
 
-void send_MSG_to_cache (Message *msg) {
+void send_to_SERVER_again(MetaDados *mt){
 
-    MetaDados *MetaDados;
+    char *buffer = get_MD_buffer(mt);
+    MetaDados *mt2 = NULL;
 
-    char *buffer = get_message_buffer(msg);
-
-    if (get_message_command(msg) == 'a') {
-        char *buffer = get_message_buffer(msg);
-        MetaDados = criar_metaDados(buffer);
-        set_MD_buffer(MetaDados, buffer);
-        set_MD_pid(MetaDados, get_message_pid(msg));
+    if (get_MD_command(mt) == 'a') {
+        mt2 = criar_metaDados(buffer);
+        set_MD_buffer(mt2, buffer);
+        set_MD_pid(mt2, get_MD_pid(mt));
     } else {
-        MetaDados = init_MD();
-        set_MD_buffer(MetaDados, buffer);
-        set_MD_pid(MetaDados, get_message_pid(msg));
+        mt2 = init_MD();
+        set_MD_buffer(mt2, buffer);
+        set_MD_pid(mt2, get_MD_pid(mt));
     }
+
     free(buffer);
 
-    int fd1 = open (CACHE_FIFO, O_WRONLY);
-    if (fd1 == -1) {
-        perror("Open cache_fifo");
+    int fd = open(SERVER_FIFO, O_WRONLY);
+    if (fd == -1) {
+        perror("Open server_fifo");
         return;
     }
 
-    write(fd1, MetaDados, get_MD_size(MetaDados));
-
-    free_MD(MetaDados);
-    close(fd1);       
+    write(fd, mt2, get_MD_size(mt2));
+    close(fd);
+    free_MD(mt);
 }

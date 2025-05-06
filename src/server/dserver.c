@@ -66,21 +66,7 @@ int main(int argc, char* argv[]) {
         if (bytes > 0) {
             int valor = verifica_comando(mt);
             if (valor == 1) {
-                char *buffer = get_MD_buffer(mt);
-                MetaDados *mt2 = NULL;
-
-                if (get_MD_command(mt) == 'a') {
-                    mt2 = criar_metaDados(buffer);
-                    set_MD_buffer(mt2, buffer);
-                    set_MD_pid(mt2, get_MD_pid(mt));
-                } else {
-                    mt2 = init_MD();
-                    set_MD_buffer(mt2, buffer);
-                    set_MD_pid(mt2, get_MD_pid(mt));
-                }
-
-                free(buffer);
-                if (get_MD_command(mt2) == 's' || get_MD_command(mt2) == 'l') {
+                if (get_MD_command(mt) == 's' || get_MD_command(mt) == 'l') {
                     pid_t child = fork();
 
                     if (child < 0) {
@@ -89,16 +75,32 @@ int main(int argc, char* argv[]) {
                         return -1;
                     }
                     if (child == 0) {
-                        exec_comando(mt2, cache, server_down, folder);
+                        exec_comando(mt, cache, server_down, folder);
                         _exit(0);
                     }
-                }
+                } else if (get_MD_command(mt) == 'f' || get_MD_command(mt) == 'b' || get_MD_command(mt) == 'c') {
+                    cache = exec_comando(mt, cache, server_down, folder);
+                    if (*server_down == 1) {
+                        break;
+                    }
+                } else {
+                    if (1){///verificar se é a primeira ou segunda vez
+                        pid_t child = fork();
 
-                cache = exec_comando(mt2, cache, server_down, folder);
-                if (*server_down == 1) {
-                    break;
+                        if (child < 0) {
+                            perror("fork no server");
+                            free_MD(mt);
+                            return -1;
+                        }
+                        if (child == 0){
+                            send_to_SERVER_again(mt);
+                            _exit(0);
+                        }
+                    } else {
+                        cache = exec_comando(mt, cache, server_down, folder);
+                    }
+                    
                 }
-
             } else {
                 error_message(mt);
             }

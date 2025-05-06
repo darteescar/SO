@@ -1,10 +1,10 @@
 /**
  * @file cache_holder.h
- * @brief Header file for cache_holder.c
+ * @brief Header file for options.c
  * @author Group 37 de SO
  */
-#ifndef CACHE_HOLDER_H
-#define CACHE_HOLDER_H
+#ifndef OPTIONS_H
+#define OPTIONS_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,14 +24,6 @@
 #include "utils/Message.h"
 #include "utils/Metadados.h"
 
-/**
- * @brief Função que guarda a cache e executa os pedidos do cliente.
- * 
- * @param cache_size Tamanho da cache.
- * @param flag 0 se a cache for estática, 1 se for dinâmica.
- * @param folder Pasta onde estão os documentos.
- */
-void cache_holder(int cache_size, int flag, char *folder);
 
 /**
  * @brief Função que executa o comando recebido.
