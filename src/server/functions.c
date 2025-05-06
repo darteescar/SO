@@ -3,12 +3,12 @@
 #define SERVER_FIFO "tmp/server_fifo"
 #define CACHE_FIFO "tmp/cache_fifo"
 
-int verifica_comando (Message *msg) {
+int verifica_comando (MetaDados *msg) {
     if (msg == NULL) {
         return 0;
     }
-    char a = get_message_command(msg);
-    int argc = get_message_argc(msg);
+    char a = get_MD_command(msg);
+    int argc = get_MD_argc(msg);
     switch (a) {
         case 'a':
             if (argc != 5) {
@@ -39,7 +39,7 @@ int verifica_comando (Message *msg) {
             if (argc != 1) {
                 return 0;
             }
-            return 2;
+            return 1;
         case 'b':
             if (argc != 2) {
                 return 0;
@@ -51,9 +51,9 @@ int verifica_comando (Message *msg) {
     }
 }
 
-void error_message(Message *msg) {
+void error_message(MetaDados *msg) {
     const char *resposta;
-    char option = get_message_command(msg);
+    char option = get_MD_command(msg);
     switch(option){
         case 'a':
             resposta = "[TRY] -a <title> <authors> <year> <path>\n";

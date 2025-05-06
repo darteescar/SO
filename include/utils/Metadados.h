@@ -167,4 +167,8 @@ void free_MD(MetaDados *data);
  */
 char *get_MD_something (MetaDados *msg, int n);
 
+int get_MD_argc(MetaDados *msg);
+
+void set_MD_argc(MetaDados *msg, int argc);
+
 #endif

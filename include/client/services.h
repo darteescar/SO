@@ -15,6 +15,7 @@
 #include <sys/time.h>
 
 #include "utils/Message.h"
+#include "utils/Metadados.h"
 
 /**
  * @brief Envia uma mensagem para o servidor.

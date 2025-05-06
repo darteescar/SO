@@ -33,7 +33,7 @@
  * @param msg Mensagem recebida.
  * @return 1 se o comando for válido, 0 caso contrário, 2 se for o comando -f.
  */
-int verifica_comando (Message *msg);
+int verifica_comando (MetaDados *msg);
 
 /**
  * @brief Função que envia uma mensagem de erro para o cliente dependendo do comando onde está o erro.

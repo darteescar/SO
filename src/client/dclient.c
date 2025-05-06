@@ -22,8 +22,8 @@ int main(int argc, char* argv[]){
 
     create_message(msg, argv, argc, pid);
 
-    struct timeval start, end;
-    gettimeofday(&start, NULL);
+    //struct timeval start, end;
+    //gettimeofday(&start, NULL);
 
     // Enviar a mensagem para o servidor
     int x = send_message(msg);
@@ -38,7 +38,7 @@ int main(int argc, char* argv[]){
 
     // Ler a resposta do servidor
     reply();
-
+/*
     // Verifica o tempo decorrido
     gettimeofday(&end, NULL);
     long seconds = end.tv_sec - start.tv_sec;
@@ -54,7 +54,7 @@ int main(int argc, char* argv[]){
     }
     fprintf(f, "%.6f\n", elapsed);
     fclose(f);
-
+*/
 
     return 0;
 }

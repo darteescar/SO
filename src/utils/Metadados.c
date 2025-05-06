@@ -12,6 +12,7 @@ struct metaDados{
     char path[MAX_PATH];
     int pos_in_disk;
     char buffer[512];
+    int argc;
     int pid;
 };
 
@@ -271,4 +272,20 @@ void free_MD(MetaDados *data) {
     if (data != NULL) {
         free(data);
     }   
+}
+
+int get_MD_argc(MetaDados *msg) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    return msg->argc;
+}
+
+void set_MD_argc(MetaDados *msg, int argc) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    msg->argc = argc;
 }

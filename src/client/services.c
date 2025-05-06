@@ -5,6 +5,26 @@
 int send_message (Message *msg){
     char buffer[512];
     sprintf(buffer, "tmp/%d", get_message_pid(msg));
+
+    MetaDados *MetaDados;
+
+    char *buffer = get_message_buffer(msg);
+
+    if (get_message_command(msg) == 'a') {
+        char *buffer = get_message_buffer(msg);
+        MetaDados = criar_metaDados(buffer);
+        set_MD_buffer(MetaDados, buffer);
+        set_MD_pid(MetaDados, get_message_pid(msg));
+        set_MD_argc(MetaDados, get_message_argc(msg));
+    } else {
+        MetaDados = init_MD();
+        set_MD_buffer(MetaDados, buffer);
+        set_MD_pid(MetaDados, get_message_pid(msg));
+        set_MD_argc(MetaDados, get_message_argc(msg));
+    }
+    free(buffer);
+
+
     mkfifo(buffer, 0600);
 
     int fd = open(SERVER_FIFO, O_WRONLY);
@@ -13,7 +33,7 @@ int send_message (Message *msg){
         return -1;
     }
 
-    ssize_t x = write(fd, msg, get_message_size(msg));
+    ssize_t x = write(fd, MetaDados, get_MD_size(MetaDados));
     close(fd);
     return x;
 }

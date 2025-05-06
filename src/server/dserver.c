@@ -10,7 +10,7 @@
 int main(int argc, char* argv[]) {
 
     if (argc < 2) {
-        write(1, "[TRY]: ./dclient <folder> <cache_size>\n", 40);
+        write(1, "[TRY]: ./dserver <folder> <cache_size>\n", 40);
         return -1;
     }
 
@@ -29,13 +29,13 @@ int main(int argc, char* argv[]) {
         flag = 0;
         cache_size = atoi(argv[2]);
     }
-
+/*
     pid_t pid = fork();
     if (pid == 0) {
         cache_holder(cache_size, flag, folder);
         _exit(0);
     }
-
+*/
     pid_t pid2 = fork();
     if (pid2 == 0) {
         write_to_disk();
@@ -48,33 +48,45 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
+    int *server_down = malloc(sizeof(int));
+     if (!server_down) {
+         perror("malloc server_down");
+         return;
+     }
+     *server_down = 0;
+
+    Cache *cache = create_Cache(cache_size, flag);
+
     while (1) {
-        printf("[SERVER]Waiting for messages...\n");
 
-        Message *msg = init_message();
+        MetaDados *mt = init_MD();
 
-        ssize_t bytes = read(fd, msg, get_message_size(msg));
+        ssize_t bytes = read(fd, mt, get_MD_size(mt));
 
         if (bytes > 0) {
-            int valor = verifica_comando(msg);
+            int valor = verifica_comando(mt);
             if (valor == 1) {
-                pid_t child = fork();
+                if (get_MD_command(mt) == 's' || get_MD_command(mt) == 'l') {
+                    pid_t child = fork();
 
-                if (child < 0) {
-                    perror("fork no server");
-                    free_message(msg);
-                    return -1;
+                    if (child < 0) {
+                        perror("fork no server");
+                        free_MD(mt);
+                        return -1;
+                    }
+                    if (child == 0) {
+                        exec_comando(mt, cache, server_down, folder);
+                        _exit(0);
+                    }
                 }
-                if (child == 0) {
-                    send_MSG_to_cache(msg);
-                    _exit(0);
+
+                cache = exec_comando(mt, cache, server_down, folder);
+                if (*server_down == 1) {
+                    break;
                 }
-            } else if (valor == 2){ //-f
-                send_MSG_to_cache(msg);
-                free_message(msg);
-                break;
+
             } else {
-                error_message(msg);
+                error_message(mt);
             }
         } else {
             perror("read");
@@ -82,13 +94,12 @@ int main(int argc, char* argv[]) {
 
         while (waitpid(-1, NULL, WNOHANG) > 0) {}
 
-        free_message(msg);
     }
 
-    waitpid(pid, NULL, 0);
+    //waitpid(pid, NULL, 0);
     waitpid(pid2, NULL, 0);
 
-    average_time_clients();
+    //average_time_clients();
 
     unlink(SERVER_FIFO);
     return 0;
