@@ -59,6 +59,7 @@ int main(int argc, char* argv[]) {
 
     while (1) {
 
+        printf("Waiting for a message...\n");
         MetaDados *mt = init_MD();
 
         ssize_t bytes = read(fd, mt, get_MD_size(mt));
@@ -84,7 +85,7 @@ int main(int argc, char* argv[]) {
                         break;
                     }
                 } else {
-                    if (get_MD_1vez(mt)){///verificar se é a primeira ou segunda vez
+                    if ( get_MD_1vez(mt) == 'b' ){ // verificar se é a primeira ou segunda vez
                         pid_t child = fork();
 
                         if (child < 0) {

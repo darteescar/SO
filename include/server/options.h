@@ -21,7 +21,6 @@
 #include <errno.h>
 
 #include "utils/Cache.h"
-#include "utils/Message.h"
 #include "utils/Metadados.h"
 
 

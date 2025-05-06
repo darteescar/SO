@@ -13,8 +13,6 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-#include "Message.h"
-
 #define FIELD_SEP "\x1E"
 #define AUTHOR_SEP "\x1F"
 
@@ -29,15 +27,6 @@ typedef struct metaDados MetaDados;
  */
 MetaDados *init_MD();
 
-MetaDados *create_MD_1 (int pid , char *buffer);
-
-/**
- * @brief Cria uma estrutura de dados do tipo MetaDados a partir de um buffer
- * 
- * @param buffer Buffer contendo os dados a serem armazenados na estrutura
- * @return MetaDados* Apontador para a estrutura de dados criada
- */
-MetaDados *criar_metaDados(char *buffer);
 
 /**
  * @brief Função que retorna o caminho do arquivo armazenado na estrutura de dados
@@ -171,8 +160,14 @@ int get_MD_argc(MetaDados *msg);
 
 void set_MD_argc(MetaDados *msg, int argc);
 
-int get_MD_1vez(MetaDados *mt);
+char get_MD_1vez(MetaDados *mt);
 
 void set_MD_1vez(MetaDados *mt, int valor);
+
+void add_MD_info_client (MetaDados *msg, char **argv, int argc, int pid);
+
+MetaDados *criar_metaDados(char *buffer);
+
+void add_MD_info_server (MetaDados *msg);
 
 #endif

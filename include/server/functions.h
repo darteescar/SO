@@ -21,7 +21,6 @@
 #include <sys/wait.h>
 
 #include "utils/Cache.h"
-#include "utils/Message.h"
 #include "utils/Metadados.h"
 #include "options.h"
 #include "disk_writer.h"

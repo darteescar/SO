@@ -4,17 +4,23 @@
 #define MAX_AUTORES 512
 #define MAX_PATH 10
 
+#define DISK_INFO_CREATED 'a'
+#define DISK_INFO_NOT_CREATED 'b'
+
 struct metaDados{
+    // INFORMAÇÕES DO DISCO
     char titulo[MAX_TITULO];
     char autores[MAX_AUTORES];
     int n_autores;
     int ano;
     char path[MAX_PATH];
     int pos_in_disk;
-    int flag;
+    // INFORMAÇÕES DO CLIENTE
     char buffer[512];
     int argc;
     int pid;
+    // INFORMAÇÕES DO SERVIDOR
+    char flag;
 };
 
 MetaDados *init_MD() {
@@ -29,71 +35,12 @@ MetaDados *init_MD() {
     data->ano = 0;
     data->path[0] = '\0';
     data->pos_in_disk = -1;
-    data->flag = 1;
+
     data->buffer[0] = '\0';
     data->pid = -1;
-    return data;
-}
+    data->argc = 0;
 
-MetaDados *create_MD_1 (int pid , char *buffer) {
-    MetaDados *data = malloc(sizeof(MetaDados));
-    data->pid = pid;
-    strcpy(data->buffer, buffer);
-    return data;        
-}
-
-MetaDados *criar_metaDados(char *buffer) {
-    MetaDados *data = malloc(sizeof(MetaDados));
-    if (data == NULL) {
-        perror("malloc na criar_metaDados");
-        exit(EXIT_FAILURE);
-    }
-
-    char *total = buffer + 3;  // Ignora os 3 primeiros caracteres
-    char *token;
-    int field = 0;
-
-    data->pos_in_disk = -1;
-    data->flag = 1;
-
-    while ((token = strsep(&total, FIELD_SEP)) != NULL) {
-        switch (field) {
-            case 0:
-                strncpy(data->titulo, token, MAX_TITULO - 1);
-                data->titulo[MAX_TITULO - 1] = '\0';
-                break;
-
-            case 1:
-                strncpy(data->autores, token, MAX_AUTORES - 1);
-                data->autores[MAX_AUTORES - 1] = '\0';
-
-                // Contar nº de autores (ocorrências de ';' + 1)
-                data->n_autores = 1;
-                for (int i = 0; data->autores[i] != '\0'; i++) {
-                    if (data->autores[i] == ';') {
-                        data->n_autores++;
-                    }
-                }
-                break;
-
-            case 2:
-                data->ano = atoi(token);
-                break;
-
-            case 3:
-                strncpy(data->path, token, MAX_PATH - 1);
-                data->path[MAX_PATH - 1] = '\0';
-                break;
-
-            case 4:
-                data->pos_in_disk = atoi(token);
-                break;
-
-            default:
-                break;
-        }
-        field++;
-    }
+    data->flag = DISK_INFO_NOT_CREATED;
 
     return data;
 }
@@ -293,7 +240,7 @@ void set_MD_argc(MetaDados *msg, int argc) {
     msg->argc = argc;
 }
 
-int get_MD_1vez(MetaDados *msg) {
+char get_MD_1vez(MetaDados *msg) {
     if (msg == NULL) {
          perror("Message is NULL");
          exit(EXIT_FAILURE);
@@ -307,4 +254,129 @@ void set_MD_1vez(MetaDados *msg, int flag) {
          exit(EXIT_FAILURE);
     }
     msg->flag = flag;
+}
+
+void add_MD_info_client (MetaDados *msg, char **argv, int argc, int pid) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    msg->pid = pid;
+    msg->argc = argc;
+    msg->flag = DISK_INFO_NOT_CREATED;
+    
+    for (int i = 1; i < argc; i++) {
+        strcat(msg->buffer, argv[i]);
+        if (i < argc - 1) {  // só se não for o último CUIDADO AQUI OU É -1 OU -2
+            strcat(msg->buffer, FIELD_SEP);
+        }
+    }
+}
+
+void add_MD_info_server (MetaDados *msg) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    char *total = get_MD_buffer(msg);  // Ignora os 3 primeiros caracteres
+    total += 3;  // Ignora os 3 primeiros caracteres
+    char *token;
+    int field = 0;
+
+    msg->pos_in_disk = -1;
+    msg->flag = DISK_INFO_CREATED;
+
+    while ((token = strsep(&total, FIELD_SEP)) != NULL) {
+        switch (field) {
+            case 0:
+                strncpy(msg->titulo, token, MAX_TITULO - 1);
+                msg->titulo[MAX_TITULO - 1] = '\0';
+                break;
+
+            case 1:
+                strncpy(msg->autores, token, MAX_AUTORES - 1);
+                msg->autores[MAX_AUTORES - 1] = '\0';
+
+                // Contar nº de autores (ocorrências de ';' + 1)
+                msg->n_autores = 1;
+                for (int i = 0; msg->autores[i] != '\0'; i++) {
+                    if (msg->autores[i] == ';') {
+                        msg->n_autores++;
+                    }
+                }
+                break;
+
+            case 2:
+                msg->ano = atoi(token);
+                break;
+
+            case 3:
+                strncpy(msg->path, token, MAX_PATH - 1);
+                msg->path[MAX_PATH - 1] = '\0';
+                break;
+
+            case 4:
+                msg->pos_in_disk = atoi(token);
+                break;
+
+            default:
+                break;
+        }
+        field++;
+    }
+}
+
+MetaDados *criar_metaDados(char *buffer) {
+    MetaDados *data = malloc(sizeof(MetaDados));
+    if (data == NULL) {
+        perror("malloc na criar_metaDados");
+        exit(EXIT_FAILURE);
+    }
+
+    char *total = buffer + 3;  // Ignora os 3 primeiros caracteres
+    char *token;
+    int field = 0;
+
+    data->pos_in_disk = -1;
+    data->flag = DISK_INFO_CREATED;
+
+    while ((token = strsep(&total, FIELD_SEP)) != NULL) {
+        switch (field) {
+            case 0:
+                strncpy(data->titulo, token, MAX_TITULO - 1);
+                data->titulo[MAX_TITULO - 1] = '\0';
+                break;
+
+            case 1:
+                strncpy(data->autores, token, MAX_AUTORES - 1);
+                data->autores[MAX_AUTORES - 1] = '\0';
+
+                // Contar nº de autores (ocorrências de ';' + 1)
+                data->n_autores = 1;
+                for (int i = 0; data->autores[i] != '\0'; i++) {
+                    if (data->autores[i] == ';') {
+                        data->n_autores++;
+                    }
+                }
+                break;
+
+            case 2:
+                data->ano = atoi(token);
+                break;
+
+            case 3:
+                strncpy(data->path, token, MAX_PATH - 1);
+                data->path[MAX_PATH - 1] = '\0';
+                break;
+
+            case 4:
+                data->pos_in_disk = atoi(token);
+                break;
+
+            default:
+                break;
+        }
+        field++;
+    }
+    return data;
 }

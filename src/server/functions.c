@@ -11,37 +11,37 @@ int verifica_comando (MetaDados *msg) {
     int argc = get_MD_argc(msg);
     switch (a) {
         case 'a':
-            if (argc != 5) {
+            if (argc != 6) {
                 return 0;
             }
             return 1;
         case 'c':
-            if (argc != 2) {
-                return 0;
-            }
-            return 1;
-        case 'd':
-            if (argc != 2) {
-                return 0;
-            }
-            return 1;
-        case 'l':
             if (argc != 3) {
                 return 0;
             }
             return 1;
+        case 'd':
+            if (argc != 3) {
+                return 0;
+            }
+            return 1;
+        case 'l':
+            if (argc != 4) {
+                return 0;
+            }
+            return 1;
         case 's':
-            if (argc == 2 || argc == 3) {
+            if (argc == 3 || argc == 4) {
                 return 1;
             }
             return 0;
         case 'f':
-            if (argc != 1) {
+            if (argc != 2) {
                 return 0;
             }
             return 1;
         case 'b':
-            if (argc != 2) {
+            if (argc != 3) {
                 return 0;
             }
             return 1;
@@ -95,22 +95,11 @@ void error_message(MetaDados *msg) {
 
 void send_to_SERVER_again(MetaDados *mt){
 
-    char *buffer = get_MD_buffer(mt);
-    MetaDados *mt2 = NULL;
-
     if (get_MD_command(mt) == 'a') {
-        mt2 = criar_metaDados(buffer);
-        set_MD_buffer(mt2, buffer);
-        set_MD_pid(mt2, get_MD_pid(mt));
-    } else {
-        mt2 = init_MD();
-        set_MD_buffer(mt2, buffer);
-        set_MD_pid(mt2, get_MD_pid(mt));
+        add_MD_info_server(mt);
     }
 
-    set_MD_1vez(mt2, 0);
-
-    free(buffer);
+    set_MD_1vez(mt, 'a');
 
     int fd = open(SERVER_FIFO, O_WRONLY);
     if (fd == -1) {
@@ -118,7 +107,8 @@ void send_to_SERVER_again(MetaDados *mt){
         return;
     }
 
-    write(fd, mt2, get_MD_size(mt2));
+
+    write(fd, mt, get_MD_size(mt));
     close(fd);
     free_MD(mt);
 }

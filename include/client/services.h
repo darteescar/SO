@@ -14,7 +14,6 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 
-#include "utils/Message.h"
 #include "utils/Metadados.h"
 
 /**
@@ -23,7 +22,7 @@
  * @param msg Mensagem a enviar.
  * @return Tamanho da mensagem enviada ou -1 em caso de erro.
  */
-int send_message(Message *msg);
+int send_message(MetaDados *msg);
 
 /**
  * @brief Lê a resposta do servidor e imprime-a.

@@ -2,20 +2,9 @@
 
 #define SERVER_FIFO "tmp/server_fifo"
 
-int send_message (Message *msg){
+int send_message (MetaDados *msg){
     char path[512];
-    sprintf(path, "tmp/%d", get_message_pid(msg));
-
-    MetaDados *mt = init_MD();
-
-    char *buffer = get_message_buffer(msg);
-
-    set_MD_buffer(mt, buffer);
-    set_MD_pid(mt, get_message_pid(msg));
-    set_MD_argc(mt, get_message_argc(msg));
-
-    free(buffer);
-
+    sprintf(path, "tmp/%d", get_MD_pid(msg));
 
     mkfifo(path, 0600);
 
@@ -25,7 +14,7 @@ int send_message (Message *msg){
         return -1;
     }
 
-    ssize_t x = write(fd, mt, get_MD_size(mt));
+    ssize_t x = write(fd, msg, get_MD_size(msg));
     close(fd);
     return x;
 }
