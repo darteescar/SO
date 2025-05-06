@@ -10,18 +10,10 @@ int send_message (Message *msg){
 
     char *buffer = get_message_buffer(msg);
 
-    if (get_message_command(msg) == 'a') {
-        char *buffer = get_message_buffer(msg);
-        MetaDados = criar_metaDados(buffer);
-        set_MD_buffer(MetaDados, buffer);
-        set_MD_pid(MetaDados, get_message_pid(msg));
-        set_MD_argc(MetaDados, get_message_argc(msg));
-    } else {
-        MetaDados = init_MD();
-        set_MD_buffer(MetaDados, buffer);
-        set_MD_pid(MetaDados, get_message_pid(msg));
-        set_MD_argc(MetaDados, get_message_argc(msg));
-    }
+    set_MD_buffer(MetaDados, buffer);
+    set_MD_pid(MetaDados, get_message_pid(msg));
+    set_MD_argc(MetaDados, get_message_argc(msg));
+
     free(buffer);
 
 

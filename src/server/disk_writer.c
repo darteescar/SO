@@ -25,8 +25,6 @@ void write_to_disk() {
 
      while (1) {
 
-          printf("[DISK] Waiting for messages...\n");
-
           ssize_t bytes_read = read(disk_fifo, data, get_MD_size(data));
 
           if (bytes_read > 0) {

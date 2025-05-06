@@ -66,7 +66,21 @@ int main(int argc, char* argv[]) {
         if (bytes > 0) {
             int valor = verifica_comando(mt);
             if (valor == 1) {
-                if (get_MD_command(mt) == 's' || get_MD_command(mt) == 'l') {
+                char *buffer = get_MD_buffer(mt);
+                MetaDados *mt2 = NULL;
+
+                if (get_MD_command(mt) == 'a') {
+                    mt2 = criar_metaDados(buffer);
+                    set_MD_buffer(mt2, buffer);
+                    set_MD_pid(mt2, get_MD_pid(mt));
+                } else {
+                    mt2 = init_MD();
+                    set_MD_buffer(mt2, buffer);
+                    set_MD_pid(mt2, get_MD_pid(mt));
+                }
+
+                free(buffer);
+                if (get_MD_command(mt2) == 's' || get_MD_command(mt2) == 'l') {
                     pid_t child = fork();
 
                     if (child < 0) {
@@ -75,12 +89,12 @@ int main(int argc, char* argv[]) {
                         return -1;
                     }
                     if (child == 0) {
-                        exec_comando(mt, cache, server_down, folder);
+                        exec_comando(mt2, cache, server_down, folder);
                         _exit(0);
                     }
                 }
 
-                cache = exec_comando(mt, cache, server_down, folder);
+                cache = exec_comando(mt2, cache, server_down, folder);
                 if (*server_down == 1) {
                     break;
                 }
