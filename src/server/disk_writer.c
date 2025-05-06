@@ -9,7 +9,7 @@ void write_to_disk() {
           return;
      }
 
-     int disk_fifo = open(DISK_WRITER_FIFO, O_RDONLY);
+     int disk_fifo = open(DISK_WRITER_FIFO, O_RDWR);
      if (disk_fifo == -1) {
          perror("Open cache_fifo (leitura)");
          return;
@@ -24,6 +24,8 @@ void write_to_disk() {
      MetaDados *data = init_MD();
 
      while (1) {
+
+          printf("[DISK] Waiting for messages...\n");
 
           ssize_t bytes_read = read(disk_fifo, data, get_MD_size(data));
 
@@ -48,10 +50,6 @@ void write_to_disk() {
                }
 
                free(buffer);
-          } else if (bytes_read == 0) {
-               // writer fechou FIFO — reabrir bloqueando até novo writer
-               close(disk_fifo);
-               disk_fifo = open(DISK_WRITER_FIFO, O_RDONLY);
           } else {
                perror("read");
           }

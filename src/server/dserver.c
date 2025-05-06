@@ -42,13 +42,14 @@ int main(int argc, char* argv[]) {
         _exit(0);
     }
 
-    int fd = open(SERVER_FIFO, O_RDONLY);
+    int fd = open(SERVER_FIFO, O_RDWR);
     if (fd == -1) {
         perror("Open server_fifo");
         return -1;
     }
 
     while (1) {
+        printf("[SERVER]Waiting for messages...\n");
 
         Message *msg = init_message();
 
@@ -64,7 +65,6 @@ int main(int argc, char* argv[]) {
                     free_message(msg);
                     return -1;
                 }
-
                 if (child == 0) {
                     send_MSG_to_cache(msg);
                     _exit(0);
@@ -76,9 +76,6 @@ int main(int argc, char* argv[]) {
             } else {
                 error_message(msg);
             }
-        } else if (bytes == 0) {
-            close(fd);
-            fd = open(SERVER_FIFO, O_RDONLY);
         } else {
             perror("read");
         }

@@ -17,13 +17,15 @@ void cache_holder(int cache_size, int flag, char *folder) {
      }
      *server_down = 0;
  
-     int fd_rd = open(CACHE_FIFO, O_RDONLY);
+     int fd_rd = open(CACHE_FIFO, O_RDWR);
      if (fd_rd == -1) {
          perror("Open cache_fifo (leitura)");
          return;
      }
 
      while (1) {
+
+          printf("[CACHE] Waiting for messages...\n");
 
           MetaDados *msg = init_MD();
      
