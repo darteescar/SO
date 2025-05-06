@@ -346,7 +346,7 @@ Cache* recupera_backup(Cache *cache, MetaDados *msg){
             if (cache->size >= cache->redimensionamentos*cache->capacity ) redimensionar_auxiliares(cache);
 
             add_to_Cache(cache, criar_metaDados(from_disk_format_MD(data)), cache->size);
-            cache->ocupados[cache->size-1] = EM_DISCO;
+            add_to_Disk(cache, cache->docs[(cache->size-1)%cache->capacity]);
             cache->next_to_disc++;
 
         } else { //Cache dinamica
