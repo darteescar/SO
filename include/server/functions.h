@@ -40,7 +40,7 @@ int verifica_comando (MetaDados *msg);
  * 
  * @param msg Mensagem recebida para saber o comando.
  */
-void error_message(Message *msg);
+void error_message(MetaDados *msg);
 
 /**
  * @brief Função que envia a mensagem para o CACHE_FIFO.

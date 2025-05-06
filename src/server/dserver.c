@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
     int *server_down = malloc(sizeof(int));
      if (!server_down) {
          perror("malloc server_down");
-         return;
+         return -1;
      }
      *server_down = 0;
 

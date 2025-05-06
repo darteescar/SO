@@ -82,7 +82,7 @@ void error_message(MetaDados *msg) {
     }
 
     char fifo[50];
-    sprintf(fifo, "tmp/%d", get_message_pid(msg));
+    sprintf(fifo, "tmp/%d", get_MD_pid(msg));
     int fd = open(fifo, O_WRONLY);
     if (fd == -1) {
         perror("Open envia_resposta_cliente");

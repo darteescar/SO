@@ -3,8 +3,8 @@
 #define SERVER_FIFO "tmp/server_fifo"
 
 int send_message (Message *msg){
-    char buffer[512];
-    sprintf(buffer, "tmp/%d", get_message_pid(msg));
+    char path[512];
+    sprintf(path, "tmp/%d", get_message_pid(msg));
 
     MetaDados *MetaDados;
 
@@ -25,7 +25,7 @@ int send_message (Message *msg){
     free(buffer);
 
 
-    mkfifo(buffer, 0600);
+    mkfifo(path, 0600);
 
     int fd = open(SERVER_FIFO, O_WRONLY);
     if (fd == -1) {
