@@ -171,4 +171,8 @@ int get_MD_argc(MetaDados *msg);
 
 void set_MD_argc(MetaDados *msg, int argc);
 
+int get_MD_1vez(MetaDados *mt);
+
+void set_MD_1vez(MetaDados *mt, int valor);
+
 #endif

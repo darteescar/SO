@@ -17,25 +17,11 @@ Cache *exec_comando (MetaDados *msg, Cache *docs, int *server_down, char *folder
 
           case 'l':
                // Listar
-               pid_t pid = fork();
-               if (pid == -1) {
-                    perror("fork");
-                    return NULL;
-               } else if (pid == 0) {
-                    Server_opcao_L(msg, docs, folder);
-                    _exit(1);
-               } 
+               Server_opcao_L(msg, docs, folder);
                break;
           case 's':
                // Pesquisa
-               pid_t pid2 = fork();
-               if (pid2 == -1) {
-                    perror("fork");
-                    return NULL;
-               } else if (pid2 == 0) {
-                    Server_opcao_S(msg, docs, folder);
-                    _exit(1);
-               }
+               Server_opcao_S(msg, docs, folder);
                break;
           case 'f':
                // Fechar
