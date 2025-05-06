@@ -73,6 +73,7 @@
     "MetaDados.h": "c",
     "cache_holder.h": "c",
     "disk_writer.h": "c",
-    "average_time_clients.h": "c"
+    "average_time_clients.h": "c",
+    "options.h": "c"
   }
 }

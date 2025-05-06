@@ -1,41 +1,5 @@
 #include "server/options.h"
 
-Cache *exec_comando (MetaDados *msg, Cache *docs, int *server_down, char *folder) {
-     switch (get_MD_command(msg)) {
-          case 'a':
-               // Adicionar
-               return Server_opcao_A(msg, docs);
-
-          case 'c':
-               // Consultar
-               Server_opcao_C(msg, docs);
-               break;
-
-          case 'd':
-               // Apagar
-               return Server_opcao_D(msg, docs);
-
-          case 'l':
-               // Listar
-               Server_opcao_L(msg, docs, folder);
-               break;
-          case 's':
-               // Pesquisa
-               Server_opcao_S(msg, docs, folder);
-               break;
-          case 'f':
-               // Fechar
-               Server_opcao_F(msg, docs);
-               *server_down = 1;
-               break;
-          case 'b':
-               // Backup
-               return Server_opcao_B(msg, docs);
-          default:
-     }
-     return docs;
-}
-
 Cache *Server_opcao_A(MetaDados *msg, Cache *docs) {
 
      int *pos_onde_foi_add = malloc(sizeof(int));
@@ -120,6 +84,8 @@ void Server_opcao_L(MetaDados *msg, Cache *docs, char* folder) {
 
      char filepath[100];
      sprintf(filepath, "%s%s", folder, get_MD_path(get_anywhere_documento(docs, key)));
+
+     printf("filepath: %s\n", filepath);
 
      int pipefd[2];
      if (pipe(pipefd) == -1) {

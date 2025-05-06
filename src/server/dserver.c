@@ -29,13 +29,7 @@ int main(int argc, char* argv[]) {
         flag = 0;
         cache_size = atoi(argv[2]);
     }
-/*
-    pid_t pid = fork();
-    if (pid == 0) {
-        cache_holder(cache_size, flag, folder);
-        _exit(0);
-    }
-*/
+
     pid_t pid2 = fork();
     if (pid2 == 0) {
         write_to_disk();
@@ -65,43 +59,13 @@ int main(int argc, char* argv[]) {
         ssize_t bytes = read(fd, mt, get_MD_size(mt));
 
         if (bytes > 0) {
-            int valor = verifica_comando(mt);
-            if (valor == 1) {
-                if (get_MD_command(mt) == 's' || get_MD_command(mt) == 'l') {
-                    pid_t child = fork();
-
-                    if (child < 0) {
-                        perror("fork no server");
-                        free_MD(mt);
-                        return -1;
-                    }
-                    if (child == 0) {
-                        exec_comando(mt, cache, server_down, folder);
-                        _exit(0);
-                    }
-                } else if (get_MD_command(mt) == 'f' || get_MD_command(mt) == 'b' || get_MD_command(mt) == 'c') {
-                    cache = exec_comando(mt, cache, server_down, folder);
-                    if (*server_down == 1) {
-                        break;
-                    }
-                } else {
-                    if ( get_MD_1vez(mt) == 'b' ){ // verificar se é a primeira ou segunda vez
-                        pid_t child = fork();
-
-                        if (child < 0) {
-                            perror("fork no server");
-                            free_MD(mt);
-                            return -1;
-                        }
-                        if (child == 0){
-                            send_to_SERVER_again(mt);
-                            _exit(0);
-                        }
-                    } else {
-                        cache = exec_comando(mt, cache, server_down, folder);
-                    }
-                    
+            int is_a_valid_command = verifica_comando(mt);
+            if (is_a_valid_command == 1) {
+                cache = process_message(mt, cache, server_down, folder);
+                if (*server_down == 1) {
+                    break;
                 }
+
             } else {
                 error_message(mt);
             }
@@ -113,7 +77,6 @@ int main(int argc, char* argv[]) {
 
     }
 
-    //waitpid(pid, NULL, 0);
     waitpid(pid2, NULL, 0);
 
     //average_time_clients();

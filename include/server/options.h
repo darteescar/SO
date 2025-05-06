@@ -23,7 +23,6 @@
 #include "utils/Cache.h"
 #include "utils/Metadados.h"
 
-
 /**
  * @brief Função que executa o comando recebido.
  * 

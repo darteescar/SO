@@ -26,6 +26,8 @@
 #include "disk_writer.h"
 #include "utils/average_time_clients.h"
 
+Cache *process_message(MetaDados *mt, Cache *cache, int *server_down, char *folder);
+
 /**
  * @brief Função que verifica se o comando recebido é válido.
  * 
