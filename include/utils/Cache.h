@@ -187,10 +187,20 @@ MetaDados* desserializa_MetaDados(int pos);
 int get_cache_flag(Cache *docs);
 
 /**
- * @brief Função que recupera o backup da cache a partir do disco
+ * @brief Função que recupera um backup apartir de um ficheiro binário
  * 
  * @param docs Apontador para a estrutura de dados Cache
+ * @param msg Apontador para a estrutura de dados MetaDados
+ * @return Cache* Apontador para a estrutura de dados Cache
  */
-void recupera_backup(Cache *docs);
+Cache* recupera_backup(Cache *docs,MetaDados *msg);
+
+/**
+ * @brief Função que reseta a cache
+ * 
+ * @param cache Apontador para a estrutura de dados Cache
+ * @return Cache* Apontador para a nova estrutura de dados Cache
+ */
+Cache* reset_Cache(Cache *cache);
 
 #endif
