@@ -6,7 +6,7 @@ int send_message (Message *msg){
     char path[512];
     sprintf(path, "tmp/%d", get_message_pid(msg));
 
-    MetaDados *mt = NULL;
+    MetaDados *mt = init_MD();
 
     char *buffer = get_message_buffer(msg);
 
