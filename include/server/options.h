@@ -24,17 +24,6 @@
 #include "utils/Metadados.h"
 
 /**
- * @brief Função que executa o comando recebido.
- * 
- * @param msg Mensagem recebida.
- * @param docs Cache onde estão as meta-informações.
- * @param server_down Flag que indica se o servidor vai terminar.
- * @param folder Pasta onde estão os documentos.
- * @return Cache atualizada.
- */
-Cache *exec_comando (MetaDados *msg, Cache *docs, int *server_down, char *folder);
-
-/**
  * @brief Função que executa o comando -a.
  *        Função que adiciona as informações de um documento.
  * 

@@ -26,6 +26,16 @@
 #include "disk_writer.h"
 #include "utils/average_time_clients.h"
 
+
+/**
+ * @brief Função que processa o pedido do cliente.
+ * 
+ * @param mt Mensagem recebida.
+ * @param cache Cache onde estão as meta-informações.
+ * @param server_down Flag que indica se o servidor vai terminar.
+ * @param folder Pasta onde estão os documentos.
+ * @return Cache atualizada.
+ */
 Cache *process_message(MetaDados *mt, Cache *cache, int *server_down, char *folder);
 
 /**

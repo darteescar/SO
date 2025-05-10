@@ -156,18 +156,62 @@ void free_MD(MetaDados *data);
  */
 char *get_MD_something (MetaDados *msg, int n);
 
+/**
+ * @brief Função que retorna o argc armazenado na estrutura de dados
+ * 
+ * @param msg Apontador para a estrutura de dados
+ * @return int argc armazenado na estrutura
+ */
 int get_MD_argc(MetaDados *msg);
 
+/**
+ * @brief Função que define o argc armazenado na estrutura de dados
+ * 
+ * @param msg Apontador para a estrutura de dados
+ * @param argc argc a ser definido
+ */
 void set_MD_argc(MetaDados *msg, int argc);
 
+/**
+ * @brief Função que retorna o campo flag armazenado na estrutura de dados
+ * 
+ * @param msg Apontador para a estrutura de dados
+ * @return char flag armazenado na estrutura
+ */
 char get_MD_1vez(MetaDados *mt);
 
+/**
+ * @brief Função que define o campo flag armazenado na estrutura de dados
+ * 
+ * @param msg Apontador para a estrutura de dados
+ * @param valor Valor a ser definido
+ */
 void set_MD_1vez(MetaDados *mt, int valor);
 
+/**
+ * @brief Função que adiciona informações do cliente à estrutura de dados
+ * 
+ * @param msg Apontador para a estrutura de dados
+ * @param argv Argumentos do cliente
+ * @param argc Número de argumentos do cliente
+ * @param pid PID do cliente
+ */
 void add_MD_info_client (MetaDados *msg, char **argv, int argc, int pid);
 
+
+/**
+ * @brief Função que cria uma estrutura de dados do tipo MetaDados a partir de um buffer
+ * 
+ * @param buffer Buffer a ser usado para criar a estrutura de dados
+ * @return MetaDados* Apontador para a estrutura de dados criada
+ */
 MetaDados *criar_metaDados(char *buffer);
 
+/**
+ * @brief Função que preenche campos relacionados à meta informação
+ * 
+ * @param msg Apontador para a estrutura de dados
+ */
 void add_MD_info_server (MetaDados *msg);
 
 #endif
