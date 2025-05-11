@@ -229,35 +229,6 @@ int documento_existe(Cache *docs, int pos) {
     }
     return 0;
 }
- 
-MetaDados* desserializa_MetaDados(int pos) {
-    char *data = malloc(520);
-    if (data == NULL) {
-        perror("Malloc desserializa_MetaDados");
-        return NULL;
-    }
-    int fd = open(SERVER_STORAGE, O_RDONLY);
-    if (fd == -1) {
-        perror("Open desserializa_MetaDados");
-        free(data);
-        return NULL;
-    }
-    int offset = pos * 520;
-    lseek(fd, offset, SEEK_SET);
-    read(fd, data, 520);
-    close(fd);
-    char *buffer = from_disk_format_MD(data);
-    MetaDados *new = criar_metaDados(buffer);
-    free(buffer);
-    return new;
-}
-
-char get_docs_estado(Cache *docs, int pos) {
-    if (docs == NULL) {
-        return '0';
-    }
-    return docs->ocupados[pos];
-}
 
 MetaDados *get_anywhere_documento(Cache *docs, int pos) {
     if (docs == NULL || pos < 0 || pos >= docs->size) {

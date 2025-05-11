@@ -121,15 +121,6 @@ void redimensionar_auxiliares(Cache *docs);
 int documento_existe(Cache *docs, int pos);
 
 /**
- * @brief Função que retorna o estado de um MetaDados na cache
- * 
- * @param docs Apontador para a estrutura de dados Cache
- * @param pos Key dos MetaDados a ser verificado
- * @return char Estado do documento na cache
- */
-char get_docs_estado(Cache *docs, int pos);
-
-/**
  * @brief Função que retorna o MetaDados na cache ou no disco
  * 
  * @param docs Apontador para a estrutura de dados Cache
@@ -159,14 +150,6 @@ int get_Max_docs (Cache *docs);
  * @param docs Apontador para a estrutura de dados Cache
  */
 void all_Cache_to_Disc (Cache *docs);
-
-/**
- * @brief Função que desserializa um MetaDados a partir do disco
- * 
- * @param pos Posição do MetaDados a ser desserializado
- * @return MetaDados* Apontador para a estrutura de dados MetaDados
- */
-MetaDados* desserializa_MetaDados(int pos);
 
 /**
  * @brief Função que retorna a flag da cache

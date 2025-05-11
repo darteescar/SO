@@ -206,4 +206,12 @@ MetaDados *criar_metaDados(char *buffer);
  */
 void add_MD_info_server (MetaDados *msg);
 
+/**
+ * @brief Função que desserializa um MetaDados a partir do disco
+ * 
+ * @param pos Posição do MetaDados a ser desserializado
+ * @return MetaDados* Apontador para a estrutura de dados MetaDados
+ */
+MetaDados* desserializa_MetaDados(int pos);
+
 #endif
