@@ -65,6 +65,22 @@ Cache *add_documento(Cache *cache, MetaDados *data, int *pos_onde_foi_add) {
 
 Cache *add_documento_Estaticamente(Cache *cache, MetaDados *mt, int *pos_onde_foi_add){
 
+    int pid = get_MD_pid(mt);
+
+    // Se for um MetaDado restaurado (sem PID), adicionar diretamente na posição definida
+    if (pid == -1) {
+        int pos = get_MD_pos_in_disk(mt);
+
+        if (pos < 0 || pos >= cache->capacity * cache->redimensionamentos) {
+            fprintf(stderr, "Posição inválida no metadado restaurado: %d\n", pos);
+            return cache;
+        }
+
+        add_to_Cache(cache, mt, pos);
+        *pos_onde_foi_add = pos;
+        return cache;
+    }
+
     if (cache->size < cache->capacity) {
         *pos_onde_foi_add = cache->size;
         add_to_Cache(cache, mt, cache->size);

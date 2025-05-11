@@ -30,7 +30,7 @@ void Server_opcao_C(MetaDados *msg, Cache *docs) {
           set_MD_buffer(doc, "-a");
           set_MD_1vez(doc, 'a');
           set_MD_argc(doc, 6);
-          print_MD(doc);
+          set_MD_pid(doc, -1);
           send_to_server(doc);
           char *str = MD_toString(doc, keyC);
           sprintf(respostaC, "%s", str);

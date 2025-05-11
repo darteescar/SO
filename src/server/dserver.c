@@ -79,6 +79,8 @@ int main(int argc, char* argv[]) {
             //printf("Processo filho terminado (PID: %d)\n", pid);
         }
 
+        //print_Cache(cache);
+
     }
 
     waitpid(pid2, NULL, 0);
