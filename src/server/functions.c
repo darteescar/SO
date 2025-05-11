@@ -102,7 +102,7 @@ void send_to_SERVER_again(MetaDados *mt){
         add_MD_info_server(mt);
     }
 
-    set_MD_1vez(mt, 'a');
+    set_MD_flag(mt, 'a');
 
     send_to_server(mt);
 }
@@ -122,7 +122,7 @@ Cache *process_message(MetaDados *mt, Cache *cache, int *server_down, char *fold
     char comando = get_MD_command(mt);
     switch (comando) {
         case 'a':
-            if ( get_MD_1vez(mt) == DISK_INFO_NOT_CREATED ) {
+            if ( get_MD_flag(mt) == DISK_INFO_NOT_CREATED ) {
                 pid_t child_1 = fork();
 
                 if (child_1 < 0) {

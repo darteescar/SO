@@ -45,205 +45,6 @@ MetaDados *init_MD() {
     return data;
 }
 
-char* get_MD_path(MetaDados *data) {
-    if (data == NULL) {
-        return NULL;
-    }
-    char *path = malloc(strlen(data->path) + 1);
-    if (path == NULL) {
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
-    strcpy(path, data->path);
-    return path;
-
-}
-
-int get_MD_pos_in_disk(MetaDados *data) {
-    return data->pos_in_disk;
-}
-
-void set_MD_disk_position(MetaDados *data, int pos) {
-    data->pos_in_disk = pos;
-}
-
-char *MD_toString(MetaDados* data, int key) {
-    char *str = malloc(512+80);
-    if (str == NULL) {
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
-    sprintf(str, "Meta Informação do documento %d:\n\nTitulo: %s\nAutores: %s\nAno: %d\nPath: %s\n",
-            key, data->titulo, data->autores, data->ano, data->path);
-    return str;
-}
-
-char *to_disk_format_MD(MetaDados *data) {
-    if (data == NULL) return NULL;
-
-    char *str = malloc(520);
-    if (str == NULL) {
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
-    
-    snprintf(str, 520, "%s|%s|%d|%s|%d",
-             data->titulo,
-             data->autores,
-             data->ano,
-             data->path,
-             data->pos_in_disk);
-
-    return str;
-}
-
-void print_MD(MetaDados *data) {
-    if (data == NULL) {
-        write(1, "MetaDados is NULL\n", 18);
-        return;
-    }
-
-    printf("MetaDados:\n");
-    printf("Titulo: %s\n", data->titulo);
-    printf("Autores: %s\n", data->autores);
-    printf("Número de autores: %d\n", data->n_autores);
-    printf("Ano: %d\n", data->ano);
-    printf("Path: %s\n", data->path);
-    printf("Posição no disco: %d\n", data->pos_in_disk);
-    printf("Buffer: %s\n", data->buffer);
-    printf("Argc: %d\n", data->argc);
-    printf("PID: %d\n", data->pid);
-    printf("====================================\n");
-    printf("\n");
-
-    
-}
-
-char* from_disk_format_MD(char *data) {
-    char *copy = strdup(data);
-    char *aux = copy;
-
-    char *titulo = strsep(&aux, "|");
-    char *autores = strsep(&aux, "|");
-    char *ano = strsep(&aux, "|");
-    char *path = strsep(&aux, "|");
-    char *pos_in_disk = strsep(&aux, "|");
-
-    char *buffer = malloc(strlen(titulo) + strlen(autores) + strlen(ano) + strlen(path) + strlen(pos_in_disk) + 10);
-    if (buffer == NULL) {
-        perror("malloc");
-        free(copy);
-        return NULL;
-    }
-
-    sprintf(buffer, "###%s%s%s%s%s%s%s", titulo, FIELD_SEP, autores, FIELD_SEP, ano, FIELD_SEP, path);
-    strcat(buffer, FIELD_SEP);
-    strcat(buffer, pos_in_disk);
-    free(copy);
-    return buffer;
-}
-
-int get_MD_size (MetaDados *data) {
-    return sizeof(MetaDados);
-}
-
-char get_MD_command(MetaDados *msg) {
-    if (msg == NULL) {
-        perror("Message is NULL");
-        exit(EXIT_FAILURE);
-    }
-    return msg->buffer[1];
-}
-
-char *get_MD_buffer(MetaDados *msg) {
-    if (msg == NULL) {
-        perror("Message is NULL");
-        exit(EXIT_FAILURE);
-    }
-    return strdup(msg->buffer);
-}
-
-int get_MD_pid(MetaDados *msg) {
-    if (msg == NULL) {
-         perror("Message is NULL");
-         exit(EXIT_FAILURE);
-    }
-    return msg->pid;
-}
-
-char *get_MD_something (MetaDados *msg, int n) {
-    if (msg == NULL) {
-         perror("Message is NULL");
-         exit(EXIT_FAILURE);
-    }
-    char *buffer = get_MD_buffer(msg);
-    buffer+=3; // skip comando
-    char *token;
-    for (int i = 0; i < n; i++) {
-        token = strsep(&buffer, FIELD_SEP);
-        if (token == NULL) {
-            perror("strsep");
-            return NULL;
-        }
-    }
-    return token;
-}
-
-void set_MD_pid(MetaDados *msg, int pid) {
-    if (msg == NULL) {
-         perror("Message is NULL");
-         exit(EXIT_FAILURE);
-    }
-    msg->pid = pid;
-}
-
-void set_MD_buffer(MetaDados *msg, char *buffer) {
-    if (msg == NULL) {
-         perror("Message is NULL");
-         exit(EXIT_FAILURE);
-    }
-    strncpy(msg->buffer, buffer, sizeof(msg->buffer) - 1);
-    msg->buffer[sizeof(msg->buffer) - 1] = '\0';
-}
-
-void free_MD(MetaDados *data) {
-    if (data != NULL) {
-        free(data);
-    }   
-}
-
-int get_MD_argc(MetaDados *msg) {
-    if (msg == NULL) {
-         perror("Message is NULL");
-         exit(EXIT_FAILURE);
-    }
-    return msg->argc;
-}
-
-void set_MD_argc(MetaDados *msg, int argc) {
-    if (msg == NULL) {
-         perror("Message is NULL");
-         exit(EXIT_FAILURE);
-    }
-    msg->argc = argc;
-}
-
-char get_MD_1vez(MetaDados *msg) {
-    if (msg == NULL) {
-         perror("Message is NULL");
-         exit(EXIT_FAILURE);
-    }
-    return msg->flag;
-}
-
-void set_MD_1vez(MetaDados *msg, int flag) {
-    if (msg == NULL) {
-         perror("Message is NULL");
-         exit(EXIT_FAILURE);
-    }
-    msg->flag = flag;
-}
-
 void add_MD_info_client (MetaDados *msg, char **argv, int argc, int pid) {
     if (msg == NULL) {
          perror("Message is NULL");
@@ -388,4 +189,290 @@ MetaDados* desserializa_MetaDados(int pos) {
     MetaDados *new = criar_metaDados(buffer);
     free(buffer);
     return new;
+}
+
+// ------------------------------------------------GETTERS/SETTERS-----------------------------------------------------
+
+char *get_MD_titulo(MetaDados *data) {
+    if (data == NULL) {
+        return NULL;
+    }
+    char *titulo = malloc(strlen(data->titulo) + 1);
+    if (titulo == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(titulo, data->titulo);
+    return titulo;
+}
+
+char *get_MD_autores(MetaDados *data) {
+    if (data == NULL) {
+        return NULL;
+    }
+    char *autores = malloc(strlen(data->autores) + 1);
+    if (autores == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(autores, data->autores);
+    return autores;
+}
+
+int get_MD_n_autores(MetaDados *data) {
+    if (data == NULL) {
+        return -1;
+    }
+    return data->n_autores;
+}
+
+int get_MD_ano(MetaDados *data) {
+    if (data == NULL) {
+        return -1;
+    }
+    return data->ano;
+}
+
+char* get_MD_path(MetaDados *data) {
+    if (data == NULL) {
+        return NULL;
+    }
+    char *path = malloc(strlen(data->path) + 1);
+    if (path == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    strcpy(path, data->path);
+    return path;
+
+}
+
+int get_MD_pos_in_disk(MetaDados *data) {
+    return data->pos_in_disk;
+}
+
+char *get_MD_buffer(MetaDados *msg) {
+    if (msg == NULL) {
+        perror("Message is NULL");
+        exit(EXIT_FAILURE);
+    }
+    return strdup(msg->buffer);
+}
+
+int get_MD_argc(MetaDados *msg) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    return msg->argc;
+}
+
+int get_MD_pid(MetaDados *msg) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    return msg->pid;
+}
+
+char get_MD_flag(MetaDados *msg) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    return msg->flag;
+}
+
+int get_MD_size (MetaDados *data) {
+    return sizeof(MetaDados);
+}
+
+char get_MD_command(MetaDados *msg) {
+    if (msg == NULL) {
+        perror("Message is NULL");
+        exit(EXIT_FAILURE);
+    }
+    return msg->buffer[1];
+}
+
+char *get_MD_something (MetaDados *msg, int n) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    char *buffer = get_MD_buffer(msg);
+    buffer+=3; // skip comando
+    char *token;
+    for (int i = 0; i < n; i++) {
+        token = strsep(&buffer, FIELD_SEP);
+        if (token == NULL) {
+            perror("strsep");
+            return NULL;
+        }
+    }
+    return token;
+}
+
+void set_MD_titulo(MetaDados *data, char *titulo) {
+    if (data == NULL) {
+        perror("data is NULL");
+        exit(EXIT_FAILURE);
+    }
+    strncpy(data->titulo, titulo, MAX_TITULO - 1);
+    data->titulo[MAX_TITULO - 1] = '\0';
+}
+
+void set_MD_autores(MetaDados *data, char *autores) {
+    if (data == NULL) {
+        perror("data is NULL");
+        exit(EXIT_FAILURE);
+    }
+    strncpy(data->autores, autores, MAX_AUTORES - 1);
+    data->autores[MAX_AUTORES - 1] = '\0';
+}
+
+void set_MD_n_autores(MetaDados *data, int n_autores) {
+    if (data == NULL) {
+        perror("data is NULL");
+        exit(EXIT_FAILURE);
+    }
+    data->n_autores = n_autores;
+}
+
+void set_MD_ano(MetaDados *data, int ano) {
+    if (data == NULL) {
+        perror("data is NULL");
+        exit(EXIT_FAILURE);
+    }
+    data->ano = ano;
+}
+
+void set_MD_path(MetaDados *data, char *path) {
+    if (data == NULL) {
+        perror("data is NULL");
+        exit(EXIT_FAILURE);
+    }
+    strncpy(data->path, path, MAX_PATH - 1);
+    data->path[MAX_PATH - 1] = '\0';
+}
+
+void set_MD_disk_position(MetaDados *data, int pos) {
+    data->pos_in_disk = pos;
+}
+
+void set_MD_buffer(MetaDados *msg, char *buffer) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    strncpy(msg->buffer, buffer, sizeof(msg->buffer) - 1);
+    msg->buffer[sizeof(msg->buffer) - 1] = '\0';
+}
+
+void set_MD_argc(MetaDados *msg, int argc) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    msg->argc = argc;
+}
+
+void set_MD_pid(MetaDados *msg, int pid) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    msg->pid = pid;
+}
+
+void set_MD_flag(MetaDados *msg, int flag) {
+    if (msg == NULL) {
+         perror("Message is NULL");
+         exit(EXIT_FAILURE);
+    }
+    msg->flag = flag;
+}
+
+// -----------------------------------------------FUNÇÕES AUXILIARES-----------------------------------------------------
+
+char *MD_toString(MetaDados* data, int key) {
+    char *str = malloc(512+80);
+    if (str == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    sprintf(str, "Meta Informação do documento %d:\n\nTitulo: %s\nAutores: %s\nAno: %d\nPath: %s\n",
+            key, data->titulo, data->autores, data->ano, data->path);
+    return str;
+}
+
+char *to_disk_format_MD(MetaDados *data) {
+    if (data == NULL) return NULL;
+
+    char *str = malloc(520);
+    if (str == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    
+    snprintf(str, 520, "%s|%s|%d|%s|%d",
+             data->titulo,
+             data->autores,
+             data->ano,
+             data->path,
+             data->pos_in_disk);
+
+    return str;
+}
+
+void print_MD(MetaDados *data) {
+    if (data == NULL) {
+        write(1, "MetaDados is NULL\n", 18);
+        return;
+    }
+
+    printf("MetaDados:\n");
+    printf("Titulo: %s\n", data->titulo);
+    printf("Autores: %s\n", data->autores);
+    printf("Número de autores: %d\n", data->n_autores);
+    printf("Ano: %d\n", data->ano);
+    printf("Path: %s\n", data->path);
+    printf("Posição no disco: %d\n", data->pos_in_disk);
+    printf("Buffer: %s\n", data->buffer);
+    printf("Argc: %d\n", data->argc);
+    printf("PID: %d\n", data->pid);
+    printf("====================================\n");
+    printf("\n");
+
+    
+}
+
+char* from_disk_format_MD(char *data) {
+    char *copy = strdup(data);
+    char *aux = copy;
+
+    char *titulo = strsep(&aux, "|");
+    char *autores = strsep(&aux, "|");
+    char *ano = strsep(&aux, "|");
+    char *path = strsep(&aux, "|");
+    char *pos_in_disk = strsep(&aux, "|");
+
+    char *buffer = malloc(strlen(titulo) + strlen(autores) + strlen(ano) + strlen(path) + strlen(pos_in_disk) + 10);
+    if (buffer == NULL) {
+        perror("malloc");
+        free(copy);
+        return NULL;
+    }
+
+    sprintf(buffer, "###%s%s%s%s%s%s%s", titulo, FIELD_SEP, autores, FIELD_SEP, ano, FIELD_SEP, path);
+    strcat(buffer, FIELD_SEP);
+    strcat(buffer, pos_in_disk);
+    free(copy);
+    return buffer;
+}
+
+void free_MD(MetaDados *data) {
+    if (data != NULL) {
+        free(data);
+    }   
 }

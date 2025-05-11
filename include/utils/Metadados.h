@@ -170,7 +170,7 @@ void set_MD_argc(MetaDados *msg, int argc);
  * @param msg Apontador para a estrutura de dados
  * @return char flag armazenado na estrutura
  */
-char get_MD_1vez(MetaDados *mt);
+char get_MD_flag(MetaDados *mt);
 
 /**
  * @brief Função que define o campo flag armazenado na estrutura de dados
@@ -178,7 +178,7 @@ char get_MD_1vez(MetaDados *mt);
  * @param msg Apontador para a estrutura de dados
  * @param valor Valor a ser definido
  */
-void set_MD_1vez(MetaDados *mt, int valor);
+void set_MD_flag(MetaDados *mt, int valor);
 
 /**
  * @brief Função que adiciona informações do cliente à estrutura de dados

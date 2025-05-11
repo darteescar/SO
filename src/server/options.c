@@ -28,7 +28,7 @@ void Server_opcao_C(MetaDados *msg, Cache *docs) {
      if (doc_existe == 1) {
           MetaDados *doc = get_anywhere_documento(docs, keyC);
           set_MD_buffer(doc, "-a");
-          set_MD_1vez(doc, 'a');
+          set_MD_flag(doc, 'a');
           set_MD_argc(doc, 6);
           set_MD_pid(doc, -1);
           send_to_server(doc);
