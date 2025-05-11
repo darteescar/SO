@@ -93,9 +93,9 @@ Cache *remove_file (Cache *cache, int pos);
 /**
  * @brief Função que liberta a memória alocada para a estrutura de dados Cache
  * 
- * @param docs Apontador para a estrutura de dados Cache
+ * @param cache Apontador para a estrutura de dados Cache
  */
-void free_Cache(Cache *docs);
+void free_Cache(Cache *cache);
 
 /**
  * @brief Função que redimensiona o array de ocupados da cache

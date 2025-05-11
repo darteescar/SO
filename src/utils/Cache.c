@@ -180,13 +180,18 @@ Cache *remove_file (Cache *cache, int pos) {
     return cache;
 }
 
-void free_Cache(Cache *docs) {
-    if (docs == NULL) {
+void free_Cache(Cache *cache) {
+    if (cache == NULL) {
         return;
     }
-    free(docs->docs);
-    free(docs->ocupados);
-    free(docs);
+
+    destruir_stack(cache->stack_to_cache);
+    destruir_stack(cache->stack_to_disc);
+
+    free(cache->docs);
+    //free(cache->ocupados);
+
+    free(cache);
 }
  
 void redimensiona_ocupados(Cache *docs) {

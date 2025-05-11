@@ -43,10 +43,10 @@ int main(int argc, char* argv[]) {
     }
 
     int *server_down = malloc(sizeof(int));
-     if (!server_down) {
-         perror("malloc server_down");
-         return -1;
-     }
+    if (!server_down) {
+        perror("malloc server_down");
+        return -1;
+    }
      *server_down = 0;
 
     Cache *cache = create_Cache(cache_size, flag);
@@ -86,5 +86,6 @@ int main(int argc, char* argv[]) {
     //average_time_clients();
 
     unlink(SERVER_FIFO);
+    free_Cache(cache);
     return 0;
 }
