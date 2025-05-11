@@ -22,6 +22,7 @@
 
 #include "utils/Cache.h"
 #include "utils/Metadados.h"
+#include "functions.h"
 
 /**
  * @brief Função que executa o comando -a.

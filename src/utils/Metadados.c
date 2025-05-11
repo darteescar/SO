@@ -148,16 +148,16 @@ int get_MD_size (MetaDados *data) {
 
 char get_MD_command(MetaDados *msg) {
     if (msg == NULL) {
-         perror("Message is NULL");
-         exit(EXIT_FAILURE);
+        perror("Message is NULL");
+        exit(EXIT_FAILURE);
     }
     return msg->buffer[1];
 }
 
 char *get_MD_buffer(MetaDados *msg) {
     if (msg == NULL) {
-         perror("Message is NULL");
-         exit(EXIT_FAILURE);
+        perror("Message is NULL");
+        exit(EXIT_FAILURE);
     }
     return strdup(msg->buffer);
 }
@@ -168,19 +168,6 @@ int get_MD_pid(MetaDados *msg) {
          exit(EXIT_FAILURE);
     }
     return msg->pid;
-}
-
-char *get_MD_keyword(MetaDados *msg) {
-    if (msg == NULL) {
-         perror("Message is NULL");
-         exit(EXIT_FAILURE);
-    }
-    char *buffer = get_MD_buffer(msg);
-    buffer+=3;
-    
-    char *token = strsep(&buffer, FIELD_SEP);
-    token = strsep(&buffer, FIELD_SEP);
-    return token;
 }
 
 char *get_MD_something (MetaDados *msg, int n) {
@@ -327,7 +314,7 @@ void add_MD_info_server (MetaDados *msg) {
 }
 
 MetaDados *criar_metaDados(char *buffer) {
-    MetaDados *data = malloc(sizeof(MetaDados));
+    MetaDados *data = malloc(sizeof(MetaDados)); // acho que posso meter a init e tirar os -> de baixo
     if (data == NULL) {
         perror("malloc na criar_metaDados");
         exit(EXIT_FAILURE);
@@ -337,6 +324,7 @@ MetaDados *criar_metaDados(char *buffer) {
     char *token;
     int field = 0;
 
+    data->pid = -1;
     data->pos_in_disk = -1;
     data->flag = DISK_INFO_CREATED;
 

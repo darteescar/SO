@@ -53,7 +53,6 @@ int main(int argc, char* argv[]) {
 
     while (1) {
 
-        printf("Waiting for a message...\n");
         MetaDados *mt = init_MD();
 
         ssize_t bytes = read(fd, mt, get_MD_size(mt));
@@ -74,7 +73,11 @@ int main(int argc, char* argv[]) {
             perror("read");
         }
 
-        while (waitpid(-1, NULL, WNOHANG) > 0) {}
+        int status;
+        pid_t pid;
+        while ((pid = waitpid(-1, &status, WNOHANG)) > 0) {
+            //printf("Processo filho terminado (PID: %d)\n", pid);
+        }
 
     }
 

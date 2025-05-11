@@ -117,14 +117,6 @@ char *get_MD_buffer(MetaDados *msg);
 int get_MD_pid(MetaDados *msg);
 
 /**
- * @brief Função que retorna a palavra-chave armazenada no buffer da estrutura de dados
- * 
- * @param msg Apontador para a estrutura de dados
- * @return char* Palavra-chave armazenada no buffer
- */
-char *get_MD_keyword(MetaDados *msg);
-
-/**
  * @brief Função que define o PID armazenado na estrutura de dados
  * 
  * @param msg Apontador para a estrutura de dados

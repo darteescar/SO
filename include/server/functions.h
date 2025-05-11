@@ -60,4 +60,6 @@ void error_message(MetaDados *msg);
  */
 void send_to_SERVER_again(MetaDados *mt);
 
+void send_to_server(MetaDados *mt);
+
 #endif

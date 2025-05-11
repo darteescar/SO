@@ -88,7 +88,7 @@ void error_message(MetaDados *msg) {
     sprintf(fifo, "tmp/%d", get_MD_pid(msg));
     int fd = open(fifo, O_WRONLY);
     if (fd == -1) {
-        perror("Open envia_resposta_cliente");
+        perror("Open error_message");
         return;
     }
     write(fd, resposta, strlen(resposta));
@@ -104,6 +104,10 @@ void send_to_SERVER_again(MetaDados *mt){
 
     set_MD_1vez(mt, 'a');
 
+    send_to_server(mt);
+}
+
+void send_to_server(MetaDados *mt) {
     int fd = open(SERVER_FIFO, O_WRONLY);
     if (fd == -1) {
         perror("Open server_fifo");
@@ -112,7 +116,6 @@ void send_to_SERVER_again(MetaDados *mt){
 
     write(fd, mt, get_MD_size(mt));
     close(fd);
-    free_MD(mt);
 }
 
 Cache *process_message(MetaDados *mt, Cache *cache, int *server_down, char *folder) {
@@ -136,7 +139,16 @@ Cache *process_message(MetaDados *mt, Cache *cache, int *server_down, char *fold
             }
             break;
         case 'c':
-            Server_opcao_C(mt, cache);
+            pid_t child_5 = fork();
+            if (child_5 < 0) {
+                perror("fork no server");
+                free_MD(mt);
+                return NULL;
+            }
+            if (child_5 == 0) {
+                Server_opcao_C(mt, cache);
+                _exit(0);
+            }
             break;
         case 'd':
             cache = Server_opcao_D(mt, cache);

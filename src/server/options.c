@@ -24,9 +24,10 @@ void Server_opcao_C(MetaDados *msg, Cache *docs) {
      int doc_existe = documento_existe(docs, keyC);
      char respostaC[520];
      if (doc_existe == 1) {
-          char *str = consult_file(docs,keyC);
-          sprintf(respostaC, "%s\n", str);
-          free(str);        
+          MetaDados *doc = get_anywhere_documento(docs, keyC);
+          char *str = MD_toString(doc, keyC);
+          sprintf(respostaC, "%s", str);
+          free(str);
      } else if (doc_existe == -2) {
           sprintf(respostaC, "Não existe nenhum documento com a chave %d\n", keyC);
 
