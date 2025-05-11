@@ -12,7 +12,9 @@ Cache *Server_opcao_A(MetaDados *msg, Cache *docs) {
      char respostaA[51];
 
      sprintf(respostaA, "Documento %d adicionado\n", *pos_onde_foi_add);
-     envia_resposta_cliente(respostaA, msg);
+     if ( get_MD_pid(msg) != -1 ) {
+          envia_resposta_cliente(respostaA, msg);
+     }
 
      free(pos_onde_foi_add);
      return docs;
@@ -25,6 +27,11 @@ void Server_opcao_C(MetaDados *msg, Cache *docs) {
      char respostaC[520];
      if (doc_existe == 1) {
           MetaDados *doc = get_anywhere_documento(docs, keyC);
+          set_MD_buffer(doc, "-a");
+          set_MD_1vez(doc, 'a');
+          set_MD_argc(doc, 6);
+          print_MD(doc);
+          send_to_server(doc);
           char *str = MD_toString(doc, keyC);
           sprintf(respostaC, "%s", str);
           free(str);
