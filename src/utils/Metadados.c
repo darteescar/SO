@@ -106,12 +106,13 @@ void print_MD(MetaDados *data) {
     printf("MetaDados:\n");
     printf("Titulo: %s\n", data->titulo);
     printf("Autores: %s\n", data->autores);
+    printf("Número de autores: %d\n", data->n_autores);
     printf("Ano: %d\n", data->ano);
     printf("Path: %s\n", data->path);
     printf("Posição no disco: %d\n", data->pos_in_disk);
     printf("Buffer: %s\n", data->buffer);
+    printf("Argc: %d\n", data->argc);
     printf("PID: %d\n", data->pid);
-    printf("Número de autores: %d\n", data->n_autores);
     printf("====================================\n");
     printf("\n");
 
