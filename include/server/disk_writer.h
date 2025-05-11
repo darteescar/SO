@@ -23,6 +23,8 @@
 #include "utils/Metadados.h"
 #include "utils/Cache.h"
 
+#define DISK_WRITER_FIFO "tmp/disk_writer_fifo"
+
 /**
  * @brief Função que guarda as meta-informações em disco lendo-as do fifo DISK_WRITER_FIFO.
  */

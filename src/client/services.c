@@ -1,7 +1,5 @@
 #include "client/services.h"
 
-#define SERVER_FIFO "tmp/server_fifo"
-
 int send_message (MetaDados *msg){
     char path[512];
     sprintf(path, "tmp/%d", get_MD_pid(msg));

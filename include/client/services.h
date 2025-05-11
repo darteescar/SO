@@ -16,6 +16,8 @@
 
 #include "utils/Metadados.h"
 
+#define SERVER_FIFO "tmp/server_fifo"
+
 /**
  * @brief Envia uma mensagem para o servidor.
  * 

@@ -1,7 +1,5 @@
 #include "utils/Cache.h"
 
-#define DISK_WRITER_FIFO "tmp/disk_writer_fifo"
-
 struct cache {
     int dinamica; // 0 se for estatico, 1 se for dinamico
     MetaDados **docs;

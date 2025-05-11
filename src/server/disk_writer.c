@@ -1,7 +1,5 @@
 #include "server/disk_writer.h"
 
-#define DISK_WRITER_FIFO "tmp/disk_writer_fifo"
-
 void write_to_disk() {
 
      if (mkfifo(DISK_WRITER_FIFO, 0666) == -1) {

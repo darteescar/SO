@@ -16,10 +16,11 @@
 #include "Stack.h"
 #include "Metadados.h"
 
+#define DISK_WRITER_FIFO "tmp/disk_writer_fifo"
+
 #define EM_CACHE 'c'
 #define EM_DISCO 'd'
 #define LIVRE 'l'
-
 
 #define CACHE_ESTATICA 0
 #define CACHE_DINAMICA 1
