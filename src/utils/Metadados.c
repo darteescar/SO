@@ -314,7 +314,7 @@ void add_MD_info_server (MetaDados *msg) {
 }
 
 MetaDados *criar_metaDados(char *buffer) {
-    MetaDados *data = malloc(sizeof(MetaDados)); // acho que posso meter a init e tirar os -> de baixo
+    MetaDados *data = init_MD();
     if (data == NULL) {
         perror("malloc na criar_metaDados");
         exit(EXIT_FAILURE);
@@ -324,8 +324,6 @@ MetaDados *criar_metaDados(char *buffer) {
     char *token;
     int field = 0;
 
-    data->pid = -1;
-    data->pos_in_disk = -1;
     data->flag = DISK_INFO_CREATED;
 
     while ((token = strsep(&total, FIELD_SEP)) != NULL) {
