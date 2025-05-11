@@ -20,7 +20,7 @@ struct cache {
 ----------------------------------------------------------------------------------------------------------------------
 */
 
-Cache *create_Cache(int max_docs, int flag) {
+Cache *create_Cache(int max_docs, int flag_dinamica) {
     Cache *docs = malloc(sizeof(Cache));
     if (docs == NULL) {
         perror("Malloc create_Cache da Cache");
@@ -35,7 +35,7 @@ Cache *create_Cache(int max_docs, int flag) {
     }
 
     docs->size = 0;
-    docs->dinamica = flag;
+    docs->dinamica = flag_dinamica;
     docs->capacity = max_docs;
     docs->next_to_disc = max_docs;
     docs->redimensionamentos = 1;
@@ -56,7 +56,7 @@ Cache *create_Cache(int max_docs, int flag) {
 }
  
 Cache *add_documento(Cache *cache, MetaDados *data, int *pos_onde_foi_add) {
-    if (cache->dinamica == 0) {
+    if (cache->dinamica == CACHE_ESTATICA) {
         return add_documento_Estaticamente(cache, data, pos_onde_foi_add);
     } else {
         return add_documento_Dinamicamente(cache, data, pos_onde_foi_add);
@@ -77,6 +77,7 @@ Cache *add_documento_Estaticamente(Cache *cache, MetaDados *mt, int *pos_onde_fo
         }
 
         add_to_Cache(cache, mt, pos);
+        cache->size--;
         *pos_onde_foi_add = pos;
         return cache;
     }
@@ -186,7 +187,7 @@ Cache *remove_file (Cache *cache, int pos) {
     if (cache->ocupados[pos] == EM_CACHE ) {
         cache->ocupados[pos] = LIVRE;
         free_MD(cache->docs[pos%cache->capacity]);
-        if (cache->dinamica == 0) push(cache->stack_to_cache, pos);//se for cache dinamica não se usa stack
+        if (cache->dinamica == CACHE_ESTATICA) push(cache->stack_to_cache, pos);//se for cache dinamica não se usa stack
     } else if (cache->ocupados[pos] == EM_DISCO) {
         cache->ocupados[pos] = LIVRE;
         push(cache->stack_to_disc, pos);
@@ -285,6 +286,10 @@ int get_cache_flag(Cache *docs) {
     return docs->dinamica;
 }
 
+char get_cache_estado(Cache *cache, int pos) {
+    return cache->ocupados[pos];
+}
+
 Cache* reset_Cache(Cache *cache){
     int flag = get_cache_flag(cache);
     Cache* new = NULL;
@@ -320,7 +325,7 @@ Cache* recupera_backup(Cache *cache, MetaDados *msg){
 
     size_t n;
     while((n = read(fd, data, 520)) > 0){
-        if (cache->dinamica == 0){//Cache estatica 
+        if (cache->dinamica == CACHE_ESTATICA){//Cache estatica 
             if (cache->size >= cache->redimensionamentos*cache->capacity ) redimensionar_auxiliares(cache);
 
             add_to_Cache(cache, criar_metaDados(from_disk_format_MD(data)), cache->size);
@@ -369,7 +374,7 @@ Cache* recupera_backup(Cache *cache, MetaDados *msg){
             }
         }
     }
-    if(cache->dinamica==0) {
+    if(cache->dinamica==CACHE_ESTATICA) {
         cache->next_to_disc-=cache->capacity;
         for(int j=cache->size-cache->capacity; j<cache->size; j++){
             cache->ocupados[j] = EM_CACHE;

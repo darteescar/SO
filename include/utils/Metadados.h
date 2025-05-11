@@ -18,6 +18,13 @@
 
 #define SERVER_STORAGE "server_storage"
 
+#define MAX_TITULO 512
+#define MAX_AUTORES 512
+#define MAX_PATH 10
+
+#define DISK_INFO_CREATED 'a'
+#define DISK_INFO_NOT_CREATED 'b'
+
 typedef struct metaDados MetaDados;
 
 /**

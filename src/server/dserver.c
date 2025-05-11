@@ -23,10 +23,10 @@ int main(int argc, char* argv[]) {
     int cache_size;
 
     if (argv[2] == NULL) {
-        flag = 1;
+        flag = CACHE_DINAMICA;
         cache_size = 10;
     } else {
-        flag = 0;
+        flag = CACHE_ESTATICA;
         cache_size = atoi(argv[2]);
     }
 

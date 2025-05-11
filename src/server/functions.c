@@ -1,11 +1,5 @@
 #include "server/functions.h"
 
-#define SERVER_FIFO "tmp/server_fifo"
-#define CACHE_FIFO "tmp/cache_fifo"
-
-#define DISK_INFO_CREATED 'a'
-#define DISK_INFO_NOT_CREATED 'b'
-
 int verifica_comando (MetaDados *msg) {
     if (msg == NULL) {
         return 0;
@@ -102,7 +96,7 @@ void send_to_SERVER_again(MetaDados *mt){
         add_MD_info_server(mt);
     }
 
-    set_MD_flag(mt, 'a');
+    set_MD_flag(mt, DISK_INFO_CREATED);
 
     send_to_server(mt);
 }

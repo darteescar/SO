@@ -1,12 +1,5 @@
 #include "utils/Metadados.h"
 
-#define MAX_TITULO 512
-#define MAX_AUTORES 512
-#define MAX_PATH 10
-
-#define DISK_INFO_CREATED 'a'
-#define DISK_INFO_NOT_CREATED 'b'
-
 struct metaDados{
     // INFORMAÇÕES DO DISCO
     char titulo[MAX_TITULO];

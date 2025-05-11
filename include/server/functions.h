@@ -26,6 +26,12 @@
 #include "disk_writer.h"
 #include "utils/average_time_clients.h"
 
+#define SERVER_FIFO "tmp/server_fifo"
+#define CACHE_FIFO "tmp/cache_fifo"
+
+#define DISK_INFO_CREATED 'a'
+#define DISK_INFO_NOT_CREATED 'b'
+
 
 /**
  * @brief Função que processa o pedido do cliente.

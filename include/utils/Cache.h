@@ -20,6 +20,10 @@
 #define EM_DISCO 'd'
 #define LIVRE 'l'
 
+
+#define CACHE_ESTATICA 0
+#define CACHE_DINAMICA 1
+
 typedef struct cache Cache;
 
 /**
@@ -175,5 +179,14 @@ Cache* recupera_backup(Cache *docs,MetaDados *msg);
  * @return Cache* Apontador para a nova estrutura de dados Cache
  */
 Cache* reset_Cache(Cache *cache);
+
+/**
+ * @brief Função que retorna o estado de um MetaDado na cache
+ * 
+ * @param cache Apontador para a estrutura de dados Cache
+ * @param pos Posição do MetaDado a ser verificado
+ * @return char Estado do MetaDado na cache
+ */
+char get_cache_estado(Cache *cache, int pos);
 
 #endif

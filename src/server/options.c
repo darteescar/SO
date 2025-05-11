@@ -27,11 +27,15 @@ void Server_opcao_C(MetaDados *msg, Cache *docs) {
      char respostaC[520];
      if (doc_existe == 1) {
           MetaDados *doc = get_anywhere_documento(docs, keyC);
-          set_MD_buffer(doc, "-a");
-          set_MD_flag(doc, 'a');
-          set_MD_argc(doc, 6);
-          set_MD_pid(doc, -1);
-          send_to_server(doc);
+
+          if (get_cache_estado(docs, keyC) == EM_DISCO && get_cache_flag(docs)==CACHE_ESTATICA) {// se tiver em cache não é preciso
+               set_MD_buffer(doc, "-a");                                                       // se for cache com arreio dinamico tb não é preciso
+               set_MD_flag(doc, DISK_INFO_CREATED);
+               set_MD_argc(doc, 6);
+               set_MD_pid(doc, -1);
+               send_to_server(doc);
+          }
+
           char *str = MD_toString(doc, keyC);
           sprintf(respostaC, "%s", str);
           free(str);
