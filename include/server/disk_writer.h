@@ -21,6 +21,7 @@
 #include <errno.h>
 
 #include "utils/Metadados.h"
+#include "utils/Cache.h"
 
 /**
  * @brief Função que guarda as meta-informações em disco lendo-as do fifo DISK_WRITER_FIFO.
