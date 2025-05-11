@@ -180,20 +180,6 @@ Cache *remove_file (Cache *cache, int pos) {
     return cache;
 }
 
-char *consult_file (Cache *cache, int pos) {
-    if (cache->ocupados[pos] == EM_CACHE) {
-    } else if (cache->ocupados[pos] == EM_DISCO) {
-        if (cache->ocupados[pos%cache->capacity] == LIVRE) {
-            add_to_Cache(cache, desserializa_MetaDados(pos), pos);
-        } else {
-            add_to_Disk(cache, cache->docs[pos%cache->capacity]);
-            add_to_Cache(cache, desserializa_MetaDados(pos), pos);
-            cache->size--; // Decrementa o tamanho da cache, pois apenas é feita uma troca de documentos que já existem, logo o tamanho não muda
-        }
-    }
-    return MD_toString(cache->docs[pos%cache->capacity], pos);
-}
-
 void free_Cache(Cache *docs) {
     if (docs == NULL) {
         return;

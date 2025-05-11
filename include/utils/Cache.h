@@ -91,16 +91,6 @@ void add_to_Disk(Cache *cache, MetaDados *data);
 Cache *remove_file (Cache *cache, int pos);
 
 /**
- * @brief Função que retorna uma string com as informações do documento com uma dada key
- * 
- * @param cache Apontador para a estrutura de dados Cache
- * @param pos key
- * @return char* String com as informações do documento
- * @note Se a informação desse documento não estiver na cache, a função irá procurar no disco
- */
-char *consult_file (Cache *cache, int pos);
-
-/**
  * @brief Função que liberta a memória alocada para a estrutura de dados Cache
  * 
  * @param docs Apontador para a estrutura de dados Cache
