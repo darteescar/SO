@@ -187,6 +187,7 @@ char *consult_file (Cache *cache, int pos) {
             add_to_Cache(cache, desserializa_MetaDados(pos), pos);
         } else {
             add_to_Disk(cache, cache->docs[pos%cache->capacity]);
+            free_MD(cache->docs[pos%cache->capacity]);
             add_to_Cache(cache, desserializa_MetaDados(pos), pos);
             cache->size--; // Decrementa o tamanho da cache, pois apenas é feita uma troca de documentos que já existem, logo o tamanho não muda
         }
@@ -194,13 +195,18 @@ char *consult_file (Cache *cache, int pos) {
     return MD_toString(cache->docs[pos%cache->capacity], pos);
 }
 
-void free_Cache(Cache *docs) {
-    if (docs == NULL) {
+void free_Cache(Cache *cache) {
+    if (cache == NULL) {
         return;
     }
-    free(docs->docs);
-    free(docs->ocupados);
-    free(docs);
+
+    destruir_stack(cache->stack_to_cache);
+    destruir_stack(cache->stack_to_disc);
+
+    free(cache->docs);
+    //free(cache->ocupados);
+
+    free(cache);
 }
  
 void redimensiona_ocupados(Cache *docs) {
