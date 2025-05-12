@@ -170,9 +170,7 @@ void error_message(MetaDados *msg) {
 
 void send_to_SERVER_again(MetaDados *mt){
 
-    if (get_MD_command(mt) == 'a') {
-        add_MD_info_server(mt);
-    }
+    add_MD_info_server(mt);
 
     set_MD_flag(mt, DISK_INFO_CREATED);
 

@@ -9,9 +9,10 @@ Cache *Server_opcao_A(MetaDados *msg, Cache *docs) {
      }
 
      docs = add_documento(docs, msg, pos_onde_foi_add);
-     char respostaA[51];
 
+     char respostaA[51];
      sprintf(respostaA, "Documento %d adicionado\n", *pos_onde_foi_add);
+     
      if ( get_MD_pid(msg) != -1 ) {
           envia_resposta_cliente(respostaA, msg);
      }
