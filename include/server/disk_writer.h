@@ -26,7 +26,7 @@
 #define DISK_WRITER_FIFO "tmp/disk_writer_fifo"
 
 /**
- * @brief Função que guarda as meta-informações em disco lendo-as do fifo DISK_WRITER_FIFO.
+ * @brief Função que guarda os MetaDados em disco lendo-as do fifo DISK_WRITER_FIFO.
  */
 void write_to_disk();
 

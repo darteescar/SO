@@ -60,12 +60,18 @@ int verifica_comando (MetaDados *msg);
 void error_message(MetaDados *msg);
 
 /**
+ * @brief Função que altera os MetaDados de maneira a que o servidor os possa ler e adicionar.
+ *        Depois de alterar os MetaDados, envia-os para o servidor.
+ * 
+ * @param mt MetaDados a alterar e enviar para o servidor.
+ */
+void send_to_SERVER_again(MetaDados *mt);
+
+/**
  * @brief Função que envia o MetaDados para o SERVER_FIFO.
  * 
  * @param mt MetaDados a enviar.
  */
-void send_to_SERVER_again(MetaDados *mt);
-
 void send_to_server(MetaDados *mt);
 
 #endif

@@ -31,7 +31,7 @@ typedef struct cache Cache;
  * @brief Aloca memória para uma estrutura de dados do tipo Cache
  * 
  * @param max_docs Tamanho máximo da cache
- * @param flag Flag que indica se a cache é estática ou dinâmica(0 se for estática ou 1 se for dinâmica)
+ * @param flag Flag que indica se a cache é estática ou dinâmica (0 se for estática ou 1 se for dinâmica)
  * @return Cache* Apontador para a estrutura de dados alocada
  */
 Cache *create_Cache(int max_docs, int flag);
@@ -165,13 +165,13 @@ void all_Cache_to_Disc (Cache *docs);
 int get_cache_flag(Cache *docs);
 
 /**
- * @brief Função que recupera um backup apartir de um ficheiro binário
+ * @brief Função que retorna o estado de um MetaDado na cache
  * 
- * @param docs Apontador para a estrutura de dados Cache
- * @param msg Apontador para a estrutura de dados MetaDados
- * @return Cache* Apontador para a estrutura de dados Cache
+ * @param cache Apontador para a estrutura de dados Cache
+ * @param pos Posição do MetaDado a ser verificado
+ * @return char Estado do MetaDado na cache
  */
-Cache* recupera_backup(Cache *docs,MetaDados *msg);
+char get_cache_estado(Cache *cache, int pos);
 
 /**
  * @brief Função que reseta a cache
@@ -182,12 +182,13 @@ Cache* recupera_backup(Cache *docs,MetaDados *msg);
 Cache* reset_Cache(Cache *cache);
 
 /**
- * @brief Função que retorna o estado de um MetaDado na cache
+ * @brief Função que recupera um backup apartir de um ficheiro binário
  * 
- * @param cache Apontador para a estrutura de dados Cache
- * @param pos Posição do MetaDado a ser verificado
- * @return char Estado do MetaDado na cache
+ * @param docs Apontador para a estrutura de dados Cache
+ * @param msg Apontador para a estrutura de dados MetaDados
+ * @return Cache* Apontador para a estrutura de dados Cache
  */
-char get_cache_estado(Cache *cache, int pos);
+Cache* recupera_backup(Cache *docs,MetaDados *msg);
+
 
 #endif

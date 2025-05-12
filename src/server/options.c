@@ -179,7 +179,10 @@ void Server_opcao_S(MetaDados *msg, Cache *docs, char* folder) {
 
                close(fd[i][0]);
 
-               for (int j = i; j < n_total; j += n_filhos) { // round-robin
+               int start = i * (n_total / n_filhos);
+               int end = (i == n_filhos - 1) ? n_total : (i + 1) * (n_total / n_filhos);
+
+               for (int j = start; j < end; j++) {
                     if (documento_existe(docs, j)) {
                          MetaDados *doc = NULL;
                          doc = get_anywhere_documento(docs, j);

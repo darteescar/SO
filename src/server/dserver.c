@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
 
     waitpid(pid2, NULL, 0);
 
-    //average_time_clients();
+    average_time_clients();
 
     unlink(SERVER_FIFO);
     free_Cache(cache);

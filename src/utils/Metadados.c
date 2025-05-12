@@ -186,46 +186,6 @@ MetaDados* desserializa_MetaDados(int pos) {
 
 // ------------------------------------------------GETTERS/SETTERS-----------------------------------------------------
 
-char *get_MD_titulo(MetaDados *data) {
-    if (data == NULL) {
-        return NULL;
-    }
-    char *titulo = malloc(strlen(data->titulo) + 1);
-    if (titulo == NULL) {
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
-    strcpy(titulo, data->titulo);
-    return titulo;
-}
-
-char *get_MD_autores(MetaDados *data) {
-    if (data == NULL) {
-        return NULL;
-    }
-    char *autores = malloc(strlen(data->autores) + 1);
-    if (autores == NULL) {
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
-    strcpy(autores, data->autores);
-    return autores;
-}
-
-int get_MD_n_autores(MetaDados *data) {
-    if (data == NULL) {
-        return -1;
-    }
-    return data->n_autores;
-}
-
-int get_MD_ano(MetaDados *data) {
-    if (data == NULL) {
-        return -1;
-    }
-    return data->ano;
-}
-
 char* get_MD_path(MetaDados *data) {
     if (data == NULL) {
         return NULL;
@@ -304,49 +264,6 @@ char *get_MD_something (MetaDados *msg, int n) {
         }
     }
     return token;
-}
-
-void set_MD_titulo(MetaDados *data, char *titulo) {
-    if (data == NULL) {
-        perror("data is NULL");
-        exit(EXIT_FAILURE);
-    }
-    strncpy(data->titulo, titulo, MAX_TITULO - 1);
-    data->titulo[MAX_TITULO - 1] = '\0';
-}
-
-void set_MD_autores(MetaDados *data, char *autores) {
-    if (data == NULL) {
-        perror("data is NULL");
-        exit(EXIT_FAILURE);
-    }
-    strncpy(data->autores, autores, MAX_AUTORES - 1);
-    data->autores[MAX_AUTORES - 1] = '\0';
-}
-
-void set_MD_n_autores(MetaDados *data, int n_autores) {
-    if (data == NULL) {
-        perror("data is NULL");
-        exit(EXIT_FAILURE);
-    }
-    data->n_autores = n_autores;
-}
-
-void set_MD_ano(MetaDados *data, int ano) {
-    if (data == NULL) {
-        perror("data is NULL");
-        exit(EXIT_FAILURE);
-    }
-    data->ano = ano;
-}
-
-void set_MD_path(MetaDados *data, char *path) {
-    if (data == NULL) {
-        perror("data is NULL");
-        exit(EXIT_FAILURE);
-    }
-    strncpy(data->path, path, MAX_PATH - 1);
-    data->path[MAX_PATH - 1] = '\0';
 }
 
 void set_MD_disk_position(MetaDados *data, int pos) {

@@ -1,5 +1,83 @@
 #include "server/functions.h"
 
+Cache *process_message(MetaDados *mt, Cache *cache, int *server_down, char *folder) {
+    char comando = get_MD_command(mt);
+    switch (comando) {
+        case 'a':
+            if ( get_MD_flag(mt) == DISK_INFO_NOT_CREATED ) {
+                pid_t child_1 = fork();
+
+                if (child_1 < 0) {
+                    perror("fork no server");
+                    free_MD(mt);
+                    return NULL;
+                }
+                if (child_1 == 0){
+                    send_to_SERVER_again(mt);
+                    _exit(0);
+                }
+            } else {
+                cache = Server_opcao_A(mt, cache);
+            }
+            break;
+        case 'c':
+            pid_t child_5 = fork();
+            if (child_5 < 0) {
+                perror("fork no server");
+                free_MD(mt);
+                return NULL;
+            }
+            if (child_5 == 0) {
+                Server_opcao_C(mt, cache);
+                _exit(0);
+            }
+            break;
+        case 'd':
+            cache = Server_opcao_D(mt, cache);
+            break;
+        case 'l':
+            pid_t child_2 = fork();
+
+            if (child_2 < 0) {
+                perror("fork no server");
+                free_MD(mt);
+                return NULL;
+            }
+            if (child_2 == 0) {
+                Server_opcao_L(mt, cache, folder);
+                _exit(0);
+            }
+
+            break;
+        case 'f':
+            Server_opcao_F(mt, cache);
+            *server_down = 1;
+            break;
+        case 'b':
+            cache = Server_opcao_B(mt, cache);
+            break;
+        case 's':
+            pid_t child_3 = fork();
+
+            if (child_3 < 0) {
+                perror("fork no server");
+                free_MD(mt);
+                return NULL;
+            }
+            if (child_3 == 0) {
+                Server_opcao_S(mt, cache, folder);
+                _exit(0);
+            }
+            break;
+        default:
+            error_message(mt);
+            free_MD(mt);
+            return NULL;
+    }
+
+    return cache;
+}
+
 int verifica_comando (MetaDados *msg) {
     if (msg == NULL) {
         return 0;
@@ -110,82 +188,4 @@ void send_to_server(MetaDados *mt) {
 
     write(fd, mt, get_MD_size(mt));
     close(fd);
-}
-
-Cache *process_message(MetaDados *mt, Cache *cache, int *server_down, char *folder) {
-    char comando = get_MD_command(mt);
-    switch (comando) {
-        case 'a':
-            if ( get_MD_flag(mt) == DISK_INFO_NOT_CREATED ) {
-                pid_t child_1 = fork();
-
-                if (child_1 < 0) {
-                    perror("fork no server");
-                    free_MD(mt);
-                    return NULL;
-                }
-                if (child_1 == 0){
-                    send_to_SERVER_again(mt);
-                    _exit(0);
-                }
-            } else {
-                cache = Server_opcao_A(mt, cache);
-            }
-            break;
-        case 'c':
-            pid_t child_5 = fork();
-            if (child_5 < 0) {
-                perror("fork no server");
-                free_MD(mt);
-                return NULL;
-            }
-            if (child_5 == 0) {
-                Server_opcao_C(mt, cache);
-                _exit(0);
-            }
-            break;
-        case 'd':
-            cache = Server_opcao_D(mt, cache);
-            break;
-        case 'l':
-            pid_t child_2 = fork();
-
-            if (child_2 < 0) {
-                perror("fork no server");
-                free_MD(mt);
-                return NULL;
-            }
-            if (child_2 == 0) {
-                Server_opcao_L(mt, cache, folder);
-                _exit(0);
-            }
-
-            break;
-        case 'f':
-            Server_opcao_F(mt, cache);
-            *server_down = 1;
-            break;
-        case 'b':
-            cache = Server_opcao_B(mt, cache);
-            break;
-        case 's':
-            pid_t child_3 = fork();
-
-            if (child_3 < 0) {
-                perror("fork no server");
-                free_MD(mt);
-                return NULL;
-            }
-            if (child_3 == 0) {
-                Server_opcao_S(mt, cache, folder);
-                _exit(0);
-            }
-            break;
-        default:
-            error_message(mt);
-            free_MD(mt);
-            return NULL;
-    }
-
-    return cache;
 }
