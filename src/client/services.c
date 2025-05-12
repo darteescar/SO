@@ -65,7 +65,7 @@ void registar_desempenho(double tempo) {
     int fd = open("times.txt", O_WRONLY | O_APPEND | O_CREAT, 0644);
     if (fd == -1) {
         perror("Erro ao abrir times.txt");
-        return -1;
+        return;
     }
 
     char buffer[10];
