@@ -268,7 +268,7 @@ void Server_opcao_F(MetaDados *msg, Cache *docs) {
 }
 
 void envia_resposta_cliente(const char *msg, MetaDados *msg_cliente) {
-     char fifo[50];
+     char fifo[24];
      sprintf(fifo, "tmp/%d", get_MD_pid(msg_cliente));
      int fd = open(fifo, O_WRONLY);
      if (fd == -1) {
