@@ -204,7 +204,6 @@ void free_Cache(Cache *cache) {
     destruir_stack(cache->stack_to_disc);
 
     free(cache->docs);
-    //free(cache->ocupados);
 
     free(cache);
 }
