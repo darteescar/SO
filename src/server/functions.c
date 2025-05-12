@@ -131,7 +131,7 @@ void error_message(MetaDados *msg) {
     char option = get_MD_command(msg);
     switch(option){
         case 'a':
-            resposta = "[TRY] -a <title> <authors> <year> <path>\n";
+            resposta = "[TRY] -a \"title\" \"authors\" \"year\" \"path\" \n";
             break;
         case 'c':
             resposta = "[TRY] -c <key>\n";
