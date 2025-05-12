@@ -7,11 +7,15 @@ with open("times.txt", "r") as f:
 # Cria os eixos X como índices (1 a N)
 x = list(range(1, len(valores) + 1))
 
+# Calcula a média
+media = sum(valores) / len(valores) if len(valores) > 0 else 0
+
 # Cria o gráfico
 plt.figure(figsize=(10, 6))
 plt.plot(x, valores, marker='o', linestyle='None', color='blue')
-plt.title("Desempenho por Adição de Documentos")
-plt.xlabel("Número de Documentos")
+plt.axhline(media, color='red', linestyle='--', label=f'Média: {media:.4f}')
+plt.title("Desempenho por número de processos utilizados")
+plt.xlabel("Número de Processos")
 plt.ylabel("Tempo (segundos)")
 plt.grid(True)
 plt.tight_layout()
