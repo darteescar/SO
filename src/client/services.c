@@ -1,11 +1,6 @@
 #include "client/services.h"
 
 int send_message (MetaDados *msg){
-    char path[512];
-    sprintf(path, "tmp/%d", get_MD_pid(msg));
-
-    mkfifo(path, 0600);
-
     int fd = open(SERVER_FIFO, O_WRONLY);
     if (fd == -1) {
         perror("open");
@@ -19,7 +14,7 @@ int send_message (MetaDados *msg){
 
 void reply(){
     int pid = getpid();
-    char fifo_path[520];
+    char fifo_path[24];
     sprintf(fifo_path, "tmp/%d", pid);
 
     int fifo = open(fifo_path, O_RDONLY);
