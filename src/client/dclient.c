@@ -24,6 +24,15 @@ int main(int argc, char* argv[]){
     struct timeval start, end;
     gettimeofday(&start, NULL);
 
+    char path[24];
+    sprintf(path, "tmp/%d", get_MD_pid(msg));
+
+    int d = mkfifo(path, 0600);
+    if (d == -1) {
+            perror("mkfifo");
+            return -1;
+    }
+
     // Enviar a mensagem para o servidor
     int x = send_message(msg);
 
