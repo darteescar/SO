@@ -53,15 +53,7 @@ int main(int argc, char* argv[]){
     long micros = end.tv_usec - start.tv_usec;
     double elapsed = seconds + micros*1e-6;
 
-    printf("\nTempo decorrido: %.6f segundos\n", elapsed);
-
-    FILE *f = fopen("times.txt", "a");
-    if (f == NULL) {
-        perror("Erro ao abrir times.txt");
-        return -1;
-    }
-    fprintf(f, "%.6f\n", elapsed);
-    fclose(f);
+    registar_desempenho(elapsed);
 
     return 0;
 }

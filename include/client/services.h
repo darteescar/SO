@@ -31,5 +31,12 @@ int send_message(MetaDados *msg);
  */
 void reply();
 
+/**
+ * @brief Regista o desempenho do cliente num ficheiro de texto.
+ * 
+ * @param tempo Tempo decorrido.
+ */
+void registar_desempenho(double tempo);
+
 
 #endif

@@ -60,3 +60,18 @@ void reply(){
     close(fifo);
     unlink(fifo_path);
 }
+
+void registar_desempenho(double tempo) {
+    int fd = open("times.txt", O_WRONLY | O_APPEND | O_CREAT, 0644);
+    if (fd == -1) {
+        perror("Erro ao abrir times.txt");
+        return -1;
+    }
+
+    char buffer[10];
+    snprintf(buffer, sizeof(buffer), "%.6f\n", tempo);
+    write(fd, buffer, strlen(buffer));
+    close(fd);
+
+    //printf("\nTempo decorrido: %.6f segundos\n", elapsed);
+}
