@@ -68,4 +68,30 @@ void destruir_stack(Stack* s);
  */
 void increase_capacity(Stack* s);
 
+/**
+ * @brief Verifica se existe uma posição na stack que mapeia para a mesma localização na cache que uma posição dada.
+ * 
+ * @param s Apontador para a estrutura Stack.
+ * @param pos Posição dada.
+ * @param capacity Capacidade da cache.
+ * @return Posição da stack se a posição existe, -1 caso contrário.
+ */
+int existe_MapPos_stack(Stack* s, int pos, int capacity);
+
+/**
+ * @brief Remove uma posição da stack.
+ * 
+ * @param s Apontador para a estrutura Stack.
+ * @param pos Posição a ser removida.
+ */
+void remove_pos_stack(Stack* s, int pos);
+
+/**
+ * @brief Imprime os elementos da stack.
+ * 
+ * @param s Apontador para a estrutura Stack.
+ */
+void print_stack(Stack* s);
+
+
 #endif
