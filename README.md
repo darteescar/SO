@@ -50,7 +50,7 @@ $ make clean
 Note que o `make clean` não remove os ficheiros de dados, apenas os executáveis e outros ficheiros gerados durante a compilação e, por isso, o 'server_storage' não é removido.
 
 # SO (Operating Systems) (English)
-Implementation of a Service for Indexing and Searching text documents stored locally on a computer. You can consult the [statement] (Requisitos_SO.pdf) and the [report] (Relatório_SO.pdf) of the project.
+Implementation of a Service for Indexing and Searching text documents stored locally on a computer. You can consult the [statement](Requisitos_SO.pdf) and the [report](Relatório_SO.pdf) of the project.
 
 ### Final Grade: ?? / 20 ⭐️
 
