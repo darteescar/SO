@@ -5,17 +5,9 @@ Cache *process_message(MetaDados *mt, Cache *cache, int *server_down, char *fold
     switch (comando) {
         case 'a':
             if ( get_MD_flag(mt) == DISK_INFO_NOT_CREATED ) {
-                pid_t child_1 = fork();
-
-                if (child_1 < 0) {
-                    perror("fork no server");
-                    free_MD(mt);
-                    return NULL;
-                }
-                if (child_1 == 0){
+                
                     send_to_SERVER_again(mt);
-                    _exit(0);
-                }
+                
             } else {
                 cache = Server_opcao_A(mt, cache);
             }
