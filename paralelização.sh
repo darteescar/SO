@@ -2,7 +2,7 @@
 # Script to executar ./dclient -s butterfly <nºprocesso> de 1 a 10000
 
 START=1
-END=10000
+END=50
 
 for ((i=START; i<=END; i++)); do
     echo "Executando ./dclient -s butterfly $i"

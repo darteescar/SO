@@ -50,6 +50,8 @@ void write_to_disk() {
                perror("read");
           }
      }
+     
+     free_MD(data);
      close(server_storage);
      close(disk_fifo);
      unlink(DISK_WRITER_FIFO);

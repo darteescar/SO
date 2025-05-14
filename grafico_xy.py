@@ -13,8 +13,17 @@ media = sum(valores) / len(valores) if len(valores) > 0 else 0
 # Cria o gráfico
 plt.figure(figsize=(10, 6))
 plt.plot(x, valores, marker='o', linestyle='None', color='blue')
-plt.axhline(media, color='red', linestyle='--', label=f'Média: {media:.4f}')
-plt.title("Desempenho por número de processos utilizados")
+plt.axhline(media, color='red', linestyle='--', label='Média')
+
+# Adiciona a caixinha com o valor da média
+plt.text(
+    0.95, 0.95, f'Média: {media:.4f}', transform=plt.gca().transAxes,
+    va='top', ha='right',
+    bbox=dict(facecolor='white', edgecolor='black', boxstyle='round,pad=0.3')
+)
+
+
+plt.title("Desempenho por número de processos")
 plt.xlabel("Número de Processos")
 plt.ylabel("Tempo (segundos)")
 plt.grid(True)
