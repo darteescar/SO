@@ -30,11 +30,11 @@ Sendo `size` a capacidade do servidor.
 Para executar o cliente, é possível a realização de várias operações, como por exemplo:
 
 ```console
-$ ./dclient -a title authors year path
-$ ./dclient -c key
-$ ./dclient -d key
-$ ./dclient -s keyword nr_processes
-$ ./dclient -l key keyword
+$ ./dclient -a título autores ano path
+$ ./dclient -c chave
+$ ./dclient -d chave
+$ ./dclient -s palavra-chave nr_processos
+$ ./dclient -l chave palavra-chave
 $ ./dclient -f 
 $ ./dclient -b
 ```
