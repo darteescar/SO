@@ -3,7 +3,7 @@
 int send_message (MetaDados *msg){
     int fd = open(SERVER_FIFO, O_WRONLY);
     if (fd == -1) {
-        perror("open");
+        perror("open na send_message");
         return -1;
     }
 
@@ -19,7 +19,7 @@ void reply(){
 
     int fifo = open(fifo_path, O_RDONLY);
     if (fifo == -1) {
-        perror("open");
+        perror("open na reply");
         return;
     }
 
@@ -27,7 +27,7 @@ void reply(){
     size_t total_read = 0;
     char *resposta = malloc(buffer_size);
     if (!resposta) {
-        perror("malloc");
+        perror("malloc na reply");
         close(fifo);
         return;
     }
@@ -41,7 +41,7 @@ void reply(){
             buffer_size *= 2;
             char *temp = realloc(resposta, buffer_size);
             if (!temp) {
-                perror("realloc");
+                perror("realloc na reply");
                 free(resposta);
                 close(fifo);
                 return;
@@ -51,7 +51,7 @@ void reply(){
     }
 
     if (bytes == -1) {
-        perror("read");
+        perror("read na reply");
     } else {
         write(1, resposta, total_read);
     }
@@ -64,7 +64,7 @@ void reply(){
 void registar_desempenho(double tempo) {
     int fd = open("times.txt", O_WRONLY | O_APPEND | O_CREAT, 0644);
     if (fd == -1) {
-        perror("Erro ao abrir times.txt");
+        perror("Erro ao abrir times.txt na registar_desempenho");
         return;
     }
 

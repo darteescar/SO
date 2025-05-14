@@ -29,7 +29,7 @@ int main(int argc, char* argv[]){
 
     int d = mkfifo(path, 0600);
     if (d == -1) {
-            perror("mkfifo");
+            perror("mkfifo na main do dclient");
             return -1;
     }
 
