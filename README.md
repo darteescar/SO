@@ -1,5 +1,5 @@
 # SO (Sistemas Operativos) (Português)
-Implementação de um Serviço de Indexação e Pesquisa de documentos texto guardados localmente num computador. Pode consultar o [enunciado] (Requisitos_SO.pdf) e o [relatório] (Relatório_SO.pdf) do projeto.
+Implementação de um Serviço de Indexação e Pesquisa de documentos texto guardados localmente num computador. Pode consultar o [enunciado](Requisitos_SO.pdf) e o [relatório](Relatório_SO.pdf) do projeto.
 
 ### Nota Final: ?? / 20 ⭐️
 
