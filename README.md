@@ -23,7 +23,7 @@ $ make
 Para executar o servidor, basta fazer:
 
 ```console
-$ ./dserver Dataset `_size_`
+$ ./dserver Dataset size
 ```   
 Sendo `_size_` a capacidade do servidor.
 
@@ -71,7 +71,7 @@ $ make
 To run the server, just do:
 
 ```console
-$ ./dserver Dataset _size_
+$ ./dserver Dataset size
 ```   
 Where `_size_` is the server's capacity.
 To run the client, it is possible to perform several operations, such as:
