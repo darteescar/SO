@@ -74,6 +74,17 @@ Cache *add_documento_Estaticamente(Cache *cache, MetaDados *mt, int *pos_onde_fo
             return cache;
         }
 
+        int value_stack = existe_MapPos_stack(cache->stack_to_cache, pos, cache->capacity);
+
+        if (value_stack != -1) {//Essa possição está livre na cache
+            remove_pos_stack(cache->stack_to_cache, value_stack);
+            add_to_Cache(cache, mt, pos);
+            cache->size--;
+            *pos_onde_foi_add = pos;
+            return cache;
+        }
+
+        add_to_Disk(cache, cache->docs[pos%cache->capacity]);
         add_to_Cache(cache, mt, pos);
         cache->size--;
         *pos_onde_foi_add = pos;

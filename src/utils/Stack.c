@@ -59,3 +59,34 @@ void increase_capacity(Stack* s) {
         exit(EXIT_FAILURE);
     }
 }
+
+int existe_MapPos_stack(Stack* s, int pos, int capacity) {
+    int found = pos%capacity;
+    for (int i = 0; i <= s->top; i++) {
+        if (s->positions[i]%capacity == found) {
+            return s->positions[i]; // A posição existe na stack
+        }
+    }
+    return -1; // A posição não existe na stack
+}
+
+void remove_pos_stack(Stack* s, int pos) {
+    for (int i = 0; i <= s->top; i++) {
+        if (s->positions[i] == pos) {
+            // Move todos os elementos acima para baixo
+            for (int j = i; j < s->top; j++) {
+                s->positions[j] = s->positions[j + 1];
+            }
+            s->top--;
+            return;
+        }
+    }
+}
+
+void print_stack(Stack* s) {
+    printf("Stack: ");
+    for (int i = 0; i <= s->top; i++) {
+        printf("N%d -> %d, ", i,  s->positions[i]);
+    }
+    printf("\n");
+}
