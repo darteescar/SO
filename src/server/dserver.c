@@ -87,6 +87,8 @@ int main(int argc, char* argv[]) {
 
     average_time_clients();
 
+    close(fd);
+    free(server_down);
     unlink(SERVER_FIFO);
     free_Cache(cache);
     return 0;
