@@ -15,7 +15,7 @@ int send_message (MetaDados *msg){
 void reply(){
     int pid = getpid();
     char fifo_path[24];
-    sprintf(fifo_path, "../tmp/%d", pid);
+    sprintf(fifo_path, "tmp/%d", pid);
 
     int fifo = open(fifo_path, O_RDONLY);
     if (fifo == -1) {
@@ -62,7 +62,7 @@ void reply(){
 }
 
 void registar_desempenho(double tempo) {
-    int fd = open("../tmp/times.txt", O_WRONLY | O_APPEND | O_CREAT, 0644);
+    int fd = open("tmp/times.txt", O_WRONLY | O_APPEND | O_CREAT, 0644);
     if (fd == -1) {
         perror("Erro ao abrir times.txt na registar_desempenho");
         return;

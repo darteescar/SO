@@ -8,9 +8,13 @@ if [ "$#" -ne 1 ]; then
     exit 1
 fi
 
-INPUT_FILE="$1"
+# Guardar caminho absoluto do ficheiro de input
+INPUT_FILE="$(realpath "$1")"
 
-# Check if input file exists before proceeding
+# Mudar para a raiz do projeto (pasta acima de scripts)
+cd "$(dirname "$0")/.."
+
+# Verificar se o ficheiro existe
 if [ ! -f "$INPUT_FILE" ]; then
     echo "Error: File '$INPUT_FILE' not found."
     exit 1
@@ -32,8 +36,7 @@ while IFS=$'\t' read -r filename title year authors; do
     echo "Authors: $authors"
 
     # Call the dclient program with extracted metadata
-    ../dclient -a "$title" "$authors" $year "$filename"
-
+    ./dclient -a "$title" "$authors" $year "$filename"
 
 done < <(tail -n +2 "$INPUT_FILE")
 
