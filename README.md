@@ -30,11 +30,11 @@ Sendo `_size_` a capacidade do servidor.
 Para executar o cliente, é possível a realização de várias operações, como por exemplo:
 
 ```console
-$ ./dclient -a `_title_` `_authors_` `_year_` `_path_`
-$ ./dclient -c "key"
-$ ./dclient -d "key"
-$ ./dclient -s "keyword" "nr_processes"
-$ ./dclient -l "key" "keyword"
+$ ./dclient -a title authors year path
+$ ./dclient -c key
+$ ./dclient -d key
+$ ./dclient -s keyword nr_processes
+$ ./dclient -l key keyword
 $ ./dclient -f 
 $ ./dclient -b
 ```
@@ -71,17 +71,17 @@ $ make
 To run the server, just do:
 
 ```console
-$ ./dserver Dataset `_size_`
+$ ./dserver Dataset _size_
 ```   
 Where `_size_` is the server's capacity.
 To run the client, it is possible to perform several operations, such as:
 
 ```console
-$ ./dclient -a `_title_` `_authors_` `_year_` `_path_`
-$ ./dclient -c "key"
-$ ./dclient -d "key"
-$ ./dclient -s "keyword" "nr_processes"
-$ ./dclient -l "key" "keyword"
+$ ./dclient -a title authors year path
+$ ./dclient -c key
+$ ./dclient -d key
+$ ./dclient -s keyword nr_processes
+$ ./dclient -l key keyword
 $ ./dclient -f 
 $ ./dclient -b
 ```
