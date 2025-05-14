@@ -6,11 +6,12 @@ Cache *process_message(MetaDados *mt, Cache *cache, int *server_down, char *fold
         case 'a':
             if ( get_MD_flag(mt) == DISK_INFO_NOT_CREATED ) {
                 
-                    send_to_SERVER_again(mt);
+                add_MD_info_server(mt);
+
+                set_MD_flag(mt, DISK_INFO_CREATED);
                 
-            } else {
-                cache = Server_opcao_A(mt, cache);
-            }
+            } 
+            cache = Server_opcao_A(mt, cache);
             break;
         case 'c':
             pid_t child_5 = fork();
@@ -158,15 +159,6 @@ void error_message(MetaDados *msg) {
     write(fd, resposta, strlen(resposta));
     close(fd);
     
-}
-
-void send_to_SERVER_again(MetaDados *mt){
-
-    add_MD_info_server(mt);
-
-    set_MD_flag(mt, DISK_INFO_CREATED);
-
-    send_to_server(mt);
 }
 
 void send_to_server(MetaDados *mt) {
