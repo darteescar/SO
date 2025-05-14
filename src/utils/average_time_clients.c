@@ -1,21 +1,41 @@
 #include "utils/average_time_clients.h"
 
 int average_time_clients() {
-    FILE *f = fopen("times.txt", "r");
-    if (f == NULL) {
+    int fd = open("tmp/times.txt", O_RDONLY);
+    if (fd == -1) {
         perror("Erro ao abrir times.txt");
         return -1;
     }
 
-    double tempo, soma = 0.0;
+    char buffer[BUFFER_SIZE];
+    char linha[LINE_MAX];
+    ssize_t bytes_read;
+    int linha_pos = 0;
+    double soma = 0.0;
     int contador = 0;
 
-    while (fscanf(f, "%lf", &tempo) == 1) {
-        soma += tempo;
-        contador++;
+    while ((bytes_read = read(fd, buffer, sizeof(buffer))) > 0) {
+        for (ssize_t i = 0; i < bytes_read; i++) {
+            if (buffer[i] == '\n') {
+                linha[linha_pos] = '\0';
+                double valor = atof(linha);
+                soma += valor;
+                contador++;
+                linha_pos = 0; // reiniciar a linha
+            } else {
+                if (linha_pos < LINE_MAX - 1) {
+                    linha[linha_pos++] = buffer[i];
+                }
+            }
+        }
     }
 
-    fclose(f);
+    close(fd);
+
+    if (bytes_read < 0) {
+        perror("Erro ao ler o ficheiro");
+        return -1;
+    }
 
     if (contador == 0) {
         printf("Nenhum valor encontrado no ficheiro.\n");
