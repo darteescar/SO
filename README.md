@@ -25,7 +25,7 @@ Para executar o servidor, basta fazer:
 ```console
 $ ./dserver Dataset size
 ```   
-Sendo `_size_` a capacidade do servidor.
+Sendo `size` a capacidade do servidor.
 
 Para executar o cliente, é possível a realização de várias operações, como por exemplo:
 
@@ -73,7 +73,7 @@ To run the server, just do:
 ```console
 $ ./dserver Dataset size
 ```   
-Where `_size_` is the server's capacity.
+Where `size` is the server's capacity.
 To run the client, it is possible to perform several operations, such as:
 
 ```console
