@@ -6,6 +6,7 @@ END=50
 
 for ((i=START; i<=END; i++)); do
     echo "Executando ./dclient -s butterfly $i"
+    echo Número do teste: $i 
     ./dclient -s butterfly "$i"
 done
 
