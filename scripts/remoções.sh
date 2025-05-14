@@ -7,9 +7,9 @@ MAX_DOCUMENTO=1644
 
 for ((i=0; i<NUM_TESTES; i++)); do
     num_doc=$(( RANDOM % (MAX_DOCUMENTO + 1) ))
-    echo "Executando ./dclient -d $num_doc"
+    echo "Executando ../dclient -d $num_doc"
     echo Número do teste: $i 
-    ./dclient -d "$num_doc"
+    ../dclient -d "$num_doc"
 done
 
 echo "Concluído: $NUM_TESTES execuções de ./dclient -d <key>"

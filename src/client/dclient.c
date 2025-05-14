@@ -1,7 +1,5 @@
 #include "client/services.h"
 
-#define SERVER_FIFO "tmp/server_fifo"
-
 /**
  * @brief Função principal do cliente.
  * 
@@ -25,7 +23,7 @@ int main(int argc, char* argv[]){
     gettimeofday(&start, NULL);
 
     char path[24];
-    sprintf(path, "tmp/%d", get_MD_pid(msg));
+    sprintf(path, "../tmp/%d", get_MD_pid(msg));
 
     int d = mkfifo(path, 0600);
     if (d == -1) {
