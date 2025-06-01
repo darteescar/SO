@@ -92,4 +92,4 @@ To remove the executables and other files, just do:
 ```console
 $ make clean
 ```
-Note that `make clean` does not remove the data files, only the executables and other files generated during compilation, so 'server_storage' is not removed.
+Please note that `make clean` does not remove the data files, only the executables and other files generated during compilation, so 'server_storage' is not removed.
