@@ -1,7 +1,7 @@
 # SO (Sistemas Operativos) (Português)
 Implementação de um Serviço de Indexação e Pesquisa de documentos texto guardados localmente num computador. Pode consultar o [enunciado](Requisitos_SO.pdf) e o [relatório](Relatório_SO.pdf) do projeto.
 
-### Nota Final: ?? / 20 ⭐️
+### Nota Final: 18.25 / 20 ⭐️
 
 ## Membros do grupo
 
@@ -52,7 +52,7 @@ $ make clean
 # SO (Operating Systems) (English)
 Implementation of a Service for Indexing and Searching text documents stored locally on a computer. You can consult the [statement](Requisitos_SO.pdf) and the [report](Relatório_SO.pdf) of the project.
 
-### Final Grade: ?? / 20 ⭐️
+### Final Grade: 18.25 / 20 ⭐️
 
 ## Group members
 
