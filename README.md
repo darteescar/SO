@@ -52,7 +52,7 @@ $ make clean
 # SO (Operating Systems) (English)
 Implementation of a Service for Indexing and Searching text documents stored locally on a computer. You can consult the [statement](Requisitos_SO.pdf) and the [report](Relatório_SO.pdf) of the project.
 
-### Final Grade: 18.25 / 20 ⭐️
+### Final Mark: 18.25 / 20 ⭐️
 
 ## Group members
 
