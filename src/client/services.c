@@ -73,5 +73,5 @@ void registar_desempenho(double tempo) {
     write(fd, buffer, strlen(buffer));
     close(fd);
 
-    //printf("\nTempo decorrido: %.6f segundos\n", elapsed);
+    //printf("\nTempo decorrido: %.6f segundos\n", elapsed); 
 }

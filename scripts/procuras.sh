@@ -1,8 +1,7 @@
 #!/bin/bash
 # Script to executar ./dclient -s butterfly <nºprocesso> de 1 a 10000
 
-# Mudar para a raiz do projeto (pasta acima de scripts)
-cd "$(dirname "$0")/.."
+# Mudar para a raiz do projeto (pasta acima de scripts) 
 
 START=1
 END=50

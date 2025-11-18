@@ -2,7 +2,7 @@
 # Script to executar ./dclient -l <key> butterfly
 # Este script executa o comando -l de forma aleatória 1000 vezes com o número de documentos variando entre 0 e 1644.
 
-# Mudar para a raiz do projeto (pasta acima de scripts)
+# Mudar para a raiz do projeto (pasta acima de scripts) 
 cd "$(dirname "$0")/.."
 
 NUM_TESTES=1000

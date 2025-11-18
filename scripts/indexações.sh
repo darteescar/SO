@@ -1,6 +1,6 @@
 #!/bin/bash
 # Script to add document metadata from the Gcatalog file using dclient.
-# Usage: ./addGMetadata.sdataseth.sh <Gcatalog_file>
+# Usage: ./addGMetadata.sdataseth.sh <Gcatalog_file> 
 
 # Check if exactly one argument (the input file) is provided
 if [ "$#" -ne 1 ]; then

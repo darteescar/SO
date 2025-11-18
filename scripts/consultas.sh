@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script to executar ./dclient -c <key> 
+# Script to executar ./dclient -c <key>  
 # Este script executa o comando -c de forma aleatória 1000 vezes com o número de documentos variando entre 0 e 1644.
 
 # Mudar para a raiz do projeto (pasta acima de scripts)

@@ -4,7 +4,7 @@
  * @brief Função principal do cliente.
  * 
  * @param argc Número de argumentos.
- * @param argv Argumentos passados para o programa.
+ * @param argv Argumentos passados para o programa. 
  */
 int main(int argc, char* argv[]){
 
