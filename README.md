@@ -1,5 +1,5 @@
 # SO (Sistemas Operativos) (Português)
-Implementação de um Serviço de Indexação e Pesquisa de documentos texto guardados localmente num computador. Pode consultar o [enunciado](Requisitos_SO.pdf) e o [relatório](Relatório_SO.pdf) do projeto.
+Implementação de um Serviço de Indexação e Pesquisa de documentos texto guardados localmente num computador. Pode consultar o [enunciado](Requisitos_SO.pdf) e o [relatório](Relatório_SO.pdf) do projeto. Trabalho realizado no âmbito da cadeira de Sistemas Operativos
 
 ### Nota Final: 18.25 / 20 ⭐️
 
@@ -50,7 +50,7 @@ $ make clean
 É de notar que o `make clean` não remove os ficheiros de dados, apenas os executáveis e outros ficheiros gerados durante a compilação e, por isso, o 'server_storage' não é removido.
 
 # SO (Operating Systems) (English)
-Implementation of a Service for Indexing and Searching text documents stored locally on a computer. You can consult the [statement](Requisitos_SO.pdf) and the [report](Relatório_SO.pdf) of the project.
+Implementation of a Service for Indexing and Searching text documents stored locally on a computer. You can consult the [statement](Requisitos_SO.pdf) and the [report](Relatório_SO.pdf) of the project. Implemented within the scope of the Operating Systems course.
 
 ### Final Mark: 18.25 / 20 ⭐️
 
