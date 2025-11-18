@@ -34,7 +34,7 @@ void reply();
 /**
  * @brief Regista o desempenho do cliente num ficheiro de texto.
  * 
- * @param tempo Tempo decorrido.
+ * @param tempo Tempo decorrido desde o envio.
  */
 void registar_desempenho(double tempo);
 
